@@ -1,0 +1,111 @@
+\documentclass[12pt,a4paper,twoside]{report}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,fit,calc}
+
+% Page geometry
+\geometry{
+    left=3cm,
+    right=2.5cm,
+    top=2.5cm,
+    bottom=2.5cm
+}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\leftmark}
+\fancyhead[LO]{\rightmark}
+
+% Code listings settings
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Hyperref settings
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+    pdftitle={Computer Science Thesis},
+    pdfauthor={Your Name}
+}
+
+% Line spacing
+\onehalfspacing
+
+% Document information
+\title{Your Thesis Title}
+\author{Your Name}
+\date{\today}
+
+\begin{document}
+
+% Front matter
+\frontmatter
+\include{chapters/titlepage}
+\include{chapters/abstract}
+\include{chapters/acknowledgments}
+
+\tableofcontents
+\listoffigures
+\listoftables
+\lstlistoflistings
+
+% Main matter
+\mainmatter
+\include{chapters/introduction}
+\include{chapters/background}
+\include{chapters/methodology}
+\include{chapters/implementation}
+\include{chapters/evaluation}
+\include{chapters/conclusion}
+
+% Back matter
+\backmatter
+\bibliographystyle{plain}
+\bibliography{references}
+
+\appendix
+\include{chapters/appendix}
+
+\end{document}

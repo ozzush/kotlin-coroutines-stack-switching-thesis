@@ -1,0 +1,40 @@
+\chapter{Background and Related Work}
+\label{ch:background}
+
+\section{WebAssembly and Stack-switching}
+\label{sec:webassembly}
+
+Stack-switching proposal introduces a type for continuation and the corresponding instructions to work with it. Continuation is an object that represents a function at some point in its execution. That point is either the beginning of the function or a marked suspension point. Resuming continuation resumes the function from the recorded point. Continuation can also be intuitively understood as "the rest of a computation."
+
+A more detailed description and an example of a Wasm program with stack-switching can be found in Appendix~\ref{ch:appendix}.
+
+\section{Kotlin Coroutines}
+\label{sec:kotlin-coroutines}
+
+Kotlin language offers low-level coroutine primitives and suspending functions. Together these two things are used to implement higher-level concurrency abstractions (most notably, the library kotlinx.coroutines)
+
+There are three notable things in regards to the compilation of Kotlin coroutines:
+
+\begin{enumerate}
+    \item Suspend functions have an additional parameter appended to their parameter list. This is a continuation parameter to handle callbacks.
+    \item Suspend functions are compiled into a state machine class. Local variables are "spilled" (saved) into this class to preserve the execution state on the heap, allowing the function to resume execution at the correct point after suspension.
+    \item Some of the low-level coroutine primitives are provided as intrinsic implementations. This means that they are written directly in the target language instead of being compiled from Kotlin.
+\end{enumerate}
+
+\section{Related Work}
+\label{sec:related-work}
+
+\subsection{Approach 1}
+\label{subsec:approach1}
+
+\subsection{Approach 2}
+\label{subsec:approach2}
+
+\subsection{Comparison and Gap Analysis}
+\label{subsec:gap-analysis}
+
+\section{Technologies and Tools}
+\label{sec:technologies}
+
+\section{Summary}
+\label{sec:background-summary}

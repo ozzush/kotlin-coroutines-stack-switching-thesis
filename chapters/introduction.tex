@@ -1,0 +1,41 @@
+\chapter{Introduction}
+\label{ch:introduction}
+
+\section{Motivation}
+\label{sec:motivation}
+
+WebAssembly is a binary instruction format for a stack-based virtual machine. Its most mainstream use case is in browsers. Many languages can be compiled to it, including Kotlin.
+
+There is a proposal to implement stack-switching in WebAssembly. The specification for stack-switching is finalized and its implementation is on the way.
+
+\section{Problem Statement}
+\label{sec:problem}
+
+The current implementation of Kotlin Coroutines for Wasm (with state-machines and continuation passing style for suspend function) is based on the implementation of suspend functions for Kotlin/JVM, which doesn't have primitives for continuation objects and suspension of functions.
+
+\section{Goals}
+\label{sec:goals}
+
+The ultimate goal of this thesis is to verify whether compiling Kotlin Coroutines using stack-switching improves binary size, complexity and performance for available Wasm runtimes with stack-switching support.
+
+There is also an indirect benefit of preparing for eventual release of stack-switching in the mainstream Wasm runtimes.
+
+Ensuring total correctness of the solution is explicitly not the goal.
+
+\section{Proposed Approach}
+\label{sec:proposed-approach}
+
+The behavior expected from the suspend function can be intuitively implemented with Wasm continuations from the stack-switching proposal without transforming the suspend functions into state machines. This will decrease Wasm binary size and complexity and hopefully improve performance for Kotlin projects that use Kotlin Coroutines with the Wasm target. One example of such a project is Compose Multiplatform.
+
+\section{Thesis Structure}
+\label{sec:structure}
+
+The remainder of this thesis is organized as follows:
+
+\begin{itemize}
+    \item \textbf{Chapter~\ref{ch:background}} provides background information and reviews related work.
+    \item \textbf{Chapter~\ref{ch:methodology}} describes the methodology and approach used in this research.
+    \item \textbf{Chapter~\ref{ch:implementation}} details the implementation of the proposed solution.
+    \item \textbf{Chapter~\ref{ch:evaluation}} presents the experimental evaluation and results.
+    \item \textbf{Chapter~\ref{ch:conclusion}} concludes the thesis and discusses future work.
+\end{itemize}
