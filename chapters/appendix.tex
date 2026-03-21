@@ -52,59 +52,7 @@ Figure~\ref{fig:stack-switching-cfg} illustrates the control flow between the \t
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[
-    node distance=1.2cm and 3cm,
-    every node/.style={font=\small},
-    block/.style={rectangle, draw, fill=blue!10, text width=5em, text centered, rounded corners, minimum height=2.5em},
-    decision/.style={diamond, draw, fill=yellow!10, text width=4em, text centered, aspect=2, inner sep=1pt},
-    action/.style={rectangle, draw, fill=green!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    suspend/.style={rectangle, draw, fill=orange!20, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    arrow/.style={->, >=stealth, thick},
-    transfer/.style={->, >=stealth, very thick, dashed, color=red!70},
-    label/.style={font=\scriptsize, text=red!70}
-]
-
-% Consumer side (left)
-\node[block] (consumer-start) {\textbf{\$consumer} start};
-\node[action, below=of consumer-start] (create-cont) {Create continuation from \$generator};
-\node[block, below=of create-cont] (consumer-loop) {Loop start};
-\node[action, below=of consumer-loop] (resume) {Resume continuation};
-\node[block, below=of resume] (consumer-return) {Return (done)};
-\node[action, below=of consumer-loop, xshift=3.5cm] (save-cont) {Save new continuation};
-\node[block, below=of save-cont] (loop-back-consumer) {Loop back};
-
-% Generator side (right)
-\node[block, right=of consumer-start, xshift=2cm] (generator-start) {\textbf{\$generator} start};
-\node[block, below=of generator-start] (generator-loop) {Loop start};
-\node[action, below=of generator-loop] (compute) {Compute value};
-\node[suspend, below=of compute] (suspend) {Suspend with value};
-\node[block, below=of suspend] (generator-continue) {Continue after suspend};
-\node[block, below=of generator-continue] (loop-back-gen) {Loop back};
-\node[block, below=of loop-back-gen] (generator-end) {End (no suspend)};
-
-% Consumer flow
-\draw[arrow] (consumer-start) -- (create-cont);
-\draw[arrow] (create-cont) -- (consumer-loop);
-\draw[arrow] (consumer-loop) -- (resume);
-\draw[arrow] (resume) -- (consumer-return);
-\draw[arrow] (save-cont) -- (loop-back-consumer);
-\draw[arrow] (loop-back-consumer) -- (consumer-loop);
-
-% Generator flow
-\draw[arrow] (generator-loop) -- (compute);
-\draw[arrow] (compute) -- (suspend);
-\draw[arrow] (suspend) -- (generator-continue);
-\draw[arrow] (generator-continue) -- (loop-back-gen);
-\draw[arrow] (loop-back-gen) -- (generator-loop);
-\draw[arrow] (loop-back-gen) -- (generator-end);
-
-% Stack-switching transfers
-\draw[transfer] (create-cont) -- node[above, label] {cont.new} (generator-start);
-\draw[transfer] (resume) -- node[above, label, pos=0.3] {resume} (generator-loop);
-\draw[transfer] (suspend) -- node[below, label, pos=0.7] {suspend (value + cont)} (save-cont);
-\draw[transfer] (generator-end) -- node[below, label, pos=0.6] {return} (consumer-return);
-
-\end{tikzpicture}
+\input{diagrams/stack-switching-cfg-tikz.tex}
 \caption{Control-flow graph showing stack-switching between \texttt{\$consumer} and \texttt{\$generator}. Solid arrows show sequential execution within each function. Dashed red arrows show control transfers via stack-switching operations: \texttt{cont.new} creates the continuation, \texttt{resume} transfers control to the generator, \texttt{suspend} transfers control back to the consumer with a value and updated continuation, and \texttt{return} signals completion.}
 \label{fig:stack-switching-cfg}
 \end{figure}
