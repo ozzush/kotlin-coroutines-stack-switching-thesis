@@ -52,10 +52,11 @@
 
 % Stack-switching transfers
 \draw[transfer] (create-cont) -- (generator-start);
-\draw[arrow] (resume) -- node[above, pos=0.5] {first iteration} (generator-start);
+\draw[arrow] (resume) -- node[above, pos=0.3] {first iteration} (generator-start);
 \draw[arrow] (resume) -- (loop-back-gen);
 \draw[arrow] (suspend) -- (handle-result);
 \draw[arrow] (generator-return) -- (consumer-return);
+%\draw[arrow] (handle-result) to[out=180, in=180] node[above, pos=0.5] {no value} (consumer-return);
 
 \end{tikzpicture}
 \end{document}
