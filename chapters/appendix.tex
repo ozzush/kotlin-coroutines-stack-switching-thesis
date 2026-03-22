@@ -52,7 +52,7 @@ Figure~\ref{fig:stack-switching-cfg} illustrates the control flow between the \t
 
 \begin{figure}[htbp]
 \centering
-\input{diagrams/stack-switching-cfg}
+\input{diagrams/stack-switching-cfg-tikz}
 \caption{Control-flow graph showing stack-switching between \texttt{\$consumer} and \texttt{\$generator}. Solid arrows show sequential execution within each function. Dashed red arrows show control transfers via stack-switching operations: \texttt{cont.new} creates the continuation, \texttt{resume} transfers control to the generator, \texttt{suspend} transfers control back to the consumer with a value and updated continuation, and \texttt{return} signals completion.}
 \label{fig:stack-switching-cfg}
 \end{figure}
