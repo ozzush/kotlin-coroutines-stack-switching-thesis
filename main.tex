@@ -50,6 +50,22 @@
     backgroundcolor=\color{gray!10}
 }
 
+% WebAssembly language definition
+\lstdefinelanguage{wasm}{
+    keywords={func, loop, block, if, else, end, local, global, param, result, return, call, call_indirect, drop, select, get_local, set_local, tee_local, get_global, set_global, i32, i64, f32, f64, load, store, const, eqz, eq, ne, lt, gt, le, ge, add, sub, mul, div, and, or, xor, shl, shr, rotl, rotr, clz, ctz, popcnt, br, br_if, br_table, unreachable, nop, memory, table, elem, data, offset, align, import, export, start, type, module},
+    morekeywords={[2]suspend, resume, cont.new, cont.bind, local.get, local.set, local.tee, global.get, global.set, ref.func, ref.null, ref.is_null},
+    keywordstyle=\color{blue}\bfseries,
+    keywordstyle={[2]\color{purple}\bfseries},
+    comment=[l]{;;},
+    morecomment=[s]{(;}{;)},
+    commentstyle=\color{green!60!black}\itshape,
+    morestring=[b]",
+    stringstyle=\color{red},
+    sensitive=true,
+    alsoletter={.\$},
+    literate=*{(}{{{\color{gray}(}}}1 {)}{{{\color{gray})}}}1 {\$}{{{\color{orange}\$}}}1
+}
+
 % Theorem environments
 \newtheorem{theorem}{Theorem}[chapter]
 \newtheorem{lemma}[theorem]{Lemma}
@@ -110,3 +126,10 @@
 \include{chapters/appendix}
 
 \end{document}
+
+%     cont.new
+%        |
+%      resume -----> suspend
+%        |  \
+%        | handle
+%      end

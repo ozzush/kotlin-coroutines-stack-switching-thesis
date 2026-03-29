@@ -16,9 +16,9 @@
 \node[action, below=of consumer-start] (create-cont) {Create continuation from \$generator};
 \node[block, below=of create-cont] (consumer-loop) {Loop start};
 \node[suspend, below=of consumer-loop] (resume) {Resume continuation};
-\node[action, below=of resume] (handle-result) {Handle result};
+\node[block, below=of resume] (consumer-return) {Return};
+\node[action, below=of consumer-return] (handle-result) {Handle result};
 \node[block, below=of handle-result] (loop-end) {Loop end};
-\node[block, below=of loop-end] (consumer-return) {Return};
 
 % Generator side (right)
 \node[block, right=of consumer-start, xshift=2cm] (generator-start) {\textbf{\$generator} start};
