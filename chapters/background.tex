@@ -1,5 +1,6 @@
 \chapter{Background and Related Work}
 \label{ch:background}
+\raggedbottom
 
 \section{WebAssembly and Stack-switching}
 \label{sec:webassembly}
@@ -62,15 +63,63 @@ In Figure~\ref{fig:stack-switching-cfg} is a simplified example in Wasm that sho
 \section{Kotlin Coroutines}
 \label{sec:kotlin-coroutines}
 
-Kotlin language offers low-level coroutine primitives and suspending functions. Together these two things are used to implement higher-level concurrency abstractions (most notably, the library kotlinx.coroutines)
+Kotlin provides several low-level intrinsics and primitives for implementing coroutines. These primitives form the foundation for higher-level concurrency abstractions such as the kotlinx.coroutines library. The key primitives are:
 
-There are three notable things in regards to the compilation of Kotlin coroutines:
+\subsection*{Continuation}
 
-\begin{enumerate}
-    \item Suspend functions have an additional parameter appended to their parameter list. This is a continuation parameter to handle callbacks.
-    \item Suspend functions are compiled into a state machine class. Local variables are "spilled" (saved) into this class to preserve the execution state on the heap, allowing the function to resume execution at the correct point after suspension.
-    \item Some of the low-level coroutine primitives are provided as intrinsic implementations. This means that they are written directly in the target language instead of being compiled from Kotlin.
-\end{enumerate}
+\texttt{Continuation<T>} is an interface that represents a continuation, similar to the continuation concept in WebAssembly described earlier. It represents a coroutine at a suspension point - a place where the coroutine has paused its execution. The interface has two main components:
+
+\begin{itemize}
+    \item \texttt{context: CoroutineContext} - the context of the coroutine
+    \item \texttt{resumeWith(result: Result<T>)} - resumes the coroutine execution, passing a result value that becomes the return value of the suspension point
+\end{itemize}
+
+\subsection*{startCoroutineUninterceptedOrReturn}
+
+This intrinsic function starts a coroutine. It is defined as an extension function on suspending function types:
+
+\begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
+(suspend () -> T).startCoroutineUninterceptedOrReturn(
+    completion: Continuation<T>
+): Any?
+\end{lstlisting}
+
+The function immediately starts the suspending function with the given completion continuation. It returns:
+\begin{itemize}
+    \item \texttt{COROUTINE\_SUSPENDED} if the coroutine was suspended
+    \item The result value if the coroutine completed immediately without suspension
+\end{itemize}
+
+This primitive is used when you need direct control over coroutine execution.
+
+\subsection*{createCoroutineUnintercepted}
+
+This intrinsic creates a coroutine. It is defined as an extension function on suspending function types:
+
+\begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
+(suspend () -> T).createCoroutineUnintercepted(
+    completion: Continuation<T>
+): Continuation<Unit>
+\end{lstlisting}
+
+Unlike \texttt{startCoroutineUninterceptedOrReturn}, this function does not start the coroutine immediately. Instead, it returns a \texttt{Continuation<Unit>} that can be resumed later to start the coroutine execution. This allows you to control when the coroutine begins.
+
+\subsection*{suspendCoroutineUninterceptedOrReturn}
+
+This intrinsic function gives you access to the current continuation inside a suspend function. It allows the function to control whether it suspends or returns immediately:
+
+\begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
+suspendCoroutineUninterceptedOrReturn<T>(
+    block: (Continuation<T>) -> Any?): T
+\end{lstlisting}
+
+The \texttt{block} receives the current continuation and can:
+\begin{itemize}
+    \item Return \texttt{COROUTINE\_SUSPENDED} to indicate that the coroutine has suspended and will be resumed later
+    \item Return a value directly to complete immediately without suspension
+\end{itemize}
+
+This is the most basic building block for implementing custom suspending functions, as it gives you direct access to the continuation and control over suspension behavior.
 
 \section{Related Work}
 \label{sec:related-work}
