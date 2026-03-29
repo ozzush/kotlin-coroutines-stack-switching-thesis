@@ -8,9 +8,12 @@ Stack-switching proposal introduces a type for continuation and the correspondin
 
 A good intuition for understanding resuming and suspending in the stack-switching proposal is that it is similar to calling a function inside a try-catch block. The function can suspend by throwing different types of exceptions (suspension tags) and the try-catch block can provide different handlers for the corresponding suspension tags.
 
-Below is a simplified example in Wasm that showcases the basics of using continuations (full example here). \texttt{\$consumer} creates a continuation object from the function \texttt{\$generator} and resumes it. When \texttt{\$generator} suspends with the tag \texttt{\$generate}, \texttt{\$consumer} jumps to the label \texttt{\$on\_generate}. At that point, the stack will contain parameters of the \texttt{\$generate} tag and a new continuation object. \texttt{\$consumer} saves the new continuation object and repeats the loop. Once \texttt{\$generator} finishes execution without suspending, \texttt{\$consumer} also returns.
+In Figure~\ref{fig:stack-switching-cfg} is a simplified example in Wasm that showcases the basics of using continuations.
 
-\begin{lstlisting}[language=wasm, caption={WebAssembly stack-switching example}, label={lst:wasm-example}]
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[language=wasm, label={lst:wasm-example}, basicstyle=\tiny\ttfamily]
 (func $generator
   ...
   (loop $loop
@@ -43,13 +46,16 @@ Below is a simplified example in Wasm that showcases the basics of using continu
  )
 )
 \end{lstlisting}
-
-Figure~\ref{fig:stack-switching-cfg} illustrates the control flow between the \texttt{\$consumer} and \texttt{\$generator} functions, showing how stack-switching enables cooperative execution through continuations.
-
-\begin{figure}[htbp]
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
 \centering
+\vspace{0pt}
+\resizebox{\textwidth}{!}{%
 \input{diagrams/stack-switching-cfg-tikz}
-\caption{Control-flow graph showing stack-switching between \texttt{\$consumer} and \texttt{\$generator}. Solid arrows show sequential execution within each function. Dashed red arrows show control transfers via stack-switching operations: \texttt{cont.new} creates the continuation, \texttt{resume} transfers control to the generator, \texttt{suspend} transfers control back to the consumer with a value and updated continuation, and \texttt{return} signals completion.}
+}
+\end{minipage}
+\caption{WebAssembly stack-switching example (left) and control-flow graph (right) showing stack-switching between \texttt{\$consumer} and \texttt{\$generator}. Solid arrows show sequential execution within each function. The dashed red arrow shows that a continuation is created from a function and resuming it will start executing the function.}
 \label{fig:stack-switching-cfg}
 \end{figure}
 
