@@ -2,19 +2,26 @@
 \label{ch:background}
 \raggedbottom
 
+
 \section{WebAssembly and Stack-switching}
 \label{sec:webassembly}
 
-Stack-switching proposal introduces a type for continuation and the corresponding instructions to work with it. Continuation is an object that represents a function at some point in its execution. That point is either the beginning of the function or a marked suspension point. Resuming continuation resumes the function from the recorded point. Continuation can also be intuitively understood as "the rest of a computation."
+Stack-switching proposal introduces a type for continuation and the corresponding instructions to work with it.
+Continuation is an object that represents a function at some point in its execution. That point is either the beginning
+of the function or a marked suspension point. Resuming continuation resumes the function from the recorded point.
+Continuation can also be intuitively understood as "the rest of a computation."
 
-A good intuition for understanding resuming and suspending in the stack-switching proposal is that it is similar to calling a function inside a try-catch block. The function can suspend by throwing different types of exceptions (suspension tags) and the try-catch block can provide different handlers for the corresponding suspension tags.
+A good intuition for understanding resuming and suspending in the stack-switching proposal is that it is similar to
+calling a function inside a try-catch block. The function can suspend by throwing different types of exceptions
+(suspension tags) and the try-catch block can provide different handlers for the corresponding suspension tags.
 
-In Figure~\ref{fig:stack-switching-cfg} is a simplified example in Wasm that showcases the basics of using continuations.
+In Figure~\ref{fig:stack-switching-cfg}
+is a simplified example in Wasm that showcases the basics of using continuations.
 
 \begin{figure}[H]
-\centering
-\begin{minipage}[t]{0.48\textwidth}
-\begin{lstlisting}[language=wasm, label={lst:wasm-example}, basicstyle=\tiny\ttfamily]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \begin{lstlisting}[language=wasm, label={lst:wasm-example}, basicstyle=\tiny\ttfamily]
 (func $generator
   ...
   (loop $loop
@@ -46,32 +53,41 @@ In Figure~\ref{fig:stack-switching-cfg} is a simplified example in Wasm that sho
    ...
  )
 )
-\end{lstlisting}
-\end{minipage}%
-\hfill
-\begin{minipage}[t]{0.48\textwidth}
-\centering
-\vspace{0pt}
-\resizebox{\textwidth}{!}{%
-\input{diagrams/stack-switching-cfg-tikz}
-}
-\end{minipage}
-\caption{WebAssembly stack-switching example (left) and control-flow graph (right) showing stack-switching between \texttt{\$consumer} and \texttt{\$generator}. Solid arrows show sequential execution within each function. The dashed red arrow shows that a continuation is created from a function and resuming it will start executing the function.}
-\label{fig:stack-switching-cfg}
+        \end{lstlisting}
+    \end{minipage}%
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \vspace{0pt}
+        \resizebox{\textwidth}{!}{%
+            \input{diagrams/stack-switching-cfg-tikz}
+        }
+    \end{minipage}
+    \caption{WebAssembly stack-switching example (left) and control-flow graph (right)
+        showing stack-switching between \texttt{\$consumer} and \texttt{\$generator}. Solid arrows show sequential
+        execution within each function. The dashed red arrow shows that a continuation is created from a function and
+        resuming it will start executing the function.}
+    \label{fig:stack-switching-cfg}
 \end{figure}
+
 
 \section{Kotlin Coroutines}
 \label{sec:kotlin-coroutines}
 
-Kotlin provides several low-level intrinsics and primitives for implementing coroutines. These primitives form the foundation for higher-level concurrency abstractions such as the kotlinx.coroutines library. The key primitives are:
+Kotlin provides several low-level intrinsics and primitives for implementing coroutines. These primitives form the
+foundation for higher-level concurrency abstractions such as the kotlinx.coroutines library. The key primitives are:
 
 \subsection*{Continuation}
 
-\texttt{Continuation<T>} is an interface that represents a continuation, similar to the continuation concept in WebAssembly described earlier. It represents a coroutine at a suspension point - a place where the coroutine has paused its execution. The interface has two main components:
+\texttt{Continuation<T>}
+is an interface that represents a continuation, similar to the continuation concept in WebAssembly described earlier. It
+represents a coroutine at a suspension point - a place where the coroutine has paused its execution. The interface has
+two main components:
 
 \begin{itemize}
     \item \texttt{context: CoroutineContext} - the context of the coroutine
-    \item \texttt{resumeWith(result: Result<T>)} - resumes the coroutine execution, passing a result value that becomes the return value of the suspension point
+    \item \texttt{resumeWith(result: Result<T>)}
+    - resumes the coroutine execution, passing a result value that becomes the return value of the suspension point
 \end{itemize}
 
 \subsection*{startCoroutineUninterceptedOrReturn}
@@ -84,7 +100,10 @@ This intrinsic function starts a coroutine. It is defined as an extension functi
 ): Any?
 \end{lstlisting}
 
-The function immediately starts the suspending function with the given completion continuation. It returns:
+The function immediately starts the suspending function with the given \texttt{completion} continuation. The
+\texttt{completion}
+parameter is the continuation that will be called when the coroutine finishes its execution (either with a result or an
+exception). The function returns:
 \begin{itemize}
     \item \texttt{COROUTINE\_SUSPENDED} if the coroutine was suspended
     \item The result value if the coroutine completed immediately without suspension
@@ -102,15 +121,19 @@ This intrinsic creates a coroutine. It is defined as an extension function on su
 ): Continuation<Unit>
 \end{lstlisting}
 
-Unlike \texttt{startCoroutineUninterceptedOrReturn}, this function does not start the coroutine immediately. Instead, it returns a \texttt{Continuation<Unit>} that can be resumed later to start the coroutine execution. This allows you to control when the coroutine begins.
+Unlike \texttt{startCoroutineUninterceptedOrReturn}
+, this function does not start the coroutine immediately. Instead, it returns a \texttt{Continuation<Unit>}
+that can be resumed later to start the coroutine execution. This allows you to control when the coroutine begins.
 
 \subsection*{suspendCoroutineUninterceptedOrReturn}
 
-This intrinsic function gives you access to the current continuation inside a suspend function. It allows the function to control whether it suspends or returns immediately:
+This intrinsic function gives you access to the current continuation inside a suspend function. It allows the function
+to control whether it suspends or returns immediately:
 
 \begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
 suspendCoroutineUninterceptedOrReturn<T>(
-    block: (Continuation<T>) -> Any?): T
+    block: (Continuation<T>) -> Any?
+): T
 \end{lstlisting}
 
 The \texttt{block} receives the current continuation and can:
@@ -119,15 +142,58 @@ The \texttt{block} receives the current continuation and can:
     \item Return a value directly to complete immediately without suspension
 \end{itemize}
 
-This is the most basic building block for implementing custom suspending functions, as it gives you direct access to the continuation and control over suspension behavior.
+This is the most basic building block for implementing custom suspending functions, as it gives you direct access to the
+continuation and control over suspension behavior.
 
-\section{Related Work}
-\label{sec:related-work}
 
-\subsection{Approach 1}
+\section{Implementation}
+\label{sec:implementation}
+
+To implement Kotlin coroutines using Wasm stack-switching proposal we have to implement the intrinsics and primitives
+discussed in the previous section. Kotlin coroutine primitives can be closely mapped to the Wasm stack-switching
+primitives:
+\begin{itemize}
+    \item \textbf{Continuation} maps to Wasm continuation objects. Just as a Kotlin \texttt{Continuation<T>}
+    represents a paused coroutine that can be resumed, a Wasm continuation represents a function at a suspension point
+    that can be resumed.
+
+    \item \textbf{createCoroutineUnintercepted} maps to \texttt{cont.new}.
+    Both create a continuation object from a function without starting its execution. The Kotlin function returns a
+    \texttt{Continuation<Unit>} that can be resumed later, while \texttt{cont.new}
+    creates a Wasm continuation object that can be resumed with the \texttt{resume} instruction.
+
+    \item \textbf{startCoroutineUninterceptedOrReturn} maps to \texttt{cont.new} followed by \texttt{resume}.
+    This Kotlin function creates and immediately starts a coroutine, which corresponds to creating a Wasm continuation
+    and immediately resuming it.
+
+    \item \textbf{suspendCoroutineUninterceptedOrReturn} maps to the \texttt{suspend}
+    instruction. Both allow a function to suspend its execution and transfer control back to the caller. The Kotlin
+    function gives access to the continuation and can return \texttt{COROUTINE\_SUSPENDED}, while the Wasm
+    \texttt{suspend} instruction transfers control to the handler specified in the \texttt{resume} instruction.
+
+    \item \textbf{Continuation.resumeWith} maps to the \texttt{resume}
+    instruction. Both resume a suspended continuation with a value. The Kotlin method resumes the coroutine and passes a
+    result, while the Wasm \texttt{resume} instruction resumes a continuation and can pass values on the stack.
+\end{itemize}
+
+There is one unfortunate difference in how suspension is handled in Kotlin, which makes it not so obvious how to
+implement it in Wasm. In Kotlin the function \texttt{suspendCoroutineUninterceptedOrReturn}
+accepts a lambda which either returns some result or suspends the execution. This lambda accepts an argument: current
+continuation. Resuming this continuation will resume the function. The intention of providing this argument is
+for the suspension lambda to contain code that saves the continuation in some variable. Then, in case
+suspension really happens, the function will be resumed by resuming this saved continuation.
+
+TODO: CLARIFYING EXAMPLE IN KOTLIN
+
+Essentially, the problem is that in Kotlin the continuation object has to be available before we even know whether
+a function suspends or not. On the contrary, in Wasm we only get the continuation object for the suspended function
+after the function actually suspends, and we return to the call site. We will discuss in detail how to bridge this gap
+in section TODO:LINK SECTION APPROACH 2
+
+\subsection{Approach 1 (Performance-oriented)}
 \label{subsec:approach1}
 
-\subsection{Approach 2}
+\subsection{Approach 2 (Correctness-oriented)}
 \label{subsec:approach2}
 
 \subsection{Comparison and Gap Analysis}
