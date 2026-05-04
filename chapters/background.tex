@@ -188,12 +188,12 @@ TODO: CLARIFYING EXAMPLE IN KOTLIN
 Essentially, the problem is that in Kotlin the continuation object has to be available before we even know whether
 a function suspends or not. On the contrary, in Wasm we only get the continuation object for the suspended function
 after the function actually suspends, and we return to the call site. We will discuss in detail how to bridge this gap
-in section TODO:LINK SECTION APPROACH 2
+in section TODO:LINK SECTION OPTIMIZATION
 
-\subsection{Approach 1 (Performance-oriented)}
-\label{subsec:approach1}
+\subsection{Base implementation}
+\label{subsec:base-approach}
 
-\subsection{Approach 2 (Correctness-oriented)}
+\subsection{Suspension count optimization}
 \label{subsec:approach2}
 
 \subsection{Comparison and Gap Analysis}

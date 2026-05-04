@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper,twoside]{book}
+\documentclass[12pt,a4paper,twoside,openany]{book}
 
 % Packages
 \usepackage[utf8]{inputenc}
@@ -99,9 +99,9 @@
 
 % Front matter
 \frontmatter
-\include{chapters/titlepage}
-\include{chapters/abstract}
-\include{chapters/acknowledgments}
+\input{chapters/titlepage}
+\input{chapters/abstract}
+\input{chapters/acknowledgments}
 
 \tableofcontents
 \listoffigures
@@ -110,12 +110,12 @@
 
 % Main matter
 \mainmatter
-\include{chapters/introduction}
-\include{chapters/background}
-\include{chapters/methodology}
-\include{chapters/implementation}
-\include{chapters/evaluation}
-\include{chapters/conclusion}
+\input{chapters/introduction}
+\input{chapters/background}
+\input{chapters/methodology}
+\input{chapters/implementation}
+\input{chapters/evaluation}
+\input{chapters/conclusion}
 
 % Back matter
 \backmatter
@@ -123,7 +123,7 @@
 \bibliography{references}
 
 \appendix
-\include{chapters/appendix}
+\input{chapters/appendix}
 
 \end{document}
 
