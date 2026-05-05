@@ -145,60 +145,6 @@ The \texttt{block} receives the current continuation and can:
 This is the most basic building block for implementing custom suspending functions, as it gives you direct access to the
 continuation and control over suspension behavior.
 
-
-\section{Implementation}
-\label{sec:implementation}
-
-To implement Kotlin coroutines using Wasm stack-switching proposal we have to implement the intrinsics and primitives
-discussed in the previous section. Kotlin coroutine primitives can be closely mapped to the Wasm stack-switching
-primitives:
-\begin{itemize}
-    \item \textbf{Continuation} maps to Wasm continuation objects. Just as a Kotlin \texttt{Continuation<T>}
-    represents a paused coroutine that can be resumed, a Wasm continuation represents a function at a suspension point
-    that can be resumed.
-
-    \item \textbf{createCoroutineUnintercepted} maps to \texttt{cont.new}.
-    Both create a continuation object from a function without starting its execution. The Kotlin function returns a
-    \texttt{Continuation<Unit>} that can be resumed later, while \texttt{cont.new}
-    creates a Wasm continuation object that can be resumed with the \texttt{resume} instruction.
-
-    \item \textbf{startCoroutineUninterceptedOrReturn} maps to \texttt{cont.new} followed by \texttt{resume}.
-    This Kotlin function creates and immediately starts a coroutine, which corresponds to creating a Wasm continuation
-    and immediately resuming it.
-
-    \item \textbf{suspendCoroutineUninterceptedOrReturn} maps to the \texttt{suspend}
-    instruction. Both allow a function to suspend its execution and transfer control back to the caller. The Kotlin
-    function gives access to the continuation and can return \texttt{COROUTINE\_SUSPENDED}, while the Wasm
-    \texttt{suspend} instruction transfers control to the handler specified in the \texttt{resume} instruction.
-
-    \item \textbf{Continuation.resumeWith} maps to the \texttt{resume}
-    instruction. Both resume a suspended continuation with a value. The Kotlin method resumes the coroutine and passes a
-    result, while the Wasm \texttt{resume} instruction resumes a continuation and can pass values on the stack.
-\end{itemize}
-
-There is one unfortunate difference in how suspension is handled in Kotlin, which makes it not so obvious how to
-implement it in Wasm. In Kotlin the function \texttt{suspendCoroutineUninterceptedOrReturn}
-accepts a lambda which either returns some result or suspends the execution. This lambda accepts an argument: current
-continuation. Resuming this continuation will resume the function. The intention of providing this argument is
-for the suspension lambda to contain code that saves the continuation in some variable. Then, in case
-suspension really happens, the function will be resumed by resuming this saved continuation.
-
-TODO: CLARIFYING EXAMPLE IN KOTLIN
-
-Essentially, the problem is that in Kotlin the continuation object has to be available before we even know whether
-a function suspends or not. On the contrary, in Wasm we only get the continuation object for the suspended function
-after the function actually suspends, and we return to the call site. We will discuss in detail how to bridge this gap
-in section TODO:LINK SECTION OPTIMIZATION
-
-\subsection{Base implementation}
-\label{subsec:base-approach}
-
-\subsection{Suspension count optimization}
-\label{subsec:approach2}
-
-\subsection{Comparison and Gap Analysis}
-\label{subsec:gap-analysis}
-
 \section{Technologies and Tools}
 \label{sec:technologies}
 
