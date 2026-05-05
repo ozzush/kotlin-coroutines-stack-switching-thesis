@@ -35,7 +35,27 @@ continuation. Resuming this continuation will resume the function. The intention
 for the suspension lambda to contain code that saves the continuation in some variable. Then, in case
 suspension really happens, the function will be resumed by resuming this saved continuation.
 
-TODO: CLARIFYING EXAMPLE IN KOTLIN
+For example, consider this simple suspend function:
+
+\begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
+var savedContinuation: Continuation<String>? = null
+
+suspend fun suspendHere(): String = 
+    suspendCoroutineUninterceptedOrReturn { cont ->
+        savedContinuation = cont  // Save continuation before suspending
+        COROUTINE_SUSPENDED       // Indicate suspension occurred
+    }
+\end{lstlisting}
+
+In this code, the continuation \texttt{cont} is available inside the lambda and can be saved to
+\texttt{savedContinuation} before the function actually suspends. Later, calling
+\texttt{savedContinuation?.resume("result")} will resume the suspended function.
+
+TODO: add an example illustrating behavior which needs to be supported where continuation is resumed right inside the
+suspension lambda. Make sure to explain what behavior is expected from Kotlin in this case. Namely that if there is only
+one suspension point and it's resumed inside the suspend lambda, then the call to
+startCoroutineUninterceptedOrReturn will return COROUTINE_SUSPENDED, but completion continuation will be triggered
+with the actual result
 
 Essentially, the problem is that in Kotlin the continuation object has to be available before we even know whether
 a function suspends or not. On the contrary, in Wasm we only get the continuation object for the suspended function
