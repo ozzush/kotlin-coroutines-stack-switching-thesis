@@ -51,11 +51,36 @@ In this code, the continuation \texttt{cont} is available inside the lambda and 
 \texttt{savedContinuation} before the function actually suspends. Later, calling
 \texttt{savedContinuation?.resume("result")} will resume the suspended function.
 
-TODO: add an example illustrating behavior which needs to be supported where continuation is resumed right inside the
-suspension lambda. Make sure to explain what behavior is expected from Kotlin in this case. Namely that if there is only
-one suspension point and it's resumed inside the suspend lambda, then the call to
-startCoroutineUninterceptedOrReturn will return COROUTINE_SUSPENDED, but completion continuation will be triggered
-with the actual result
+However, there is a more subtle case that must also be supported: the continuation can be resumed immediately inside
+the suspension lambda itself. Consider this example:
+
+\begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
+suspend fun suspendHere(): String = 
+    suspendCoroutineUninterceptedOrReturn { cont ->
+        cont.resume("OK")      // Resume immediately
+        COROUTINE_SUSPENDED    // Still indicate suspension
+    }
+
+fun test() {
+    var completionResult: String? = null
+    val result = suspendHere().startCoroutineUninterceptedOrReturn(
+        object : Continuation<String> {
+            override val context = EmptyCoroutineContext
+            override fun resumeWith(value: Result<String>) {
+                completionResult = value.getOrThrow()
+            }
+        }
+    )
+    // result === COROUTINE_SUSPENDED
+    // completionResult === "OK"
+}
+\end{lstlisting}
+
+In this case, even though the continuation is resumed immediately inside the lambda, the function still returns
+\texttt{COROUTINE\_SUSPENDED} to the caller. The actual result \texttt{"OK"} is delivered to the completion
+continuation via its \texttt{resumeWith} method. This behavior is important because it maintains the invariant that
+when \texttt{suspendCoroutineUninterceptedOrReturn} returns \texttt{COROUTINE\_SUSPENDED}, the caller should not
+use the return value but instead wait for the completion continuation to be invoked.
 
 Essentially, the problem is that in Kotlin the continuation object has to be available before we even know whether
 a function suspends or not. On the contrary, in Wasm we only get the continuation object for the suspended function
