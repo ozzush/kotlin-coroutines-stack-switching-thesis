@@ -66,6 +66,21 @@
     literate=*{(}{{{\color{gray}(}}}1 {)}{{{\color{gray})}}}1 {\$}{{{\color{orange}\$}}}1
 }
 
+% Kotlin language definition
+\lstdefinelanguage{Kotlin}{
+    keywords={abstract, actual, as, as?, break, by, class, companion, continue, data, do, dynamic, else, enum, expect, false, final, for, fun, get, if, import, in, infix, inline, interface, internal, is, lateinit, null, object, open, operator, out, override, package, private, protected, public, return, sealed, set, super, suspend, this, throw, true, try, typealias, typeof, val, var, vararg, when, where, while},
+    morekeywords={[2]Any, Boolean, Byte, Char, Continuation, CoroutineContext, Double, EmptyCoroutineContext, Float, Int, Long, Nothing, Result, Short, String, Unit, COROUTINE_SUSPENDED},
+    keywordstyle=\color{blue}\bfseries,
+    keywordstyle={[2]\color{purple}\bfseries},
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    commentstyle=\color{green!60!black}\itshape,
+    morestring=[b]",
+    stringstyle=\color{red},
+    sensitive=true,
+    alsoletter={?},
+}
+
 % Theorem environments
 \newtheorem{theorem}{Theorem}[chapter]
 \newtheorem{lemma}[theorem]{Lemma}
