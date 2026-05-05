@@ -42,8 +42,10 @@ var savedContinuation: Continuation<String>? = null
 
 suspend fun suspendHere(): String = 
     suspendCoroutineUninterceptedOrReturn { cont ->
-        savedContinuation = cont  // Save continuation before suspending
-        COROUTINE_SUSPENDED       // Indicate suspension occurred
+        // Save continuation before suspending
+        savedContinuation = cont
+        // Indicate suspension occurred
+        COROUTINE_SUSPENDED
     }
 \end{lstlisting}
 
