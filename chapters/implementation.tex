@@ -95,39 +95,42 @@ this gap.
 The base implementation of Kotlin coroutines using Wasm stack-switching consists of several key components that work
 together to bridge the gap between Kotlin's coroutine model and Wasm's continuation primitives.
 
-\subsection{Core Intrinsics}
+\subsection{Core Implementation}
 \label{subsec:core-intrinsics}
 
-The implementation provides several compiler intrinsics that map Kotlin coroutine operations to Wasm stack-switching
+The implementation provides several compiler intrinsics that map directly or very closely to Wasm stack-switching
 instructions:
+\texttt{suspendIntrinsic} (maps to \texttt{suspend}), \texttt{suspendFunctionToContref} (uses \texttt{cont.new} and
+\texttt{cont.bind}), and \texttt{resumeWithIntrinsic}/\texttt{resumeThrowIntrinsic} (use \texttt{resume} and
+\texttt{resume\_throw} within handler blocks).
+
+The core of the implementation is the \texttt{WasmContinuation} class, which extends \texttt{CoroutineImpl} and wraps
+a Wasm continuation reference (\texttt{contref}). The \texttt{CoroutineImpl} class was originally implemented for the
+state machine-based coroutine implementation and provides the foundation for managing coroutine state:
 
 \begin{itemize}
-    \item \textbf{suspendIntrinsic} -- maps directly to the Wasm \texttt{suspend} instruction. When a Kotlin suspend
-    function needs to suspend, this intrinsic is called, which executes the Wasm \texttt{suspend} instruction to
-    transfer control back to the caller.
-
-    \item \textbf{suspendFunctionToContref} -- converts a Kotlin suspend function into a Wasm continuation reference.
-    This intrinsic uses \texttt{cont.new} to create a continuation from the suspend function, followed by
-    \texttt{cont.bind} to bind any receiver and parameters. There are three variants for different arities (0, 1, and
-    2 parameters).
-
-    \item \textbf{resumeWithIntrinsic} and \textbf{resumeThrowIntrinsic} -- resume a suspended Wasm continuation with a
-    value or exception respectively. These intrinsics use the Wasm \texttt{resume} instruction (or
-    \texttt{resume\_throw} for exceptions) within a handler block to catch potential re-suspensions.
+    \item \textbf{State management}: \texttt{state} and \texttt{exceptionState} track the current execution state and
+    exception handling state of the coroutine
+    \item \textbf{Result storage}: \texttt{result} and \texttt{exception} store the current result or exception to
+    pass when resuming
+    \item \textbf{Suspension tracking}: \texttt{wasSuspended} flag indicates whether the coroutine has suspended at
+    least once
+    \item \textbf{Completion handling}: \texttt{resultContinuation} is the continuation to call when the coroutine
+    completes
 \end{itemize}
 
-\subsection{WasmContinuation Wrapper}
-\label{subsec:wasm-continuation}
-
-The \texttt{WasmContinuation} class wraps a Wasm continuation reference (\texttt{contref}) and implements Kotlin's
-\texttt{Continuation} interface. This wrapper serves as the bridge between Kotlin's continuation model and Wasm's
-continuation objects. It stores:
+The \texttt{WasmContinuation} class adds Wasm-specific functionality:
 
 \begin{itemize}
-    \item \texttt{wasmContBox} -- a box containing the Wasm continuation reference
-    \item \texttt{completion} -- the Kotlin continuation to call when the coroutine completes
-    \item \texttt{result} and \texttt{exception} -- the current result or exception to pass when resuming
+    \item \texttt{wasmContBox} -- a box containing the Wasm continuation reference, which can be updated as the
+    coroutine suspends and resumes
+    \item \texttt{isResumed} -- a flag to ensure each continuation instance is resumed only once
 \end{itemize}
+
+The key method is \texttt{doResume()}, which handles the mismatch between Kotlin's and
+Wasm's suspension behavior. The \texttt{CoroutineImpl.resumeWith()} method calls \texttt{doResume()} and handles the
+result: if \texttt{doResume()} returns \texttt{COROUTINE\_SUSPENDED}, the coroutine remains suspended; otherwise, it
+completes and invokes the completion continuation with the result or exception.
 
 \subsection{Handling the Continuation Mismatch}
 \label{subsec:continuation-mismatch}
