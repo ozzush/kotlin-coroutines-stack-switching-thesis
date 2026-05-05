@@ -57,7 +57,7 @@ However, there is a more subtle case that must also be supported: the continuati
 the suspension lambda itself. Consider this example:
 
 \begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
-suspend fun suspendHere(): String = 
+suspend fun suspendFun(): String =
     suspendCoroutineUninterceptedOrReturn { cont ->
         cont.resume("OK")      // Resume immediately
         COROUTINE_SUSPENDED    // Still indicate suspension
@@ -65,7 +65,7 @@ suspend fun suspendHere(): String =
 
 fun test() {
     var completionResult: String? = null
-    val result = suspendHere().startCoroutineUninterceptedOrReturn(
+    val result = suspendFun.startCoroutineUninterceptedOrReturn(
         object : Continuation<String> {
             override val context = EmptyCoroutineContext
             override fun resumeWith(value: Result<String>) {
