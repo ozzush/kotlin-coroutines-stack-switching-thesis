@@ -127,21 +127,15 @@ The \texttt{WasmContinuation} class adds Wasm-specific functionality:
     \item \texttt{isResumed} -- a flag to ensure each continuation instance is resumed only once
 \end{itemize}
 
-The key method is \texttt{doResume()}, which handles the mismatch between Kotlin's and
-Wasm's suspension behavior. The \texttt{CoroutineImpl.resumeWith()} method calls \texttt{doResume()} and handles the
-result: if \texttt{doResume()} returns \texttt{COROUTINE\_SUSPENDED}, the coroutine remains suspended; otherwise, it
-completes and invokes the completion continuation with the result or exception.
+The key method is \texttt{doResume()}, which handles the mismatch between Kotlin's and Wasm's suspension behavior.
+The \texttt{CoroutineImpl.resumeWith()} method calls \texttt{doResume()} and handles the result: if \texttt{doResume()}
+returns \texttt{COROUTINE\_SUSPENDED}, the coroutine remains suspended; otherwise, it completes and invokes the
+completion continuation with the result or exception.
 
-\subsection{Handling the Continuation Mismatch}
-\label{subsec:continuation-mismatch}
-
-The key challenge in the implementation is handling the mismatch between Kotlin's and Wasm's suspension models. In
-Kotlin, \texttt{suspendCoroutineUninterceptedOrReturn} provides the continuation object to the suspend lambda
-\emph{before} suspension occurs. However, in Wasm, the continuation object only becomes available \emph{after} the
-\texttt{suspend} instruction executes and control returns to the caller.
-
-The base implementation solves this problem using a two-phase approach implemented in the
-\texttt{WasmContinuation.doResume()} method:
+The key challenge is that in Kotlin, \texttt{suspendCoroutineUninterceptedOrReturn} provides the continuation object to
+the suspend lambda \emph{before} suspension occurs. However, in Wasm, the continuation object only becomes available
+\emph{after} the \texttt{suspend} instruction executes and control returns to the caller. The implementation solves this
+problem using a two-phase approach in \texttt{doResume()}:
 
 \begin{enumerate}
     \item \textbf{Resume Phase}: When resuming a Wasm continuation, the resume intrinsic is called within a handler
@@ -167,38 +161,11 @@ until either:
     continuation has been saved and will be resumed asynchronously
 \end{itemize}
 
-\subsection{Implementation of Kotlin Primitives}
-\label{subsec:kotlin-primitives}
-
-Using these components, the Kotlin coroutine primitives are implemented as follows:
-
-\begin{itemize}
-    \item \textbf{createCoroutineUnintercepted} creates a \texttt{WasmContinuation} wrapping a Wasm continuation created
-    via \texttt{suspendFunctionToContref}. The returned continuation can be resumed later to start execution.
-
-    \item \textbf{startCoroutineUninterceptedOrReturn} creates a Wasm continuation via
-    \texttt{suspendFunctionToContref}, wraps it in a \texttt{WasmContinuation}, and immediately calls \texttt{resume()}
-    on it to start execution.
-
-    \item \textbf{suspendCoroutineUninterceptedOrReturn} calls \texttt{suspendIntrinsic}, which executes the Wasm
-    \texttt{suspend} instruction. The suspend lambda is captured and returned to the caller via
-    \texttt{ResumeIntrinsicResult}, where it will be executed by \texttt{doResume()}.
-\end{itemize}
-
-This base implementation successfully bridges the gap between Kotlin's continuation model and Wasm's stack-switching
-primitives, enabling Kotlin coroutines to run efficiently on Wasm with native stack-switching support.
-
-\section{Data Structures and Algorithms}
-\label{sec:data-structures}
-
-\section{User Interface}
-\label{sec:user-interface}
+\section{Suspension count optimization}
+\label{sec:optimization}
 
 \section{Testing and Validation}
 \label{sec:testing}
-
-\section{Challenges and Solutions}
-\label{sec:challenges}
 
 \section{Summary}
 \label{sec:implementation-summary}
