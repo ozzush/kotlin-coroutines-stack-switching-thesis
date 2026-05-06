@@ -26,16 +26,15 @@
 \node[block, below=of start-coroutine] (caller-receives) {Receive suspension result};
 \node[action, below=of caller-receives] (execute-suspend-lambda) {Execute suspend lambda};
 \node[suspend, below=of execute-suspend-lambda, yshift=-0.5cm] (resume-coroutine) {Resume coroutine with result};
-\node[block, below=of resume-coroutine] (caller-continues) {Continue execution};
+\node[block, below=of resume-coroutine] (caller-continues) {Receive result};
 \node[block, below=of caller-continues] (caller-return) {Return};
-\node[block, left=of execute-suspend-lambda, xshift=-1cm] (caller-return-suspended) {Return COROUTINE\_SUSPENDED};
+\node[block, left=of caller-return, xshift=-0.2cm] (caller-return-suspended) {Return COROUTINE\_SUSPENDED};
 
 % Caller flow
 \draw[arrow] (caller-start) -- (start-coroutine);
 \draw[arrow] (caller-receives) -- (execute-suspend-lambda);
 \draw[arrow] (execute-suspend-lambda) -- node[left, pos=0.5, label] {returned result} (resume-coroutine);
-\draw[arrow] (execute-suspend-lambda) -- node[above, pos=0.5, label] {returned COROUTINE\_SUSPENDED} (caller-return-suspended);
-\draw[arrow] (resume-coroutine) -- (caller-continues);
+\draw[arrow] (execute-suspend-lambda.west) -- ++(-0.5,0) -| node[above left, pos=0.25, label] {returned COROUTINE\_SUSPENDED} (caller-return-suspended.north);
 \draw[arrow] (caller-continues) -- (caller-return);
 
 % Coroutine flow
