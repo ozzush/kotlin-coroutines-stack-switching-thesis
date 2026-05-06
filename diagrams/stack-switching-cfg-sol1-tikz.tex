@@ -1,0 +1,54 @@
+\begin{tikzpicture}[
+    node distance=1.2cm and 3cm,
+    every node/.style={font=\small},
+    block/.style={rectangle, draw, fill=blue!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    decision/.style={diamond, draw, fill=yellow!10, text width=4em, text centered, aspect=2, inner sep=1pt},
+    action/.style={rectangle, draw, fill=green!10, text width=7em, text centered, rounded corners, minimum height=2.5em},
+    suspend/.style={rectangle, draw, fill=orange!20, text width=7em, text centered, rounded corners, minimum height=2.5em},
+    arrow/.style={->, >=stealth, thick},
+    transfer/.style={->, >=stealth, thick},
+    solidarrow/.style={->, >=stealth, thick},
+    label/.style={font=\scriptsize, text=black}
+]
+
+% Coroutine side (right)
+\node[block] (coroutine-start) {\textbf{suspendFun}};
+\node[action, below=of coroutine-start] (coroutine-code) {Execute code};
+\node[suspend, below=of coroutine-code] (suspend-call) {Call suspendCoroutineUninterceptedOrReturn};
+\node[suspend, below=of suspend-call] (wasm-suspend) {suspend with lambda as argument};
+\node[block, below=of wasm-suspend] (coroutine-resumed) {Coroutine resumed};
+\node[action, below=of coroutine-resumed] (use-result) {Use result from suspend block};
+\node[block, below=of use-result] (coroutine-return) {Return};
+
+% Caller side (left)
+\node[block, left=of coroutine-start, xshift=-2cm] (caller-start) {\textbf{caller}};
+\node[action, below=of caller-start] (start-coroutine) {Start coroutine};
+\node[block, below=of start-coroutine] (caller-receives) {Receive suspension result};
+\node[action, below=of caller-receives] (execute-suspend-lambda) {Execute suspend lambda};
+\node[suspend, below=of execute-suspend-lambda, yshift=-0.5cm] (resume-coroutine) {Resume coroutine with result};
+\node[block, below=of resume-coroutine] (caller-continues) {Continue execution};
+\node[block, below=of caller-continues] (caller-return) {Return};
+\node[block, left=of execute-suspend-lambda, xshift=-1cm] (caller-return-suspended) {Return COROUTINE\_SUSPENDED};
+
+% Caller flow
+\draw[arrow] (caller-start) -- (start-coroutine);
+\draw[arrow] (caller-receives) -- (execute-suspend-lambda);
+\draw[arrow] (execute-suspend-lambda) -- node[left, pos=0.5, label] {returned result} (resume-coroutine);
+\draw[arrow] (execute-suspend-lambda) -- node[above, pos=0.5, label] {returned COROUTINE\_SUSPENDED} (caller-return-suspended);
+\draw[arrow] (resume-coroutine) -- (caller-continues);
+\draw[arrow] (caller-continues) -- (caller-return);
+
+% Coroutine flow
+\draw[arrow] (coroutine-start) -- (coroutine-code);
+\draw[arrow] (coroutine-code) -- (suspend-call);
+\draw[arrow] (suspend-call) -- (wasm-suspend);
+\draw[arrow] (coroutine-resumed) -- (use-result);
+\draw[arrow] (use-result) -- (coroutine-return);
+
+% Stack-switching transfers
+\draw[transfer] (start-coroutine) -- node[above, pos=0.5, label] {create \& resume} (coroutine-start);
+\draw[transfer] (wasm-suspend) -- node[above, pos=0.5, label] {pass suspend lambda} (caller-receives);
+\draw[transfer] (resume-coroutine) -- node[above, pos=0.5, label] {resume with result} (coroutine-resumed);
+\draw[transfer] (coroutine-return) -- (caller-continues);
+
+\end{tikzpicture}
