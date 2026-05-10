@@ -1,12 +1,12 @@
 \begin{tikzpicture}[
     node distance=0.8cm and 3cm,
     every node/.style={font=\small},
-    block/.style={rectangle, draw, fill=blue!10, text centered, rounded corners, minimum height=2.5em, inner sep=5pt},
-    decision/.style={diamond, draw, fill=yellow!10, text centered, aspect=2, inner sep=1pt},
-    action/.style={rectangle, draw, fill=green!10, text centered, rounded corners, minimum height=2.5em, inner sep=5pt},
-    suspend/.style={rectangle, draw, fill=orange!20, text centered, rounded corners, minimum height=2.5em, inner sep=5pt},
+    block/.style={rectangle, draw, fill=blue!10, text width=5em, text centered, rounded corners, minimum height=2.5em},
+    decision/.style={diamond, draw, fill=yellow!10, text width=4em, text centered, aspect=2, inner sep=1pt},
+    action/.style={rectangle, draw, fill=green!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    suspend/.style={rectangle, draw, fill=orange!20, text width=6em, text centered, rounded corners, minimum height=2.5em},
     title/.style={font=\large\bfseries},
-    note/.style={rectangle, draw, fill=gray!10, text width=18em, align=center, rounded corners, minimum height=2.5em, inner sep=5pt},
+    note/.style={rectangle, draw, fill=gray!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
     container/.style={rectangle, draw, fill=orange!10, text width=8em, minimum height=6em, rounded corners},
     arrow/.style={->, >=stealth, thick},
     transfer/.style={->, >=stealth, thick, dashed},
@@ -24,22 +24,22 @@
 % -------------------------
     \node[note] (n1) at (0, -1.5) {\texttt{suspendFun\\.startCoroutineUninterceptedOrReturn\\(completion)}};
     \node[note] (n2) at (0, -3.5) {\texttt{doResume()}};
-    \node[note] (n3) at (0, -6) {return \texttt{COROUTINE\_SUSPENDED}};
-    \node[note] (n4) at (0, -11.5) {\texttt{completion.resume(result)}};
-    \node[note] (n5) at (0, -14) {return result};
+    \node[note] (n3) at (0, -6) {return\\\texttt{COROUTINE\_\\SUSPENDED}};
+    \node[note] (n4) at (0, -11.5) {\texttt{completion\\.resume(result)}};
+    \node[note] (n5) at (0, -14) {return\\result};
 
 % -------------------------
 % Right Column Nodes
 % -------------------------
-    \node[note] (n6) at (7, -3.5) {*execute suspendFun body*};
+    \node[note] (n6) at (7, -3.5) {*execute\\suspendFun\\body*};
 
 % Container Box for suspendCoroutine
     \node[container] (n7_box) at (7, -6) {};
     \node[anchor=north, font=\small, inner sep=6pt] at (n7_box.north) {\texttt{suspendCoroutineUninterceptedOrReturn}};
-    \node[note] (n7_note) at (7, -6.2) {*execute suspend lambda*};
+    \node[note] (n7_note) at (7, -6.2) {*execute\\suspend\\lambda*};
 
-    \node[note] (n8) at (7, -9) {*continue execution*};
-    \node[note] (n9) at (7, -11.5) {return result};
+    \node[note] (n8) at (7, -9) {*continue\\execution*};
+    \node[note] (n9) at (7, -11.5) {return\\result};
 
 % -------------------------
 % Arrows & Routing
