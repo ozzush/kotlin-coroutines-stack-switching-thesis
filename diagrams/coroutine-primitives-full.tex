@@ -10,7 +10,7 @@
     whiteNote/.style={rectangle, draw, fill=white, text width=6em, text centered, rounded corners, minimum height=2.5em},
     yellowNote/.style={rectangle, draw, fill=yellow!15, text width=6em, text centered, rounded corners, minimum height=2.5em},
     pinkNote/.style={rectangle, draw, fill=orange!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    bgBox/.style={rectangle, draw=gray!50, fill=gray!5, rounded corners, inner sep=0.5cm},
+    bgBox/.style={rectangle, draw=gray!50, fill=orange!10, rounded corners, inner sep=0.5cm},
     container/.style={rectangle, draw, fill=orange!10, text width=8em, minimum height=6em, rounded corners},
     arrow/.style={->, >=stealth, thick},
     transfer/.style={->, >=stealth, thick, dashed},
@@ -39,7 +39,7 @@
 % Column 2 Nodes
 % -------------------------
     \node[pinkNote] (n2_1) at (6, -4.5) {\texttt{doResume()}};
-    \node[yellowNote] (n2_2) at (6, -9.5) {Coroutine suspended};
+    \node[yellowNote] (n2_2) at (6, -9.5) {coroutine suspended};
     \node[yellowNote] (n2_3) at (6, -14.5) {resume\\completion\\with result};
 
 % -------------------------
