@@ -7,7 +7,7 @@
     suspend/.style={rectangle, draw, fill=orange!20, text width=6em, text centered, rounded corners, minimum height=2.5em},
     title/.style={font=\large\bfseries},
     note/.style={rectangle, draw, fill=gray!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    container/.style={rectangle, draw, fill=orange!10, text width=8em, minimum height=4.5em, rounded corners},
+    container/.style={rectangle, draw, fill=orange!10, text width=8em, minimum height=6em, rounded corners},
     arrow/.style={->, >=stealth, thick},
     transfer/.style={->, >=stealth, thick, dashed},
     solidarrow/.style={->, >=stealth, thick},
@@ -35,7 +35,7 @@
 
 % Container Box for suspendCoroutine
     \node[container] (n7_box) at (7, -6) {};
-    \node[anchor=north, font=\sffamily\Large, inner sep=6pt] at (n7_box.north) {suspendCoroutine};
+    \node[anchor=north, font=\sffamily\small, inner sep=6pt] at (n7_box.north) {suspendCoroutine};
     \node[note] (n7_note) at (7, -6.2) {*execute\\suspend\\lambda*};
 
     \node[note] (n8) at (7, -9) {*continue\\execution*};
