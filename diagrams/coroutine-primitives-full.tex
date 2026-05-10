@@ -1,0 +1,107 @@
+\begin{tikzpicture}[
+    node distance=0.8cm and 3cm,
+    every node/.style={font=\small},
+    block/.style={rectangle, draw, fill=blue!10, text width=5em, text centered, rounded corners, minimum height=2.5em},
+    decision/.style={diamond, draw, fill=yellow!10, text width=4em, text centered, aspect=2, inner sep=1pt},
+    action/.style={rectangle, draw, fill=green!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    suspend/.style={rectangle, draw, fill=orange!20, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    title/.style={font=\large\bfseries},
+    note/.style={rectangle, draw, fill=gray!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    whiteNote/.style={rectangle, draw, fill=white, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    yellowNote/.style={rectangle, draw, fill=yellow!15, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    pinkNote/.style={rectangle, draw, fill=orange!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    bgBox/.style={rectangle, draw=gray!50, fill=gray!5, rounded corners, inner sep=0.5cm},
+    container/.style={rectangle, draw, fill=orange!10, text width=8em, minimum height=6em, rounded corners},
+    arrow/.style={->, >=stealth, thick},
+    transfer/.style={->, >=stealth, thick, dashed},
+    solidarrow/.style={->, >=stealth, thick},
+    label/.style={font=\scriptsize}
+]
+\pgfdeclarelayer{background}
+\pgfsetlayers{background,main}
+% -------------------------
+% Column Titles & Alignment Coordinates
+% -------------------------
+    \node[title] (t1) at (0, 0) {\texttt{startCoroutineUninterceptedOrReturn}};
+    \node[title] (t2) at (4.5, 0) {\texttt{CoroutineImpl::resumeWith}};
+    \node[title] (t3) at (9, 0) {suspend function};
+    \node[title] (t4) at (13.5, 0) {\texttt{suspendCoroutineUninterceptedOrReturn}};
+
+% -------------------------
+% Column 1 Nodes
+% -------------------------
+    \node[whiteNote, text width=7em] (n1_1) at (0, -2) {*create\\CoroutineImpl*};
+    \node[yellowNote, text width=10em] (n1_2) at (0, -4.5) {\texttt{CoroutineImpl::\\resumeWith(Unit)}};
+    \node[whiteNote, text width=9em] (n1_3) at (0, -9.5) {return\\\texttt{COROUTINE\_\\SUSPENDED}};
+    \node[whiteNote] (n1_4) at (0, -14.5) {return\\result};
+
+% -------------------------
+% Column 2 Nodes
+% -------------------------
+    \node[pinkNote] (n2_1) at (4.5, -4.5) {\texttt{doResume()}};
+    \node[yellowNote] (n2_2) at (4.5, -9.5) {Coroutine suspended};
+    \node[yellowNote] (n2_3) at (4.5, -14.5) {resume\\completion\\with result};
+
+% -------------------------
+% Column 3 Nodes
+% -------------------------
+    \node[yellowNote] (n3_1) at (9, -4.5) {*execute\\suspend\\fun code*};
+    \node[pinkNote, font=\scriptsize, minimum height=2em, text width=15em] (n3_2) at (9, -7) {\texttt{suspendCoroutineUninterceptedOrReturn}};
+    \node[yellowNote] (n3_3) at (9, -12) {*continue\\execution*};
+    \node[yellowNote] (n3_4) at (9, -14.5) {return\\result};
+
+% -------------------------
+% Column 4 Nodes
+% -------------------------
+    \node[whiteNote] (n4_1) at (13.5, -7) {*execute\\suspend\\lambda*};
+
+    % The branching paths below the lambda execution
+    \node[whiteNote, text width=6.5em] (n4_2) at (11.5, -9.5) {result is\\\texttt{COROUTINE\_\\SUSPENDED}};
+    \node[whiteNote, text width=6.5em] (n4_3) at (15.5, -9.5) {result is\\a value};
+
+% -------------------------
+% Background Column Boxes
+% -------------------------
+    \begin{pgfonlayer}{background}
+        % Using dummy coordinates to ensure uniform top/bottom padding
+        \coordinate (c1_top) at (0, 0.8);
+        \coordinate (c1_bot) at (0, -15.5);
+        \node[bgBox, fit=(t1) (n1_1) (n1_4) (c1_top) (c1_bot)] {};
+
+        \coordinate (c4_top) at (13.5, 0.8);
+        \coordinate (c4_bot) at (13.5, -15.5);
+        \node[bgBox, fit=(t4) (n4_1) (n4_2) (n4_3) (c4_top) (c4_bot)] {};
+    \end{pgfonlayer}
+
+% -------------------------
+% Arrows & Routing
+% -------------------------
+    % Downward Start
+    \draw[arrow] (n1_1) -- (n1_2);
+
+    % Rightward step-in
+    \draw[arrow] (n1_2) -- (n2_1);
+    \draw[arrow] (n2_1) -- (n3_1);
+
+    % Down to suspendCoroutine call
+    \draw[arrow] (n3_1) -- (n3_2);
+    \draw[arrow] (n3_2) -- (n4_1);
+
+    % Curving Fork from lambda execution
+    \draw[arrow] (n4_1.south) to[out=270, in=90] (n4_2.north);
+    \draw[arrow] (n4_1.south) to[out=270, in=90] (n4_3.north);
+
+    % Leftward flow (Suspension path)
+    \draw[arrow] (n4_2) -- (n2_2);
+    \draw[arrow] (n2_2) -- (n1_3);
+
+    % Long curved flow (Value path)
+    \draw[arrow] (n4_3.south) to[out=270, in=0] (n3_3.east);
+
+    % Downward return to caller
+    \draw[arrow] (n3_3) -- (n3_4);
+
+    % Leftward flow (Resume path)
+    \draw[arrow] (n3_4) -- (n2_3);
+    \draw[arrow] (n2_3) -- (n1_4);
+\end{tikzpicture}
