@@ -1,105 +1,53 @@
 \begin{tikzpicture}[
-    node distance=0.8cm and 3cm,
+    node distance=1.2cm and 3cm,
     every node/.style={font=\small},
-    block/.style={rectangle, draw, fill=blue!10, text width=5em, text centered, rounded corners, minimum height=2.5em},
+    block/.style={rectangle, draw, fill=blue!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
     decision/.style={diamond, draw, fill=yellow!10, text width=4em, text centered, aspect=2, inner sep=1pt},
-    action/.style={rectangle, draw, fill=green!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    suspend/.style={rectangle, draw, fill=orange!20, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    title/.style={font=\large\bfseries, text width=13em, align=center},
-    note/.style={rectangle, draw, fill=gray!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    whiteNote/.style={rectangle, draw, fill=white, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    pinkNote/.style={rectangle, draw, fill=orange!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    primitive/.style={rectangle, draw, fill=orange!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    bgBox/.style={rectangle, draw=gray!50, fill=orange!10, rounded corners, inner sep=0.5cm},
+    action/.style={rectangle, draw, fill=green!10, text width=7em, text centered, rounded corners, minimum height=2.5em},
+    suspend/.style={rectangle, draw, fill=orange!20, text width=7em, text centered, rounded corners, minimum height=2.5em},
     arrow/.style={->, >=stealth, thick},
     transfer/.style={->, >=stealth, thick},
     solidarrow/.style={->, >=stealth, thick},
-    label/.style={font=\scriptsize}
+    label/.style={font=\scriptsize, text=black}
 ]
-\pgfdeclarelayer{background}
-\pgfsetlayers{background,main}
 
-% -------------------------
-% Column Titles
-% -------------------------
-\node[title] (t1) at (0, 0) {main context};
-\node[title] (t2) at (6, 0) {\texttt{CoroutineImpl::resumeWith}};
-\node[title] (t3) at (12, 0) {suspend function};
-\node[title] (t4) at (18, 0) {Wasm primitives};
+% Coroutine side (right)
+\node[block] (coroutine-start) {\textbf{suspendFun}};
+\node[action, below=of coroutine-start] (coroutine-code) {Execute code};
+\node[suspend, below=of coroutine-code] (suspend-call) {Call suspendCoroutineUninterceptedOrReturn};
+\node[suspend, below=of suspend-call] (wasm-suspend) {suspend with lambda as argument};
+\node[block, below=of wasm-suspend] (coroutine-resumed) {Coroutine resumed};
+\node[action, below=of coroutine-resumed] (use-result) {Use result from suspend block};
+\node[block, below=of use-result] (coroutine-return) {Return};
 
-% -------------------------
-% Column 1 Nodes (main context)
-% -------------------------
-\node[pinkNote, text width=10em] (n1_1) at (0, -2) {\texttt{suspendFun\\.startCoroutineUninterceptedOrReturn\\(completion)}};
-\node[note, text width=10em] (n1_2) at (0, -4.5) {\texttt{CoroutineImpl::\\resumeWith(Unit)}};
-\node[whiteNote, text width=9em] (n1_3) at (0, -9.5) {return\\\texttt{COROUTINE\_\\SUSPENDED}};
-\node[whiteNote] (n1_4) at (0, -14.5) {return\\result};
+% Caller side (left)
+\node[block, left=of coroutine-start, xshift=-2cm] (caller-start) {\textbf{caller}};
+\node[action, below=of caller-start] (start-coroutine) {Start coroutine};
+\node[block, below=of start-coroutine] (caller-receives) {Receive suspension result};
+\node[action, below=of caller-receives] (execute-suspend-lambda) {Execute suspend lambda};
+\node[suspend, below=of execute-suspend-lambda, yshift=-0.5cm] (resume-coroutine) {Resume coroutine with result};
+\node[block, below=of resume-coroutine] (caller-continues) {Receive result};
+\node[block, below=of caller-continues] (caller-return) {Return};
+\node[block, left=of caller-return, xshift=-0.2cm] (caller-return-suspended) {Return COROUTINE\_SUSPENDED};
 
-% -------------------------
-% Column 2 Nodes (CoroutineImpl::resumeWith)
-% -------------------------
-\node[pinkNote] (n2_1) at (6, -4.5) {\texttt{doResume()}};
-\node[note] (n2_2) at (6, -9.5) {coroutine suspended};
-\node[note] (n2_3) at (6, -14.5) {resume\\completion\\with result};
+% Caller flow
+\draw[arrow] (caller-start) -- (start-coroutine);
+\draw[arrow] (caller-receives) -- (execute-suspend-lambda);
+\draw[arrow] (execute-suspend-lambda) -- node[left, pos=0.5, label] {returned result} (resume-coroutine);
+\draw[arrow] (execute-suspend-lambda.west) -- ++(-0.5,0) -| node[above left, pos=0.25, label] {returned COROUTINE\_SUSPENDED} (caller-return-suspended.north);
+\draw[arrow] (caller-continues) -- (caller-return);
 
-% -------------------------
-% Column 3 Nodes (suspend function)
-% -------------------------
-\node[note] (n3_1) at (12, -4.5) {*execute\\suspend\\fun code*};
-\node[pinkNote, minimum height=2em, text width=10em] (n3_2) at (12, -7) {\texttt{suspendCoroutine-\\UninterceptedOrReturn}};
-\node[note] (n3_3) at (12, -12) {*continue\\execution*};
-\node[note] (n3_4) at (12, -14.5) {return\\result};
+% Coroutine flow
+\draw[arrow] (coroutine-start) -- (coroutine-code);
+\draw[arrow] (coroutine-code) -- (suspend-call);
+\draw[arrow] (suspend-call) -- (wasm-suspend);
+\draw[arrow] (coroutine-resumed) -- (use-result);
+\draw[arrow] (use-result) -- (coroutine-return);
 
-% -------------------------
-% Column 4 Nodes (Wasm primitives)
-% -------------------------
-\node[primitive] (n4_1) at (18, -2) {\texttt{cont.new}};
-\node[primitive] (n4_2) at (18, -4.5) {\texttt{resume}};
-\node[whiteNote] (n4_3) at (18, -7) {*execute\\suspend\\lambda*};
-\node[primitive] (n4_4) at (18, -9.5) {\texttt{suspend}};
-\node[primitive] (n4_5) at (18, -12) {\texttt{resume}};
-
-% -------------------------
-% Background Column Boxes
-% -------------------------
-\begin{pgfonlayer}{background}
-    \coordinate (c4_top) at (18, 0.8);
-    \coordinate (c4_bot) at (18, -15.5);
-    \node[bgBox, fit=(t4) (n4_1) (n4_2) (n4_3) (n4_4) (n4_5) (c4_top) (c4_bot)] {};
-\end{pgfonlayer}
-
-% -------------------------
-% Arrows & Routing
-% -------------------------
-% Column 1 to Column 2
-\draw[arrow] (n1_1) -- (n1_2);
-\draw[arrow] (n1_2) -- (n2_1);
-
-% Column 2 to Column 3
-\draw[arrow] (n2_1) -- (n3_1);
-
-% Column 3 flow
-\draw[arrow] (n3_1) -- (n3_2);
-\draw[arrow] (n3_3) -- (n3_4);
-
-% Column 3 to Column 4
-\draw[arrow] (n3_2) -- (n4_3);
-
-% Column 4 to Column 1 (suspension path)
-\draw[arrow] (n4_4) -- (n2_2);
-\draw[arrow] (n2_2) -- (n1_3);
-
-% Column 4 to Column 3 (resume path)
-\draw[arrow] (n4_5) -- (n3_3);
-
-% Column 3 to Column 2 (completion path)
-\draw[arrow] (n3_4) -- (n2_3);
-\draw[arrow] (n2_3) -- (n1_4);
-
-% Wasm primitives flow
-\draw[arrow] (n4_1) -- (n4_2);
-\draw[arrow] (n4_2) -- (n4_3);
-\draw[arrow] (n4_3) -- (n4_4);
-\draw[arrow] (n4_5.south) to[out=270, in=0] (n3_4.east);
+% Stack-switching transfers
+\draw[transfer] (start-coroutine) -- node[above, pos=0.5, label] {create \& resume} (coroutine-start);
+\draw[transfer] (wasm-suspend) -- node[above, pos=0.5, label] {pass suspend lambda} (caller-receives);
+\draw[transfer] (resume-coroutine) -- node[above, pos=0.5, label] {resume with result} (coroutine-resumed);
+\draw[transfer] (coroutine-return) -- (caller-continues);
 
 \end{tikzpicture}

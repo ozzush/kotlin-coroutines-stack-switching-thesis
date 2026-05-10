@@ -1,107 +1,33 @@
 \begin{tikzpicture}[
-    node distance=0.8cm and 3cm,
+    node distance=1.2cm and 3cm,
     every node/.style={font=\small},
-    block/.style={rectangle, draw, fill=blue!10, text width=5em, text centered, rounded corners, minimum height=2.5em},
-    decision/.style={diamond, draw, fill=yellow!10, text width=6em, text centered, aspect=2, inner sep=1pt},
-    action/.style={rectangle, draw, fill=green!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    suspend/.style={rectangle, draw, fill=orange!20, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    title/.style={font=\large\bfseries, text width=13em, align=center},
-    note/.style={rectangle, draw, fill=gray!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    whiteNote/.style={rectangle, draw, fill=white, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    pinkNote/.style={rectangle, draw, fill=orange!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    primitive/.style={rectangle, draw, fill=orange!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    bgBox/.style={rectangle, draw=gray!50, fill=orange!10, rounded corners, inner sep=0.5cm},
+    block/.style={rectangle, draw, fill=blue!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    decision/.style={diamond, draw, fill=yellow!10, text width=5em, text centered, aspect=2, inner sep=1pt},
+    action/.style={rectangle, draw, fill=green!10, text width=7em, text centered, rounded corners, minimum height=2.5em},
+    suspend/.style={rectangle, draw, fill=orange!20, text width=7em, text centered, rounded corners, minimum height=2.5em},
     arrow/.style={->, >=stealth, thick},
     transfer/.style={->, >=stealth, thick},
     solidarrow/.style={->, >=stealth, thick},
-    label/.style={font=\scriptsize}
+    label/.style={font=\scriptsize, text=black}
 ]
-\pgfdeclarelayer{background}
-\pgfsetlayers{background,main}
 
-% -------------------------
-% Column Titles
-% -------------------------
-\node[title] (t1) at (0, 0) {main context};
-\node[title] (t2) at (6, 0) {\texttt{CoroutineImpl::resumeWith}};
-\node[title] (t3) at (12, 0) {suspend function};
-\node[title] (t4) at (18, 0) {\texttt{suspendCoroutine-\\UninterceptedOrReturn}};
+% Coroutine side
+%\node[block] (coroutine-start) {\textbf{suspendCoroutineUninterceptedOrReturn}};
+%\node[suspend] (suspend-call) {\textbf{suspendCoroutineUninterceptedOrReturn}};
+\node[action] (create-wrapper) {Create continuation wrapper that does nothing};
+\node[action, below=of create-wrapper] (call-lambda) {Call suspend lambda};
+\node[decision, below=of call-lambda, yshift=-0.3cm] (check-wrapper) {Was continuation wrapper resumed?};
+\node[suspend, below=of check-wrapper, yshift=-0.5cm] (suspend-block) {Suspend};
+\node[action, below=of check-wrapper, xshift=3cm, yshift=-0.5cm] (return-value) {Return the value it was resumed with};
+\node[block, below=of suspend-block] (coroutine-return) {Return};
 
-% -------------------------
-% Column 1 Nodes (main context)
-% -------------------------
-\node[pinkNote, text width=10em] (n1_1) at (0, -2) {\texttt{suspendFun\\.startCoroutineUninterceptedOrReturn\\(completion)}};
-\node[note, text width=10em] (n1_2) at (0, -4.5) {\texttt{CoroutineImpl::\\resumeWith(Unit)}};
-\node[whiteNote, text width=9em] (n1_3) at (0, -12) {return\\\texttt{COROUTINE\_\\SUSPENDED}};
-\node[whiteNote] (n1_4) at (0, -16) {return\\result};
-
-% -------------------------
-% Column 2 Nodes (CoroutineImpl::resumeWith)
-% -------------------------
-\node[pinkNote] (n2_1) at (6, -4.5) {\texttt{doResume()}};
-\node[note] (n2_2) at (6, -12) {coroutine suspended};
-\node[note] (n2_3) at (6, -16) {resume\\completion\\with result};
-
-% -------------------------
-% Column 3 Nodes (suspend function)
-% -------------------------
-\node[note] (n3_1) at (12, -4.5) {*execute\\suspend\\fun code*};
-\node[pinkNote, minimum height=2em, text width=10em] (n3_2) at (12, -7) {\texttt{suspendCoroutine-\\UninterceptedOrReturn}};
-\node[note] (n3_3) at (12, -14) {*continue\\execution*};
-\node[note] (n3_4) at (12, -16) {return\\result};
-
-% -------------------------
-% Column 4 Nodes (suspendCoroutineUninterceptedOrReturn - optimized)
-% -------------------------
-\node[whiteNote, text width=8em] (n4_1) at (18, -7) {create synthetic\\continuation\\wrapper};
-\node[whiteNote] (n4_2) at (18, -9) {*execute\\suspend\\lambda*};
-\node[decision, text width=7em] (n4_3) at (18, -11) {wrapper\\resumed?};
-\node[primitive] (n4_4) at (18, -13.5) {\texttt{suspend}};
-\node[whiteNote, text width=7em] (n4_5) at (21, -13.5) {return\\resume\\value};
-
-% -------------------------
-% Background Column Boxes
-% -------------------------
-\begin{pgfonlayer}{background}
-    \coordinate (c4_top) at (18, 0.8);
-    \coordinate (c4_bot) at (18, -17);
-    \node[bgBox, fit=(t4) (n4_1) (n4_2) (n4_3) (n4_4) (n4_5) (c4_top) (c4_bot)] {};
-\end{pgfonlayer}
-
-% -------------------------
-% Arrows & Routing
-% -------------------------
-% Column 1 to Column 2
-\draw[arrow] (n1_1) -- (n1_2);
-\draw[arrow] (n1_2) -- (n2_1);
-
-% Column 2 to Column 3
-\draw[arrow] (n2_1) -- (n3_1);
-
-% Column 3 flow
-\draw[arrow] (n3_1) -- (n3_2);
-\draw[arrow] (n3_3) -- (n3_4);
-
-% Column 3 to Column 4
-\draw[arrow] (n3_2) -- (n4_1);
-
-% Column 4 flow
-\draw[arrow] (n4_1) -- (n4_2);
-\draw[arrow] (n4_2) -- (n4_3);
-
-% Decision branches
-\draw[arrow] (n4_3) -- node[left, pos=0.3, label] {no} (n4_4);
-\draw[arrow] (n4_3) -- node[above, pos=0.3, label] {yes} (n4_5);
-
-% Suspension path (no - wrapper not resumed)
-\draw[arrow] (n4_4) -- (n2_2);
-\draw[arrow] (n2_2) -- (n1_3);
-
-% Fast path (yes - wrapper resumed immediately)
-\draw[arrow] (n4_5.south) to[out=270, in=0] (n3_3.east);
-
-% Completion path
-\draw[arrow] (n3_4) -- (n2_3);
-\draw[arrow] (n2_3) -- (n1_4);
+% Coroutine flow
+%\draw[arrow] (coroutine-start) -- (suspend-call);
+%\draw[arrow] (suspend-call) -- (create-wrapper);
+\draw[arrow] (create-wrapper) -- (call-lambda);
+\draw[arrow] (call-lambda) -- (check-wrapper);
+\draw[arrow] (check-wrapper) -- node[right, pos=0.3, label] {yes} (return-value);
+\draw[arrow] (check-wrapper) -- node[left, pos=0.3, label] {no} (suspend-block);
+\draw[arrow] (suspend-block) -- (coroutine-return);
 
 \end{tikzpicture}
