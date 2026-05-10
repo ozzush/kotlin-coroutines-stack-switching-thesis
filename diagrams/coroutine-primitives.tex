@@ -22,10 +22,10 @@
 % -------------------------
 % Left Column Nodes
 % -------------------------
-    \node[note] (n1) at (0, -1.5) {suspendFun\\.startCoroutine\\(completion)};
-    \node[note] (n2) at (0, -3.5) {doResume()};
-    \node[note] (n3) at (0, -6) {return\\COROUTINE\_\\SUSPENDED};
-    \node[note] (n4) at (0, -11.5) {completion\\.resume(result)};
+    \node[note] (n1) at (0, -1.5) {\texttt{suspendFun\\.startCoroutineUninterceptedOrReturn\\(completion)}};
+    \node[note] (n2) at (0, -3.5) {\texttt{doResume()}};
+    \node[note] (n3) at (0, -6) {return\\\texttt{COROUTINE\_\\SUSPENDED}};
+    \node[note] (n4) at (0, -11.5) {\texttt{completion\\.resume(result)}};
     \node[note] (n5) at (0, -14) {return\\result};
 
 % -------------------------
@@ -35,7 +35,7 @@
 
 % Container Box for suspendCoroutine
     \node[container] (n7_box) at (7, -6) {};
-    \node[anchor=north, font=\sffamily\small, inner sep=6pt] at (n7_box.north) {suspendCoroutine};
+    \node[anchor=north, font=\small, inner sep=6pt] at (n7_box.north) {\texttt{suspendCoroutineUninterceptedOrReturn}};
     \node[note] (n7_note) at (7, -6.2) {*execute\\suspend\\lambda*};
 
     \node[note] (n8) at (7, -9) {*continue\\execution*};
@@ -49,7 +49,7 @@
     \draw[arrow] (n6) -- (n7_box);
 
 % Left arrow from container to return SUSPENDED
-    \draw[arrow] (n7_box.west) -- node[above, align=center, font=\sffamily\scriptsize] {lambda returned \\ COROUTINE\_SUSPENDED} (n3.east);
+    \draw[arrow] (n7_box.west) -- node[above, align=center, font=\sffamily\scriptsize] {lambda returned \\ \texttt{COROUTINE\_SUSPENDED}} (n3.east);
 
 % Down arrow from container to continue execution
     \draw[arrow] (n7_box.south) -- node[fill=white, align=center, font=\sffamily\scriptsize] {lambda returned value} (n8.north);
