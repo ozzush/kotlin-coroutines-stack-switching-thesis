@@ -9,7 +9,7 @@
     subtitle/.style={font=\normalsize\bfseries, text width=10em, align=center},
     whiteNote/.style={rectangle, draw, fill=white, text width=6em, text centered, rounded corners, minimum height=2.5em},
     blueNote/.style={rectangle, draw, fill=blue!20, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    yellowNote/.style={rectangle, draw, fill=yellow!20, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    yellowNote/.style={rectangle, draw, fill=gray!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
     container/.style={rectangle, draw, fill=orange!10, text width=8em, minimum height=6em, rounded corners},
     arrow/.style={->, >=stealth, thick},
     transfer/.style={->, >=stealth, thick},
@@ -20,7 +20,7 @@
 % Main Dividers
 % -------------------------
     \draw[thick] (-2, 0) -- (17, 0); % Horizontal line
-    \draw[thick] (10, 1.5) -- (10, -19.5); % Vertical line
+    \draw[thick] (10, 1.5) -- (10, -16); % Vertical line
 
 % -------------------------
 % Headers & Subheaders
@@ -37,8 +37,8 @@
 % -------------------------
     \node[blueNote] (n1_1) at (0, -3) {\texttt{cont.new}};
     \node[yellowNote, text width=10em] (n1_2) at (0, -5.5) {\texttt{CoroutineImpl::\\resumeWith(Unit)}};
-    \node[whiteNote, text width=9em] (n1_3) at (0, -13) {return\\\texttt{COROUTINE\_\\SUSPENDED}};
-    \node[whiteNote] (n1_4) at (0, -18) {return\\value};
+    \node[whiteNote, text width=9em] (n1_3) at (0, -10.5) {return\\\texttt{COROUTINE\_SUSPENDED}};
+    \node[whiteNote] (n1_4) at (0, -15) {return\\value};
 
 % -------------------------
 % Nodes - Column 2 (X=6) & Branches
@@ -49,12 +49,12 @@
     \node[whiteNote, font=\scriptsize] (fork_src) at (6, -8.5) {execute\\suspendLambda};
 
     % Left Branch (X=4.5, centered around column)
-    \node[whiteNote, font=\scriptsize, text width=7em] (fork_l) at (4.5, -13) {suspendLambda\\returned\\\texttt{COROUTINE\_\\SUSPENDED}};
+    \node[whiteNote, font=\scriptsize, text width=7em] (fork_l) at (4.5, -10.5) {suspendLambda\\returned\\\texttt{COROUTINE\_SUSPENDED}};
 
     % Right Branch (X=7.5, centered around column)
-    \node[whiteNote, font=\scriptsize, text width=7em] (fork_r) at (7.5, -13) {suspendLambda\\returned a value};
+    \node[whiteNote, font=\scriptsize, text width=7em] (fork_r) at (7.5, -10.5) {suspendLambda\\returned a value};
 
-    \node[blueNote] (n2_2) at (6, -15.5) {\texttt{resume}};
+    \node[blueNote] (n2_2) at (6, -12.5) {\texttt{resume}};
 
 % -------------------------
 % Nodes - Column 3 (X=13.5)
@@ -66,8 +66,8 @@
     \node[anchor=north, font=\scriptsize, text width=14em, align=center, inner sep=4pt] at (box.north) {\texttt{suspendCoroutineUnintercept\\edOrReturn(suspendLambda)}};
     \node[blueNote, font=\scriptsize, minimum height=2em, text width=7em] (n3_2) at (13.5, -9) {\texttt{suspend}};
 
-    \node[yellowNote] (n3_3) at (13.5, -15.5) {*continue\\execution*};
-    \node[yellowNote] (n3_4) at (13.5, -18) {return\\value};
+    \node[yellowNote] (n3_3) at (13.5, -12.5) {*continue\\execution*};
+    \node[yellowNote] (n3_4) at (13.5, -15) {return\\value};
 
 % -------------------------
 % Arrows & Routing
