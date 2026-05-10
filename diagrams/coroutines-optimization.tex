@@ -19,19 +19,19 @@
 % -------------------------
 % Main Dividers
 % -------------------------
-    \draw[thick] (-1.5, 0) -- (16, 0); % Horizontal line
-    \draw[thick] (7, 1.2) -- (7, -18); % Vertical line
+    \draw[thick] (-1.5, 0) -- (17, 0); % Horizontal line
+    \draw[thick] (8, 1.2) -- (8, -18); % Vertical line
 
 % -------------------------
 % Headers & Subheaders
 % -------------------------
     \node[title] at (3, 0.8) {Main context};
-    \node[title] at (11, 0.8) {Suspend function\\context};
+    \node[title] at (13, 0.8) {Suspend function\\context};
 
     \node[subtitle, text width=13em] (sub1) at (0, -0.8) {startCoroutine-\\UninterceptedOrReturn};
     \node[subtitle, text width=13em] (sub2) at (5, -0.8) {CoroutineImpl::doResume};
-    \node[subtitle] (sub3) at (9, -0.8) {suspend fun};
-    \node[subtitle, text width=13em] (sub4) at (13, -0.8) {suspendCoroutine-\\UninterceptedOrReturn};
+    \node[subtitle] (sub3) at (10.5, -0.8) {suspend fun};
+    \node[subtitle, text width=13em] (sub4) at (14.5, -0.8) {suspendCoroutine-\\UninterceptedOrReturn};
 
 % -------------------------
 % Nodes - Column 1 (X=0)
@@ -47,21 +47,21 @@
     \node[blueNote] (n2_1) at (5, -4.5) {\texttt{resume}};
 
 % -------------------------
-% Nodes - Column 3 (X=9)
+% Nodes - Column 3 (X=10.5)
 % -------------------------
-    \node[yellowNote] (n3_1) at (9, -4.5) {*execute\\suspend\\fun code*};
-    \node[whiteNote, text width=10em] (n3_2) at (9, -7) {\texttt{suspendCoroutine-\\UninterceptedOrReturn}};
-    \node[yellowNote] (n3_3) at (9, -13) {*continue\\execution*};
-    \node[yellowNote] (n3_4) at (9, -15) {return\\value};
+    \node[yellowNote] (n3_1) at (10.5, -4.5) {*execute\\suspend\\fun code*};
+    \node[whiteNote, text width=10em] (n3_2) at (10.5, -7) {\texttt{suspendCoroutine-\\UninterceptedOrReturn}};
+    \node[yellowNote] (n3_3) at (10.5, -13) {*continue\\execution*};
+    \node[yellowNote] (n3_4) at (10.5, -15) {return\\value};
 
 % -------------------------
-% Nodes - Column 4 (X=13)
+% Nodes - Column 4 (X=14.5)
 % -------------------------
-    \node[whiteNote, font=\scriptsize, text width=7em] (n4_1) at (13, -7) {*create empty\\\texttt{Continuation}\\which does\\nothing on\\resume*};
-    \node[whiteNote, font=\scriptsize] (n4_2) at (13, -9) {execute\\suspendLambda};
-    \node[decision, font=\scriptsize] (n4_3) at (13, -11) {suspendLambda\\returned a value};
-    \node[decision, font=\scriptsize] (n4_4) at (13, -13) {\texttt{Continuation}\\was resumed\\in lambda};
-    \node[blueNote] (n4_5) at (13, -15.5) {\texttt{suspend}};
+    \node[whiteNote, font=\scriptsize, text width=7em] (n4_1) at (14.5, -7) {*create empty\\\texttt{Continuation}\\which does\\nothing on\\resume*};
+    \node[whiteNote, font=\scriptsize] (n4_2) at (14.5, -9) {execute\\suspendLambda};
+    \node[decision, font=\scriptsize] (n4_3) at (14.5, -11) {suspendLambda\\returned a value};
+    \node[decision, font=\scriptsize] (n4_4) at (14.5, -13) {\texttt{Continuation}\\was resumed\\in lambda};
+    \node[blueNote] (n4_5) at (14.5, -15.5) {\texttt{suspend}};
 
 % -------------------------
 % Arrows & Routing
