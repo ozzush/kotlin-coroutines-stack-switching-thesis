@@ -135,3 +135,4 @@ Thumbs.db
 # Build directories
 build/
 output/
+diagrams/out/

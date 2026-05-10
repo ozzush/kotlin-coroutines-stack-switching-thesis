@@ -164,6 +164,71 @@ until either:
 \section{Suspension count optimization}
 \label{sec:optimization}
 
+The base implementation described in the previous section handles all cases correctly, including the case where a
+continuation is resumed immediately inside the suspend lambda. However, this case presents an optimization opportunity.
+When a continuation is resumed immediately inside the suspend body, what does this actually represent? It represents
+that we are resuming the current function right away. This is semantically equivalent to not suspending at all -- the
+function can simply return the result directly to its caller without performing any Wasm stack-switching operations.
+
+Consider again the example from earlier where the continuation is resumed immediately:
+
+\begin{lstlisting}[language=Kotlin, basicstyle=\footnotesize\ttfamily]
+suspend fun suspendFun(): String =
+    suspendCoroutineUninterceptedOrReturn { cont ->
+        cont.resume("OK")      // Resume immediately
+        COROUTINE_SUSPENDED    // Still indicate suspension
+    }
+\end{lstlisting}
+
+In the base implementation, this code would:
+\begin{enumerate}
+    \item Execute the Wasm \texttt{suspend} instruction to suspend the function
+    \item Return control to the caller with the Wasm continuation
+    \item The caller would then resume this continuation with the result
+    \item The Wasm \texttt{resume} instruction would restart the suspended function
+\end{enumerate}
+
+However, since the continuation is resumed immediately, we can optimize this to simply return the value directly,
+avoiding the expensive suspend and resume operations entirely.
+
+\subsection{Implementation Approach}
+
+The optimization is implemented using two key mechanisms: synthetic continuations and suspension tracking.
+
+\subsubsection{Synthetic Continuations}
+
+When \texttt{suspendCoroutineUninterceptedOrReturn} is called, instead of immediately executing the Wasm
+\texttt{suspend} instruction, the implementation creates a \emph{synthetic} \texttt{WasmContinuation} object. This
+synthetic continuation is not backed by an actual Wasm continuation reference initially (its \texttt{contref} is null).
+The synthetic continuation is passed to the suspend lambda.
+
+If the suspend lambda resumes this synthetic continuation immediately by calling \texttt{resumeWith}, the continuation
+stores the result in a special field (\texttt{syntheticResumeValue}) instead of performing an actual Wasm resume
+operation. After the suspend lambda returns, \texttt{suspendCoroutineUninterceptedOrReturn} checks whether the
+synthetic continuation was resumed. If it was, the function returns the stored value directly without calling the
+\texttt{suspendIntrinsic} (which would execute the Wasm \texttt{suspend} instruction).
+
+\subsubsection{Suspension Tracking}
+
+To maintain correct semantics, the implementation must track whether a real suspension occurred. This is necessary
+because the completion continuation should only be invoked once, and only when a real suspension happens. The
+implementation uses a \texttt{SuspensionMarker} context element that is added to the coroutine context. This marker
+contains a \texttt{wasSuspended} flag that is set to true when \texttt{suspendCoroutineUninterceptedOrReturn} returns
+\texttt{COROUTINE\_SUSPENDED} without an immediate resume.
+
+When the coroutine completes, the \texttt{CoroutineImpl.resumeWith} method checks both the coroutine's internal
+\texttt{wasSuspended} flag and the \texttt{SuspensionMarker} to determine whether a real suspension occurred. If no
+real suspension occurred (immediate resume case), the method prevents double-completion by returning early instead of
+invoking the completion continuation again.
+
+\subsection{Benefits}
+
+This optimization eliminates unnecessary Wasm stack-switching operations in cases where the continuation is resumed
+immediately. Since stack-switching operations involve saving and restoring execution state, avoiding them when possible
+improves performance. The optimization is beneficial for coroutines that frequently use immediate
+resumption patterns, such as those that check cached values or perform fast-path optimizations before potentially
+suspending.
+
 \section{Testing and Validation}
 \label{sec:testing}
 

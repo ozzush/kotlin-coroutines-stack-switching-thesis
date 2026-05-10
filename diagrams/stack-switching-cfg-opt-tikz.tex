@@ -1,0 +1,33 @@
+\begin{tikzpicture}[
+    node distance=1.2cm and 3cm,
+    every node/.style={font=\small},
+    block/.style={rectangle, draw, fill=blue!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    decision/.style={diamond, draw, fill=yellow!10, text width=5em, text centered, aspect=2, inner sep=1pt},
+    action/.style={rectangle, draw, fill=green!10, text width=7em, text centered, rounded corners, minimum height=2.5em},
+    suspend/.style={rectangle, draw, fill=orange!20, text width=7em, text centered, rounded corners, minimum height=2.5em},
+    arrow/.style={->, >=stealth, thick},
+    transfer/.style={->, >=stealth, thick},
+    solidarrow/.style={->, >=stealth, thick},
+    label/.style={font=\scriptsize, text=black}
+]
+
+% Coroutine side
+%\node[block] (coroutine-start) {\textbf{suspendCoroutineUninterceptedOrReturn}};
+%\node[suspend] (suspend-call) {\textbf{suspendCoroutineUninterceptedOrReturn}};
+\node[action] (create-wrapper) {Create continuation wrapper that does nothing};
+\node[action, below=of create-wrapper] (call-lambda) {Call suspend lambda};
+\node[decision, below=of call-lambda, yshift=-0.3cm] (check-wrapper) {Was continuation wrapper resumed?};
+\node[suspend, below=of check-wrapper, yshift=-0.5cm] (suspend-block) {Suspend};
+\node[action, below=of check-wrapper, xshift=3cm, yshift=-0.5cm] (return-value) {Return the value it was resumed with};
+\node[block, below=of suspend-block] (coroutine-return) {Return};
+
+% Coroutine flow
+%\draw[arrow] (coroutine-start) -- (suspend-call);
+%\draw[arrow] (suspend-call) -- (create-wrapper);
+\draw[arrow] (create-wrapper) -- (call-lambda);
+\draw[arrow] (call-lambda) -- (check-wrapper);
+\draw[arrow] (check-wrapper) -- node[right, pos=0.3, label] {yes} (return-value);
+\draw[arrow] (check-wrapper) -- node[left, pos=0.3, label] {no} (suspend-block);
+\draw[arrow] (suspend-block) -- (coroutine-return);
+
+\end{tikzpicture}
