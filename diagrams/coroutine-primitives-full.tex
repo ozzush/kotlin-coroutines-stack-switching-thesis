@@ -5,10 +5,9 @@
     decision/.style={diamond, draw, fill=yellow!10, text width=4em, text centered, aspect=2, inner sep=1pt},
     action/.style={rectangle, draw, fill=green!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
     suspend/.style={rectangle, draw, fill=orange!20, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    title/.style={font=\large\bfseries, text width=16em, align=center},
+    title/.style={font=\large\bfseries, text width=13em, align=center},
     note/.style={rectangle, draw, fill=gray!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
     whiteNote/.style={rectangle, draw, fill=white, text width=6em, text centered, rounded corners, minimum height=2.5em},
-    yellowNote/.style={rectangle, draw, fill=yellow!15, text width=6em, text centered, rounded corners, minimum height=2.5em},
     pinkNote/.style={rectangle, draw, fill=orange!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
     bgBox/.style={rectangle, draw=gray!50, fill=orange!10, rounded corners, inner sep=0.5cm},
     container/.style={rectangle, draw, fill=orange!10, text width=8em, minimum height=6em, rounded corners},
@@ -31,7 +30,7 @@
 % Column 1 Nodes
 % -------------------------
     \node[whiteNote, text width=7em] (n1_1) at (0, -2) {*create\\CoroutineImpl*};
-    \node[yellowNote, text width=10em] (n1_2) at (0, -4.5) {\texttt{CoroutineImpl::\\resumeWith(Unit)}};
+    \node[note, text width=10em] (n1_2) at (0, -4.5) {\texttt{CoroutineImpl::\\resumeWith(Unit)}};
     \node[whiteNote, text width=9em] (n1_3) at (0, -9.5) {return\\\texttt{COROUTINE\_\\SUSPENDED}};
     \node[whiteNote] (n1_4) at (0, -14.5) {return\\result};
 
@@ -39,16 +38,16 @@
 % Column 2 Nodes
 % -------------------------
     \node[pinkNote] (n2_1) at (6, -4.5) {\texttt{doResume()}};
-    \node[yellowNote] (n2_2) at (6, -9.5) {coroutine suspended};
-    \node[yellowNote] (n2_3) at (6, -14.5) {resume\\completion\\with result};
+    \node[note] (n2_2) at (6, -9.5) {coroutine suspended};
+    \node[note] (n2_3) at (6, -14.5) {resume\\completion\\with result};
 
 % -------------------------
 % Column 3 Nodes
 % -------------------------
-    \node[yellowNote] (n3_1) at (12, -4.5) {*execute\\suspend\\fun code*};
-    \node[pinkNote, font=\scriptsize, minimum height=2em, text width=8em] (n3_2) at (12, -7) {\texttt{suspendCoroutine-\\UninterceptedOrReturn}};
-    \node[yellowNote] (n3_3) at (12, -12) {*continue\\execution*};
-    \node[yellowNote] (n3_4) at (12, -14.5) {return\\result};
+    \node[note] (n3_1) at (12, -4.5) {*execute\\suspend\\fun code*};
+    \node[pinkNote, minimum height=2em, text width=10em] (n3_2) at (12, -7) {\texttt{suspendCoroutine-\\UninterceptedOrReturn}};
+    \node[note] (n3_3) at (12, -12) {*continue\\execution*};
+    \node[note] (n3_4) at (12, -14.5) {return\\result};
 
 % -------------------------
 % Column 4 Nodes
