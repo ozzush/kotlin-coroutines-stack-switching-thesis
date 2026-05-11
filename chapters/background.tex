@@ -175,6 +175,7 @@ object Completion : Continuation<String> {
 }
 
 fun main() {
+    // returns COROUTINE_SUSPENDED
     ::suspendFun.startCoroutineUninterceptedOrReturn(Completion)
     resumeCoroutine!!.invoke()
     println(coroutineResult) // prints "OK"
@@ -189,6 +190,12 @@ To understand how these primitives are implemented internally, look at Figure~\r
 \begin{figure}[H]
     \centering
     \resizebox{\textwidth}{!}{\input{diagrams/coroutine-primitives-full}}
-    \caption{Kotlin coroutine primitives implementation}
+    \caption{Kotlin Coroutine primitives internals}
     \label{fig:coroutine-primitives-full}
 \end{figure}
+\begin{description}
+    \item Red blocks represent calls to functions that need to be implemented
+    \item Red columns represent that the function in the column title needs to be implemented
+    \item White blocks represent logic that needs to be implemented
+    \item Gray blocks represent calls to functions and logic that don't need to be implemented or require minimal changes
+\end{description}
