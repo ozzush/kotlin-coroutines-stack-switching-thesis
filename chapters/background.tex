@@ -149,19 +149,20 @@ The \texttt{block} receives the current continuation and can:
     \item Return a value without suspension
 \end{itemize}
 
-To understand how these primitives interact with each other in user code, look at code example TODO(insert and reference listing)
+To understand how these primitives interact with each other in user code, look at Figure~\ref{fig:kotlin-coroutines-example}.
 
-TODO(code for code listing:
-
+\begin{figure}[H]
+    \centering
+\begin{lstlisting}[language=Kotlin, label={lst:kotlin-coroutines-example}]
 var resumeCoroutine: (() -> Unit)? = null
 var coroutineResult: String? = null
 
 suspend fun suspendFun(): String {
     val result = suspendCoroutineUninterceptedOrReturn { cont ->
-    resumeCoroutine = {
-        cont.resume("OK")
-    }
-    COROUTINE_SUSPENDED
+        resumeCoroutine = {
+            cont.resume("OK")
+        }
+        COROUTINE_SUSPENDED
     }
     return result
 }
@@ -174,11 +175,20 @@ object Completion : Continuation<String> {
 }
 
 fun main() {
-
-    ::suspendFun.startCoroutineUninterceptedOrReturn(Completion) // returns COROUTINE_SUSPENDED
+    ::suspendFun.startCoroutineUninterceptedOrReturn(Completion)
     resumeCoroutine!!.invoke()
     println(coroutineResult) // prints "OK"
 }
-)
+\end{lstlisting}
+    \caption{Kotlin coroutines primitives example}
+    \label{fig:kotlin-coroutines-example}
+\end{figure}
 
-To understand how these primitives are implemented internally, look at TODO(reference coroutine-primitives-full.tex)
+To understand how these primitives are implemented internally, look at Figure~\ref{fig:coroutine-primitives-full}.
+
+\begin{figure}[H]
+    \centering
+    \input{diagrams/coroutine-primitives-full}
+    \caption{Kotlin coroutine primitives implementation}
+    \label{fig:coroutine-primitives-full}
+\end{figure}
