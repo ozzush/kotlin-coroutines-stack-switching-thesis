@@ -1,4 +1,4 @@
-\chapter{Background and Related Work}
+\chapter{Background}
 \label{ch:background}
 \raggedbottom
 
@@ -18,29 +18,14 @@ suspend instruction. After that execution will jump to the corresponding handler
 after jumping to the handler, there will be a new continuation object on the stack. Resuming this continuation will
 resume the function that has just suspended.
 
-In Figure~\ref{fig:stack-switching-example}
-is an example of a code using stack-switching in Wasm.
+Figure~\ref{fig:stack-switching-example}
+gives an example code using stack-switching in Wasm.
 
-To better understand what role each stack-switching primitive plays, let's look at TODO(stack-switching-primitives.tex).
-
-TODO: make it into a list
-
-\texttt{cont.new} creates a continuation from a function. Continuation has a type that reflects the signature of the
-underlying function.
-
-\texttt{resume} instruction resumes a continuation and
-specifies what to do when the underlying function suspends. Depending on the type of the continuation, the
-\texttt{resume} instruction also takes some values from the stack and passes them as arguments to the underlying
-function.
-
-\texttt{suspend} instruction suspends the execution. Suspension tags also have a type. The suspension tag type
-determines what objects (other than the new continuation) will be on the stack at the handler site and the input type
-of the new continuation(they don't have to be the same). This makes it possible to pass values in both directions:
-from the main context into continuation and from continuation into the main context.
+To better understand what role each stack-switching primitive plays, see Figure~\ref{fig:stack-switching-primitives}.
 
 \begin{figure}[H]
     \centering
-        \begin{lstlisting}[language=wasm, label={lst:wasm-example}, basicstyle=\tiny\ttfamily]
+        \begin{lstlisting}[language=wasm, label={lst:wasm-example}, basicstyle=\footnotesize\ttfamily]
 (func $generator
   ...
   (loop $loop
@@ -77,31 +62,51 @@ from the main context into continuation and from continuation into the main cont
     \label{fig:stack-switching-example}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \input{diagrams/stack-switching-primitives}
+    \caption{Stack-switching primitives}
+    \label{fig:stack-switching-primitives}
+\end{figure}
+\begin{description}
+    \item[\texttt{cont.new}] creates a continuation from a function. Continuation has a type that reflects the signature of the
+    underlying function.
 
+    \item[\texttt{resume}] resumes a continuation and
+    specifies what to do when the underlying function suspends. Depending on the type of the continuation, the
+    \texttt{resume} instruction also takes some values from the stack and passes them as arguments to the underlying
+    function.
+
+    \item[\texttt{suspend}] suspends the execution. Suspension tags also have a type. The suspension tag type
+    determines what objects (other than the new continuation) will be on the stack at the handler site and the input type
+    of the new continuation (they don't have to be the same). This makes it possible to pass values in both directions:
+    from the main context into continuation and from continuation into the main context.
+\end{description}
 
 
 \section{Kotlin Coroutines}
 \label{sec:kotlin-coroutines}
 
-Kotlin provides several low-level intrinsics and primitives for implementing coroutines. These primitives form the
-foundation for higher-level concurrency abstractions such as the kotlinx.coroutines library. The key primitives are:
+Kotlin provides several low-level coroutines primitives. These primitives are used to
+implement higher-level APIs such as the \texttt{kotlinx.coroutines} library. Let's have a look at the
+relevant primitives:
 
 \subsection*{Continuation}
 
 \texttt{Continuation<T>}
 is an interface that represents a continuation, similar to the continuation concept in WebAssembly described earlier. It
-represents a coroutine at a suspension point - a place where the coroutine has paused its execution. The interface has
+represents a coroutine at a suspension point. The interface has
 two main components:
 
 \begin{itemize}
-    \item \texttt{context: CoroutineContext} - the context of the coroutine
+    \item \texttt{context: CoroutineContext} – the context of the coroutine
     \item \texttt{resumeWith(result: Result<T>)}
     - resumes the coroutine execution, passing a result value that becomes the return value of the suspension point
 \end{itemize}
 
 \subsection*{startCoroutineUninterceptedOrReturn}
 
-This intrinsic function starts a coroutine. It is defined as an extension function on suspending function types:
+This intrinsic function starts a coroutine:
 
 \begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
 (suspend () -> T).startCoroutineUninterceptedOrReturn(
@@ -110,19 +115,16 @@ This intrinsic function starts a coroutine. It is defined as an extension functi
 \end{lstlisting}
 
 The function immediately starts the suspending function with the given \texttt{completion} continuation. The
-\texttt{completion}
-parameter is the continuation that will be called when the coroutine finishes its execution (either with a result or an
-exception). The function returns:
+\texttt{completion} parameter is the continuation that will be resumed when the coroutine finishes its execution
+(either with a result or an exception). The function \texttt{startCoroutineUninterceptedOrReturn} returns:
 \begin{itemize}
     \item \texttt{COROUTINE\_SUSPENDED} if the coroutine was suspended
     \item The result value if the coroutine completed immediately without suspension
 \end{itemize}
 
-This primitive is used when you need direct control over coroutine execution.
-
 \subsection*{createCoroutineUnintercepted}
 
-This intrinsic creates a coroutine. It is defined as an extension function on suspending function types:
+This intrinsic creates a coroutine without starting it:
 
 \begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
 (suspend () -> T).createCoroutineUnintercepted(
@@ -130,13 +132,9 @@ This intrinsic creates a coroutine. It is defined as an extension function on su
 ): Continuation<Unit>
 \end{lstlisting}
 
-Unlike \texttt{startCoroutineUninterceptedOrReturn}
-, this function does not start the coroutine immediately. Instead, it returns a \texttt{Continuation<Unit>}
-that can be resumed later to start the coroutine execution. This allows you to control when the coroutine begins.
-
 \subsection*{suspendCoroutineUninterceptedOrReturn}
 
-This intrinsic function gives you access to the current continuation inside a suspend function. It allows the function
+This intrinsic function gives access to the current continuation inside a suspend function. It allows the function
 to control whether it suspends or returns immediately:
 
 \begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
@@ -148,8 +146,39 @@ suspendCoroutineUninterceptedOrReturn<T>(
 The \texttt{block} receives the current continuation and can:
 \begin{itemize}
     \item Return \texttt{COROUTINE\_SUSPENDED} to indicate that the coroutine has suspended and will be resumed later
-    \item Return a value directly to complete immediately without suspension
+    \item Return a value without suspension
 \end{itemize}
 
-This is the most basic building block for implementing custom suspending functions, as it gives you direct access to the
-continuation and control over suspension behavior.
+To understand how these primitives interact with each other in user code, look at code example TODO(insert and reference listing)
+
+TODO(code for code listing:
+
+var resumeCoroutine: (() -> Unit)? = null
+var coroutineResult: String? = null
+
+suspend fun suspendFun(): String {
+    val result = suspendCoroutineUninterceptedOrReturn { cont ->
+    resumeCoroutine = {
+        cont.resume("OK")
+    }
+    COROUTINE_SUSPENDED
+    }
+    return result
+}
+
+object Completion : Continuation<String> {
+    override val context: CoroutineContext = EmptyCoroutineContext
+    override fun resumeWith(result: Result<String>) {
+        coroutineResult = result.getOrThrow()
+    }
+}
+
+fun main() {
+
+    ::suspendFun.startCoroutineUninterceptedOrReturn(Completion) // returns COROUTINE_SUSPENDED
+    resumeCoroutine!!.invoke()
+    println(coroutineResult) // prints "OK"
+}
+)
+
+To understand how these primitives are implemented internally, look at TODO(reference coroutine-primitives-full.tex)
