@@ -1,0 +1,69 @@
+\begin{tikzpicture}[
+    node distance=0.8cm and 2cm,
+    every node/.style={font=\small},
+    block/.style={rectangle, draw, fill=blue!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    decision/.style={diamond, draw, fill=yellow!10, text width=5em, text centered, aspect=2, inner sep=1pt},
+    action/.style={rectangle, draw, fill=green!10, text width=7em, text centered, rounded corners, minimum height=2.5em},
+    suspend/.style={rectangle, draw, fill=orange!20, text width=7em, text centered, rounded corners, minimum height=2.5em},
+    title/.style={font=\large\bfseries, text width=13em, align=center},
+    subtitle/.style={font=\normalsize\bfseries, text width=10em, align=center},
+    whiteNote/.style={rectangle, draw, fill=white, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    blueNote/.style={rectangle, draw, fill=blue!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    yellowNote/.style={rectangle, draw, fill=gray!10, text width=6em, text centered, rounded corners, minimum height=2.5em},
+    arrow/.style={->, >=stealth, thick},
+    transfer/.style={->, >=stealth, thick},
+    solidarrow/.style={->, >=stealth, thick},
+    label/.style={font=\scriptsize, text=black}
+]
+
+% -------------------------
+% Headers & Subheaders
+% -------------------------
+    \node[subtitle] (sub3) at (0, -0.8) {suspend fun};
+    \node[subtitle, text width=13em] (sub4) at (4.5, -0.8) {\texttt{suspendCoroutine-\\UninterceptedOrReturn}};
+
+% -------------------------
+% Nodes - Column 1 (suspend fun) (X=0)
+% -------------------------
+    \node[yellowNote] (n3_1) at (0, -2.5) {*execute\\suspend\\fun code*};
+    \node[whiteNote, text width=10em] (n3_2) at (0, -5) {\texttt{suspendCoroutine-\\UninterceptedOrReturn}};
+    \node[yellowNote] (n3_3) at (0, -11) {*continue\\execution*};
+    \node[yellowNote] (n3_4) at (0, -13) {return\\value};
+
+% -------------------------
+% Nodes - Column 2 (suspendCoroutine) (X=4.5)
+% -------------------------
+    \node[whiteNote, font=\scriptsize, text width=7em] (n4_1) at (4.5, -5) {*create empty\\\texttt{Continuation}\\which does\\nothing on\\resume*};
+    \node[whiteNote, font=\scriptsize] (n4_2) at (4.5, -7) {execute\\suspendLambda};
+    \node[decision, font=\scriptsize] (n4_3) at (4.5, -9) {suspendLambda\\returned a value};
+    \node[decision, font=\scriptsize] (n4_4) at (4.5, -11) {\texttt{Continuation}\\was resumed\\in lambda};
+    \node[blueNote] (n4_5) at (4.5, -13) {\texttt{suspend}};
+
+% -------------------------
+% Arrows & Routing
+% -------------------------
+    % Downward Flow
+    \draw[arrow] (n3_1) -- (n3_2);
+    \draw[arrow] (n3_2) -- (n4_1);
+    \draw[arrow] (n4_1) -- (n4_2);
+    \draw[arrow] (n4_2) -- (n4_3);
+
+    % Yes/No Branching from "suspendLambda returned a value"
+    % 'Yes' branch curves left and down
+    \draw[arrow] (n4_3.west) to[out=180, in=90]
+    node[above, font=\scriptsize, pos=0.3] {Yes} (n3_3.north);
+
+    % 'No' branch goes straight down
+    \draw[arrow] (n4_3.south) -- node[right, font=\scriptsize] {No} (n4_4.north);
+
+    % Yes/No Branching from "Continuation was resumed"
+    % 'Yes' branch goes straight left
+    \draw[arrow] (n4_4.west) --
+    node[above, font=\scriptsize] {Yes} (n3_3.east);
+
+    % 'No' branch goes straight down
+    \draw[arrow] (n4_4.south) -- node[right, font=\scriptsize] {No} (n4_5.north);
+
+    % Bottom Flow
+    \draw[arrow] (n3_3) -- (n3_4);
+\end{tikzpicture}

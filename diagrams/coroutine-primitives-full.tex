@@ -31,7 +31,7 @@
 % -------------------------
     \node[whiteNote, text width=7em] (n1_1) at (0, -2) {*create\\CoroutineImpl*};
     \node[note, text width=10em] (n1_2) at (0, -4.5) {\texttt{CoroutineImpl::\\resumeWith(Unit)}};
-    \node[whiteNote, text width=9em] (n1_3) at (0, -9.5) {return\\\texttt{COROUTINE\_\\SUSPENDED}};
+    \node[whiteNote, text width=9em] (n1_3) at (0, -9.5) {return\\\texttt{COROUTINE\_SUSPENDED}};
     \node[whiteNote] (n1_4) at (0, -14.5) {return\\result};
 
 % -------------------------
@@ -45,7 +45,7 @@
 % Column 3 Nodes
 % -------------------------
     \node[note] (n3_1) at (12, -4.5) {*execute\\suspend\\fun code*};
-    \node[pinkNote, minimum height=2em, text width=10em] (n3_2) at (12, -7) {\texttt{suspendCoroutine-\\UninterceptedOrReturn}};
+    \node[pinkNote, minimum height=2em, text width=10em] (n3_2) at (12, -7) {\texttt{suspendCoroutine-\\UninterceptedOr-\\Return(suspendLambda)}};
     \node[note] (n3_3) at (12, -12) {*continue\\execution*};
     \node[note] (n3_4) at (12, -14.5) {return\\result};
 
