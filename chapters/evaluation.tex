@@ -1,8 +1,26 @@
-\chapter{Evaluation and Results}
+\chapter{Evaluation}
 \label{ch:evaluation}
 
-\section{Introduction}
-\label{sec:evaluation-intro}
+\section{Correctness}
+\label{sec:testing}
+
+Kotlin codebase already contains extensive tests for coroutines. We can separate them into
+two levels.
+
+\subsection*{Intrinsic semantics tests}
+
+These tests are focused on verifying the behavior of the lowest-level coroutine
+primitives like \texttt{startCoroutineUninterceptedOrReturn} and \texttt{suspendCoroutineUninterceptedOrReturn}
+They also cover low-level coroutine APIs built directly on top of them like \texttt{startCoroutine}
+and \texttt{suspendCoroutine}
+
+The tests are located in the Kotlin repository at
+\texttt{compiler/testData/codegen/box/coroutines/intrinsicSemantics}
+
+\subsection*{Box tests for coroutines}
+
+\section{Summary}
+\label{sec:implementation-summary}
 
 \section{Experimental Setup}
 \label{sec:eval-setup}

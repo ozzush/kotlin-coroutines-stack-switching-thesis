@@ -96,134 +96,13 @@ a function suspends or not. On the contrary, in Wasm we only get the continuatio
 after the function actually suspends. Next we will discuss two ways
 to solve this problem.
 
-\section{First Implementation}
+\section{First implementation}
 \label{sec:base-implementation}
 
-\subsection{Core Implementation}
-\label{subsec:core-intrinsics}
-
-The implementation provides several compiler intrinsics that map directly or very closely to Wasm stack-switching
-instructions:
-\texttt{suspendIntrinsic} (maps to \texttt{suspend}), \texttt{suspendFunctionToContref} (uses \texttt{cont.new} and
-\texttt{cont.bind}), and \texttt{resumeWithIntrinsic}/\texttt{resumeThrowIntrinsic} (use \texttt{resume} and
-\texttt{resume\_throw} within handler blocks).
-
-The core of the implementation is the \texttt{WasmContinuation} class, which extends \texttt{CoroutineImpl} and wraps
-a Wasm continuation reference (\texttt{contref}). The \texttt{CoroutineImpl} class was originally implemented for the
-state machine-based coroutine implementation and provides the foundation for managing coroutine state:
-
-\begin{itemize}
-    \item \textbf{State management}: \texttt{state} and \texttt{exceptionState} track the current execution state and
-    exception handling state of the coroutine
-    \item \textbf{Result storage}: \texttt{result} and \texttt{exception} store the current result or exception to
-    pass when resuming
-    \item \textbf{Suspension tracking}: \texttt{wasSuspended} flag indicates whether the coroutine has suspended at
-    least once
-    \item \textbf{Completion handling}: \texttt{resultContinuation} is the continuation to call when the coroutine
-    completes
-\end{itemize}
-
-The \texttt{WasmContinuation} class adds Wasm-specific functionality:
-
-\begin{itemize}
-    \item \texttt{wasmContBox} -- a box containing the Wasm continuation reference, which can be updated as the
-    coroutine suspends and resumes
-    \item \texttt{isResumed} -- a flag to ensure each continuation instance is resumed only once
-\end{itemize}
-
-The key method is \texttt{doResume()}, which handles the mismatch between Kotlin's and Wasm's suspension behavior.
-The \texttt{CoroutineImpl.resumeWith()} method calls \texttt{doResume()} and handles the result: if \texttt{doResume()}
-returns \texttt{COROUTINE\_SUSPENDED}, the coroutine remains suspended; otherwise, it completes and invokes the
-completion continuation with the result or exception.
-
-The key challenge is that in Kotlin, \texttt{suspendCoroutineUninterceptedOrReturn} provides the continuation object to
-the suspend lambda \emph{before} suspension occurs. However, in Wasm, the continuation object only becomes available
-\emph{after} the \texttt{suspend} instruction executes and control returns to the caller. The implementation solves this
-problem using a two-phase approach in \texttt{doResume()}:
-
-\begin{enumerate}
-    \item \textbf{Resume Phase}: When resuming a Wasm continuation, the resume intrinsic is called within a handler
-    block. If the resumed function suspends again, the handler catches the suspension and returns a
-    \texttt{ResumeIntrinsicResult} containing:
-    \begin{itemize}
-        \item \texttt{suspendBody} -- the lambda that was passed to \texttt{suspendCoroutineUninterceptedOrReturn}
-        \item \texttt{remainingFunction} -- the new Wasm continuation created by the suspension
-        \item \texttt{result} -- the value if the function completed without suspending
-    \end{itemize}
-
-    \item \textbf{Suspend Body Execution}: If a \texttt{suspendBody} is returned, it means the function suspended. The
-    \texttt{doResume()} method then executes this suspend body, passing the \texttt{WasmContinuation} itself as the
-    continuation argument. This gives the suspend lambda access to a continuation object that can be saved and resumed
-    later.
-\end{enumerate}
-
-The \texttt{doResume()} method runs in a loop, repeatedly resuming the Wasm continuation and executing suspend bodies
-until either:
-\begin{itemize}
-    \item The coroutine completes with a final result
-    \item The coroutine suspends and the suspend body returns \texttt{COROUTINE\_SUSPENDED}, indicating that the
-    continuation has been saved and will be resumed asynchronously
-\end{itemize}
+TODO()
 
 \section{Suspension count optimization}
 \label{sec:optimization}
-
-The base implementation described in the previous section handles all cases correctly, including the case where a
-continuation is resumed immediately inside the suspend lambda. However, this case presents an optimization opportunity.
-When a continuation is resumed immediately inside the suspend body, what does this actually represent? It represents
-that we are resuming the current function right away. This is semantically equivalent to not suspending at all -- the
-function can simply return the result directly to its caller without performing any Wasm stack-switching operations.
-
-Consider again the example from earlier where the continuation is resumed immediately:
-
-\begin{lstlisting}[language=Kotlin, basicstyle=\footnotesize\ttfamily]
-suspend fun suspendFun(): String =
-    suspendCoroutineUninterceptedOrReturn { cont ->
-        cont.resume("OK")      // Resume immediately
-        COROUTINE_SUSPENDED    // Still indicate suspension
-    }
-\end{lstlisting}
-
-In the base implementation, this code would:
-\begin{enumerate}
-    \item Execute the Wasm \texttt{suspend} instruction to suspend the function
-    \item Return control to the caller with the Wasm continuation
-    \item The caller would then resume this continuation with the result
-    \item The Wasm \texttt{resume} instruction would restart the suspended function
-\end{enumerate}
-
-However, since the continuation is resumed immediately, we can optimize this to simply return the value directly,
-avoiding the expensive suspend and resume operations entirely.
-
-\subsection{Implementation Approach}
-
-The optimization is implemented using two key mechanisms: synthetic continuations and suspension tracking.
-
-\subsubsection{Synthetic Continuations}
-
-When \texttt{suspendCoroutineUninterceptedOrReturn} is called, instead of immediately executing the Wasm
-\texttt{suspend} instruction, the implementation creates a \emph{synthetic} \texttt{WasmContinuation} object. This
-synthetic continuation is not backed by an actual Wasm continuation reference initially (its \texttt{contref} is null).
-The synthetic continuation is passed to the suspend lambda.
-
-If the suspend lambda resumes this synthetic continuation immediately by calling \texttt{resumeWith}, the continuation
-stores the result in a special field (\texttt{syntheticResumeValue}) instead of performing an actual Wasm resume
-operation. After the suspend lambda returns, \texttt{suspendCoroutineUninterceptedOrReturn} checks whether the
-synthetic continuation was resumed. If it was, the function returns the stored value directly without calling the
-\texttt{suspendIntrinsic} (which would execute the Wasm \texttt{suspend} instruction).
-
-\subsubsection{Suspension Tracking}
-
-To maintain correct semantics, the implementation must track whether a real suspension occurred. This is necessary
-because the completion continuation should only be invoked once, and only when a real suspension happens. The
-implementation uses a \texttt{SuspensionMarker} context element that is added to the coroutine context. This marker
-contains a \texttt{wasSuspended} flag that is set to true when \texttt{suspendCoroutineUninterceptedOrReturn} returns
-\texttt{COROUTINE\_SUSPENDED} without an immediate resume.
-
-When the coroutine completes, the \texttt{CoroutineImpl.resumeWith} method checks both the coroutine's internal
-\texttt{wasSuspended} flag and the \texttt{SuspensionMarker} to determine whether a real suspension occurred. If no
-real suspension occurred (immediate resume case), the method prevents double-completion by returning early instead of
-invoking the completion continuation again.
 
 \subsection{Benefits}
 
@@ -233,8 +112,3 @@ improves performance. The optimization is beneficial for coroutines that frequen
 resumption patterns, such as those that check cached values or perform fast-path optimizations before potentially
 suspending.
 
-\section{Testing and Validation}
-\label{sec:testing}
-
-\section{Summary}
-\label{sec:implementation-summary}
