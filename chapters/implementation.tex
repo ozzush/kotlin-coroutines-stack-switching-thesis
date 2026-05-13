@@ -16,8 +16,6 @@ primitives pretty closely:
     \item \textbf{Continuation.resumeWith} maps to the \texttt{resume} instruction.
 \end{itemize}
 
-This correspondence can be observed more closely on Figure~\ref{fig:primitives-correspondence}.
-
 \begin{figure}[H]
     \centering
     \begin{subfigure}{0.48\textwidth}
@@ -36,6 +34,8 @@ This correspondence can be observed more closely on Figure~\ref{fig:primitives-c
     \caption{Correspondence between Kotlin and Wasm coroutine primitives}
     \label{fig:primitives-correspondence}
 \end{figure}
+
+This correspondence can be observed more closely on Figure~\ref{fig:primitives-correspondence}.
 
 There is one unfortunate difference in how suspension is handled in Kotlin, which makes it not so obvious how to
 implement it in Wasm. In Kotlin the function \texttt{suspendCoroutineUninterceptedOrReturn}
@@ -99,13 +99,26 @@ to solve this problem.
 \section{First implementation}
 \label{sec:base-implementation}
 
-TODO(insert diagram coroutines-base-impl.tex and describe it)
+\begin{figure}[H]
+    \centering
+    \input{diagrams/coroutines-base-impl}
+    \caption{Straightforward implementation of coroutine primitives}
+    \label{fig:base-implementation}
+\end{figure}
+
+The first implementation idea is shown in Figure~\ref{fig:base-implementation}.
 
 \section{Suspension count optimization}
 \label{sec:optimization}
 
-TODO(insert diagram coroutines-optimization.tex and describe it)
+\begin{figure}[H]
+    \centering
+    \input{diagrams/coroutines-optimization}
+    \caption{Suspension count optimization}
+    \label{fig:optimization-impl}
+\end{figure}
 
+The optimized implementation is shown in Figure~\ref{fig:optimization-impl}.
 \subsection{Benefits}
 \label{subsec:benefits}
 

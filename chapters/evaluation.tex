@@ -17,16 +17,100 @@ and \texttt{suspendCoroutine}
 The tests are located in the Kotlin repository at
 \texttt{compiler/testData/codegen/box/coroutines/intrinsicSemantics}
 
-Below is an example of what kind of tests are in the intrinsicSemantics folder
+Below is an example of what kind of tests are in the \texttt{intrinsicSemantics} folder:
 
-TODO(insert listing from suspendCoroutineUninterceptedOrReturn.kt test)
+\begin{lstlisting}[language=Kotlin, caption={Example from startCoroutineUninterceptedOrReturn.kt}]
+suspend fun suspendHere(): String = suspendCoroutineUninterceptedOrReturn { x ->
+    x.resume("OK")
+    COROUTINE_SUSPENDED
+}
+
+suspend fun suspendWithException(): String = suspendCoroutineUninterceptedOrReturn { x ->
+    x.resumeWithException(RuntimeException("OK"))
+    COROUTINE_SUSPENDED
+}
+
+fun builder(shouldSuspend: Boolean, c: suspend () -> String): String {
+    var fromSuspension: String? = null
+
+    val result = try {
+        c.startCoroutineUninterceptedOrReturn(object: Continuation<String> {
+            override val context: CoroutineContext
+                get() =  EmptyCoroutineContext
+
+            override fun resumeWith(value: Result<String>) {
+                fromSuspension = try {
+                    value.getOrThrow()
+                } catch (exception: Throwable) {
+                    "Exception: " + exception.message!!
+                }
+            }
+        })
+    } catch (e: Exception) {
+        "Exception: ${e.message}"
+    }
+
+    if (shouldSuspend) {
+        if (result !== COROUTINE_SUSPENDED) throw RuntimeException("fail 1")
+        if (fromSuspension == null) throw RuntimeException("fail 2")
+        return fromSuspension!!
+    }
+
+    if (result === COROUTINE_SUSPENDED) throw RuntimeException("fail 3")
+    return result as String
+}
+
+fun box(): String {
+    if (builder(false) { "OK" } != "OK") return "fail 4"
+    if (builder(true) { suspendHere() } != "OK") return "fail 5"
+    if (builder(true) { suspend{}(); suspendHere() } != "OK") return "fail 51"
+
+    if (builder(false) { throw RuntimeException("OK") } != "Exception: OK") return "fail 6"
+    if (builder(true) { suspendWithException() } != "Exception: OK") return "fail 7"
+    if (builder(true) { suspend{}(); suspendWithException() } != "Exception: OK") return "fail 71"
+
+    if (builder(true, ::suspendHere) != "OK") return "fail 8"
+    if (builder(true, ::suspendWithException) != "Exception: OK") return "fail 9"
+
+    return "OK"
+}
+\end{lstlisting}
 
 \subsection*{Box tests for coroutines}
 
-This is an extensive collection of tests that verifies that coroutines work with other Kotlin features.
-TODO(check what tests there are and describe 2-3 things that are tested that are easy to understand)
+This is an extensive collection of tests that verifies that coroutines work with other Kotlin features. Some of the things that are tested include:
+TODO(for each item specify which directory handles the corresponding tests)
+\begin{itemize}
+    \item \textbf{Control flow}: verifying that coroutines work correctly with \texttt{if}, \texttt{while}, \texttt{try-catch-finally}, and other control flow structures.
+    \item \textbf{Default and variadic parameters}: ensuring that suspend functions with default or variadic arguments are handled correctly.
+    \item \textbf{Exception handling}: verifying that exceptions thrown inside coroutines are correctly propagated to the completion continuation or handled by \texttt{try-catch} blocks.
+\end{itemize}
 
-TODO(among the easy to understand things that are tested, pick one short test and inline it here as an example)
+Among the things that are tested, here is a short test that verifies coroutine behavior with an \texttt{if} expression:
+
+\begin{lstlisting}[language=Kotlin, caption={Example from controlFlow\_if1.kt}]
+suspend fun s1(): Int = suspendCoroutineUninterceptedOrReturn { x ->
+    x.resume(42)
+    COROUTINE_SUSPENDED
+}
+
+fun f1(): Int = 117
+fun f2(): Int = 1
+fun f3(x: Int, y: Int): Int = x + y
+
+fun box(): String {
+    var result = 0
+    suspend {
+        result = f3(if (f1() > 100) s1() else f2(), 42)
+    }.startCoroutine(object : Continuation<Unit> {
+        override val context = EmptyCoroutineContext
+        override fun resumeWith(result: Result<Unit>) {}
+    })
+
+    if (result != 84) return "fail: $result"
+    return "OK"
+}
+\end{lstlisting}
 
 The tests are located in the Kotlin repository at \texttt{compiler/testData/codegen/box/coroutines}
 
