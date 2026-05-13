@@ -99,12 +99,15 @@ to solve this problem.
 \section{First implementation}
 \label{sec:base-implementation}
 
-TODO()
+TODO(insert diagram coroutines-base-impl.tex and describe it)
 
 \section{Suspension count optimization}
 \label{sec:optimization}
 
+TODO(insert diagram coroutines-optimization.tex and describe it)
+
 \subsection{Benefits}
+\label{subsec:benefits}
 
 This optimization eliminates unnecessary Wasm stack-switching operations in cases where the continuation is resumed
 immediately. Since stack-switching operations involve saving and restoring execution state, avoiding them when possible

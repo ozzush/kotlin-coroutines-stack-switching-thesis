@@ -9,7 +9,7 @@ two levels.
 
 \subsection*{Intrinsic semantics tests}
 
-These tests are focused on verifying the behavior of the lowest-level coroutine
+These tests verify the behavior of the lowest-level coroutine
 primitives like \texttt{startCoroutineUninterceptedOrReturn} and \texttt{suspendCoroutineUninterceptedOrReturn}
 They also cover low-level coroutine APIs built directly on top of them like \texttt{startCoroutine}
 and \texttt{suspendCoroutine}
@@ -17,52 +17,24 @@ and \texttt{suspendCoroutine}
 The tests are located in the Kotlin repository at
 \texttt{compiler/testData/codegen/box/coroutines/intrinsicSemantics}
 
+Below is an example of what kind of tests are in the intrinsicSemantics folder
+
+TODO(insert listing from suspendCoroutineUninterceptedOrReturn.kt test)
+
 \subsection*{Box tests for coroutines}
 
-\section{Summary}
-\label{sec:implementation-summary}
+This is an extensive collection of tests that verifies that coroutines work with other Kotlin features.
+TODO(check what tests there are and describe 2-3 things that are tested that are easy to understand)
 
-\section{Experimental Setup}
-\label{sec:eval-setup}
+TODO(among the easy to understand things that are tested, pick one short test and inline it here as an example)
 
-\subsection{Datasets}
-\label{subsec:datasets}
+The tests are located in the Kotlin repository at \texttt{compiler/testData/codegen/box/coroutines}
 
-\subsection{Baseline Methods}
-\label{subsec:baselines}
+\section{Size benchmark}
+\label{sec:size-bench}
 
-\subsection{Evaluation Metrics}
-\label{subsec:eval-metrics}
-
-\subsection{Hardware and Software Configuration}
-\label{subsec:configuration}
-
-\section{Experimental Results}
-\label{sec:results}
-
-\subsection{Experiment 1: [Name]}
-\label{subsec:exp1}
-
-\subsection{Experiment 2: [Name]}
-\label{subsec:exp2}
-
-\subsection{Experiment 3: [Name]}
-\label{subsec:exp3}
-
-\section{Analysis and Discussion}
-\label{sec:analysis}
-
-\subsection{Performance Analysis}
-\label{subsec:performance}
-
-\subsection{Comparison with Baselines}
-\label{subsec:comparison}
-
-\subsection{Ablation Study}
-\label{subsec:ablation}
-
-\section{Limitations}
-\label{sec:limitations}
+\section{Performance benchmarks}
+\label{sec:performance-bench}
 
 \section{Summary}
 \label{sec:evaluation-summary}
