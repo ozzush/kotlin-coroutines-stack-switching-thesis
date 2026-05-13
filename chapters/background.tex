@@ -8,13 +8,13 @@
 
 Stack-switching proposal introduces a type for continuation and instructions to work with continuations.
 Continuation is an object that represents a function at some point in its execution. That point is either the beginning
-of the function or a suspend instruction. Resuming continuation resumes the function from the recorded point.
+of the function or a \wasmsuspend instruction. Resuming continuation resumes the function from the recorded point.
 Continuation can also be understood as \("\)the rest of a computation.\("\)
 
 A good intuition for understanding resuming and suspending in the stack-switching proposal is that it is similar to
-calling a function inside a try-catch block: the resume instruction (try block) specifies handlers (catch blocks) for
+calling a function inside a try-catch block: the \wasmresume instruction (try block) specifies handlers (catch blocks) for
 different suspension tags (exceptions). A function resumed via continuation can specify a suspension tag with the
-suspend instruction. After that execution will jump to the corresponding handler. Here is where differences appear:
+\wasmsuspend instruction. After that execution will jump to the corresponding handler. Here is where differences appear:
 after jumping to the handler, there will be a new continuation object on the stack. Resuming this continuation will
 resume the function that has just suspended.
 
@@ -69,15 +69,15 @@ To better understand what role each stack-switching primitive plays, see Figure~
     \label{fig:stack-switching-primitives}
 \end{figure}
 \begin{description}
-    \item[\texttt{cont.new}] creates a continuation from a function. Continuation has a type that reflects the signature of the
+    \item[\contnew] creates a continuation from a function. Continuation has a type that reflects the signature of the
     underlying function.
 
-    \item[\texttt{resume}] resumes a continuation and
+    \item[\wasmresume] resumes a continuation and
     specifies what to do when the underlying function suspends. Depending on the type of the continuation, the
-    \texttt{resume} instruction also takes some values from the stack and passes them as arguments to the underlying
+    \wasmresume instruction also takes some values from the stack and passes them as arguments to the underlying
     function.
 
-    \item[\texttt{suspend}] suspends the execution. Suspension tags also have a type. The suspension tag type
+    \item[\wasmsuspend] suspends the execution. Suspension tags also have a type. The suspension tag type
     determines what objects (other than the new continuation) will be on the stack at the handler site and the input type
     of the new continuation (they don't have to be the same). This makes it possible to pass values in both directions:
     from the main context into continuation and from continuation into the main context.
@@ -121,9 +121,9 @@ This intrinsic function starts a coroutine:
 
 The function immediately starts the suspending function with the given \texttt{completion} continuation. The
 \texttt{completion} parameter is the continuation that will be resumed when the coroutine finishes its execution
-(either with a result or an exception). The function \texttt{startCoroutineUninterceptedOrReturn} returns:
+(either with a result or an exception). The function \startCoroutineUninterceptedOrReturn returns:
 \begin{itemize}
-    \item \texttt{COROUTINE\_SUSPENDED} if the coroutine was suspended
+    \item \COROUTINESUSPENDED if the coroutine was suspended
     \item The result value if the coroutine completed immediately without suspension
 \end{itemize}
 
@@ -150,7 +150,7 @@ suspendCoroutineUninterceptedOrReturn<T>(
 
 The \texttt{block} receives the current continuation and can:
 \begin{itemize}
-    \item Return \texttt{COROUTINE\_SUSPENDED} to indicate that the coroutine has suspended and will be resumed later
+    \item Return \COROUTINESUSPENDED to indicate that the coroutine has suspended and will be resumed later
     \item Return a value without suspension
 \end{itemize}
 

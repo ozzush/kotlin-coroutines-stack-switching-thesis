@@ -7,13 +7,13 @@ primitives pretty closely:
 \begin{itemize}
     \item \textbf{Continuation} maps to Wasm continuation objects.
 
-    \item \textbf{createCoroutineUnintercepted} maps to \texttt{cont.new}.
+    \item \textbf{createCoroutineUnintercepted} maps to \contnew.
 
-    \item \textbf{startCoroutineUninterceptedOrReturn} maps to \texttt{cont.new} followed by \texttt{resume}.
+    \item \textbf{startCoroutineUninterceptedOrReturn} maps to \contnew followed by \wasmresume.
 
-    \item \textbf{suspendCoroutineUninterceptedOrReturn} maps to the \texttt{suspend} instruction with some additional
-    logic to execute suspend lambda (the \texttt{block} argument that is passed to \texttt{suspendCoroutineUninterceptedOrReturn}).
-    \item \textbf{Continuation.resumeWith} maps to the \texttt{resume} instruction.
+    \item \textbf{suspendCoroutineUninterceptedOrReturn} maps to the \wasmsuspend instruction with some additional
+    logic to execute suspend lambda (the \texttt{block} argument that is passed to \suspendCoroutineUninterceptedOrReturn).
+    \item \textbf{Continuation.resumeWith} maps to the \wasmresume instruction.
 \end{itemize}
 
 \begin{figure}[H]
@@ -38,7 +38,7 @@ primitives pretty closely:
 This correspondence can be observed more closely on Figure~\ref{fig:primitives-correspondence}.
 
 There is one unfortunate difference in how suspension is handled in Kotlin, which makes it not so obvious how to
-implement it in Wasm. In Kotlin the function \texttt{suspendCoroutineUninterceptedOrReturn}
+implement it in Wasm. In Kotlin the function \suspendCoroutineUninterceptedOrReturn
 accepts a lambda which either returns some result or suspends the execution. This lambda accepts an argument: current
 continuation. Resuming this continuation will resume the function. The intention of providing this argument is
 for the suspension lambda to contain code that saves the continuation in some variable. Then, in case
@@ -88,8 +88,8 @@ fun test() {
 \end{lstlisting}
 
 In this case, even though the continuation is resumed immediately inside the lambda, the function still returns
-\texttt{COROUTINE\_SUSPENDED} to the caller. The actual result \texttt{"OK"} is delivered to the completion
-continuation via its \texttt{resumeWith} method.
+\COROUTINESUSPENDED to the caller. The actual result \texttt{"OK"} is delivered to the completion
+continuation via its \resumeWith method.
 
 Essentially, the problem is that in Kotlin the continuation object has to be available before we even know whether
 a function suspends or not. On the contrary, in Wasm we only get the continuation object for the suspended function
@@ -108,23 +108,23 @@ to solve this problem.
 
 The first implementation idea is shown in Figure~\ref{fig:base-implementation}. Let's go through it in more detail.
 
-\texttt{startCoroutineUninterceptedOrReturn} is called on a suspend function. The first thing we do is create a Wasm
+\startCoroutineUninterceptedOrReturn is called on a suspend function. The first thing we do is create a Wasm
 continuation from the suspend function.
 
-\texttt{WasmContinuation} is a class that inherits from \texttt{CoroutineImpl} and represents a coroutine that
-works on a Wasm continuation object. \texttt{CoroutineImpl} is a partial implementation of a coroutine that implements
-some handy logic for processing resume values and exceptions. The one method in \texttt{CoroutineImpl} that needs to
-be implemented in \texttt{WasmContinuation} is \texttt{CoroutineImpl::doResume()}. When we call
-\texttt{WasmContinuation::resumeWith}, it in turn calls \texttt{doResume}, which contains the core logic for resuming
+\WasmContinuation is a class that inherits from \CoroutineImpl and represents a coroutine that
+works on a Wasm continuation object. \CoroutineImpl is a partial implementation of a coroutine that implements
+some handy logic for processing resume values and exceptions. The one method in \CoroutineImpl that needs to
+be implemented in \WasmContinuation is \texttt{CoroutineImpl::doResume()}. When we call
+\texttt{WasmContinuation::resumeWith}, it in turn calls \doResume, which contains the core logic for resuming
 a coroutine.
 
-In \texttt{doResume} we call the Wasm instruction to resume the continuation. The type of Wasm continuations handled
-in \texttt{WasmContinuation} is always the same: they have to be resumed with and object of type \texttt{Any?}.
-When \texttt{WasmContinuation} is resumed in \texttt{startCoroutineUninterceptedOrReturn}, the resume value
+In \doResume we call the Wasm instruction to resume the continuation. The type of Wasm continuations handled
+in \WasmContinuation is always the same: they have to be resumed with and object of type \texttt{Any?}.
+When \WasmContinuation is resumed in \startCoroutineUninterceptedOrReturn, the resume value
 will be a completion. As discussed in TODO(reference subsec:suspend-funs), completion is a parameter added
-to all suspend functions during compilation. When \texttt{WasmContinuation} is resumed outside
-\texttt{startCoroutineUninterceptedOrReturn}, the resume value will be the value provided with the method
-\texttt{resumeWith}
+to all suspend functions during compilation. When \WasmContinuation is resumed outside
+\startCoroutineUninterceptedOrReturn, the resume value will be the value provided with the method
+\resumeWith
 
 \section{Suspension count optimization}
 \label{sec:optimization}

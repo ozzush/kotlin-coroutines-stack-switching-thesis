@@ -17,6 +17,7 @@
 \usepackage{geometry}
 \usepackage{fancyhdr}
 \usepackage{setspace}
+\usepackage{xspace}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning,fit,calc}
 
@@ -111,6 +112,20 @@
 \title{Your Thesis Title}
 \author{Your Name}
 \date{\today}
+
+% New commands for frequently used terms
+\newcommand{\WasmContinuation}{\texttt{WasmContinuation}\xspace}
+\newcommand{\startCoroutineUninterceptedOrReturn}{\texttt{startCoroutineUninterceptedOrReturn}\xspace}
+\newcommand{\suspendCoroutineUninterceptedOrReturn}{\texttt{suspendCoroutineUninterceptedOrReturn}\xspace}
+\newcommand{\createCoroutineUnintercepted}{\texttt{createCoroutineUnintercepted}\xspace}
+\newcommand{\COROUTINESUSPENDED}{\texttt{COROUTINE\_SUSPENDED}\xspace}
+\newcommand{\Continuation}{\texttt{Continuation}\xspace}
+\newcommand{\CoroutineImpl}{\texttt{CoroutineImpl}\xspace}
+\newcommand{\resumeWith}{\texttt{resumeWith}\xspace}
+\newcommand{\doResume}{\texttt{doResume}\xspace}
+\newcommand{\contnew}{\texttt{cont.new}\xspace}
+\newcommand{\wasmresume}{\texttt{resume}\xspace}
+\newcommand{\wasmsuspend}{\texttt{suspend}\xspace}
 
 \begin{document}
 
