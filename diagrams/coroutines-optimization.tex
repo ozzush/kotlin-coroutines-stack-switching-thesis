@@ -40,7 +40,7 @@
     \node[yellowNote, text width=8.5em] (n1_2) at (0, -4.5) {\texttt{WasmContinuation::}\\{\texttt{resumeWith(Unit)}}};
     \node[whiteNote] (n1_3) at (0, -15.5) {return\\value};
     \node[whiteNote, text width=9em] (n1_4) at (0, -17.5) {return\\\texttt{COROUTINE\_SUSPENDED}};
-    \node[whiteNote, text width=8em] (n2_2) at (5, -17.5) {put Wasm\\continuation in \texttt{Continuation}};
+    \node[whiteNote, text width=8em] (n2_2) at (5, -17.5) {put Wasm continuation in \texttt{WasmContinuation}};
 
 % -------------------------
 % Nodes - Column 2 (X=5)
@@ -58,10 +58,10 @@
 % -------------------------
 % Nodes - Column 4 (X=14.5)
 % -------------------------
-    \node[whiteNote, font=\scriptsize, text width=5em] (n4_1) at (14.5, -7) {*create\\\texttt{Continuation}\\which does\\nothing on\\resume*};
+    \node[whiteNote, font=\scriptsize, text width=5.5em] (n4_1) at (14.5, -7) {*create\\\texttt{WasmContinuation}\\which does\\nothing on\\resume*};
     \node[whiteNote, font=\scriptsize] (n4_2) at (14.5, -9) {execute\\suspendLambda};
     \node[decision, font=\scriptsize] (n4_3) at (14.5, -11) {suspendLambda\\returned a value};
-    \node[decision, font=\scriptsize] (n4_4) at (14.5, -13.5) {\texttt{Continuation}\\was resumed\\in lambda};
+    \node[decision, font=\scriptsize] (n4_4) at (14.5, -13.5) {\texttt{WasmContinuation}\\was resumed\\in lambda};
     \node[blueNote] (n4_5) at (14.5, -15.5) {\texttt{suspend}};
 
 % -------------------------
@@ -99,6 +99,6 @@
     \draw[arrow] (n3_4) -- (n1_3);
 
     % Suspend path routes down, then horizontally across to new block, then to main context
-    \draw[arrow] (n4_5.south) |- node[above, pos=0.75, font=\scriptsize] {pass \texttt{Continuation}} (n2_2.east);
+    \draw[arrow] (n4_5.south) |- node[above, pos=0.75, font=\scriptsize] {pass \texttt{WasmContinuation}} (n2_2.east);
     \draw[arrow] (n2_2) -- (n1_4);
 \end{tikzpicture}

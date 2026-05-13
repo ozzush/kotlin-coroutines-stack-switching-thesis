@@ -151,13 +151,14 @@ the value returned from the lambda.
     \label{fig:optimization-impl}
 \end{figure}
 
-The optimized implementation is shown in Figure~\ref{fig:optimization-impl}.
-\subsection{Benefits}
-\label{subsec:benefits}
+The optimized implementation idea is shown in Figure~\ref{fig:optimization-impl}.
 
-This optimization eliminates unnecessary Wasm stack-switching operations in cases where the continuation is resumed
-immediately. Since stack-switching operations involve saving and restoring execution state, avoiding them when possible
-improves performance. The optimization is beneficial for coroutines that frequently use immediate
-resumption patterns, such as those that check cached values or perform fast-path optimizations before potentially
-suspending.
-
+Behind this optimization is a heuristic. What is the actual meaning of resuming a continuation
+that is passed to the suspend lambda? It means that the author wants to continue executing the
+function. With this in mind, we can adopt the following course of action: we call suspend lambda with
+a \WasmContinuation object, that doesn't have an actual Wasm continuation inside. If the author
+wants to save this \WasmContinuation, that's fine – we will tie it to a Wasm continuation later.
+If the author wants to resume this \WasmContinuation, we will record the value they passed to
+\resumeWith, but otherwise we will do nothing. Once the lambda completes, we will check whether
+\WasmContinuation was resumed, and if it was, we will get the resume value out of it and act
+as if that was the value that the lambda returned.
