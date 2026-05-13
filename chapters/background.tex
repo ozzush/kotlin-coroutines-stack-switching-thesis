@@ -94,8 +94,9 @@ relevant primitives:
 \subsection*{Suspend functions}
 \label{subsec:suspend-funs}
 
-Suspend functions in Kotlin represent TODO().
-Every suspend function receives an additional parameter called \texttt{completion}
+Suspend functions in Kotlin represent a computation that can be suspended and resumed later.
+
+Every suspend function receives an additional parameter \texttt{completion}
 of type \Continuation. This completion is resumed after the suspend function
 completes.
 
@@ -157,7 +158,7 @@ The \texttt{block} receives the current continuation and can:
     \item Return a value without suspension
 \end{itemize}
 
-To understand how these primitives interact with each other in user code, look at Figure~\ref{fig:kotlin-coroutines-example}.
+To understand how these primitives interact with each other in user code, see Figure~\ref{fig:kotlin-coroutines-example}.
 
 \begin{figure}[H]
     \centering
@@ -193,7 +194,7 @@ fun main() {
     \label{fig:kotlin-coroutines-example}
 \end{figure}
 
-To understand how these primitives are implemented internally, look at Figure~\ref{fig:coroutine-primitives-full}.
+To understand how these primitives are implemented internally, see Figure~\ref{fig:coroutine-primitives-full}.
 
 \begin{figure}[H]
     \centering
