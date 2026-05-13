@@ -106,7 +106,25 @@ to solve this problem.
     \label{fig:base-implementation}
 \end{figure}
 
-The first implementation idea is shown in Figure~\ref{fig:base-implementation}.
+The first implementation idea is shown in Figure~\ref{fig:base-implementation}. Let's go through it in more detail.
+
+\texttt{startCoroutineUninterceptedOrReturn} is called on a suspend function. The first thing we do is create a Wasm
+continuation from the suspend function.
+
+\texttt{WasmContinuation} is a class that inherits from \texttt{CoroutineImpl} and represents a coroutine that
+works on a Wasm continuation object. \texttt{CoroutineImpl} is a partial implementation of a coroutine that implements
+some handy logic for processing resume values and exceptions. The one method in \texttt{CoroutineImpl} that needs to
+be implemented in \texttt{WasmContinuation} is \texttt{CoroutineImpl::doResume()}. When we call
+\texttt{WasmContinuation::resumeWith}, it in turn calls \texttt{doResume}, which contains the core logic for resuming
+a coroutine.
+
+In \texttt{doResume} we call the Wasm instruction to resume the continuation. The type of Wasm continuations handled
+in \texttt{WasmContinuation} is always the same: they have to be resumed with and object of type \texttt{Any?}.
+When \texttt{WasmContinuation} is resumed in \texttt{startCoroutineUninterceptedOrReturn}, the resume value
+will be a completion. As discussed in TODO(reference subsec:suspend-funs), completion is a parameter added
+to all suspend functions during compilation. When \texttt{WasmContinuation} is resumed outside
+\texttt{startCoroutineUninterceptedOrReturn}, the resume value will be the value provided with the method
+\texttt{resumeWith}
 
 \section{Suspension count optimization}
 \label{sec:optimization}
