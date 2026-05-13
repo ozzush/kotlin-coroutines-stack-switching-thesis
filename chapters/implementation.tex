@@ -126,6 +126,21 @@ to all suspend functions during compilation. When \WasmContinuation is resumed o
 \startCoroutineUninterceptedOrReturn, the resume value will be the value provided with the method
 \resumeWith
 
+When suspend function is being executed, it may at some point call \suspendCoroutineUninterceptedOrReturn.
+\suspendCoroutineUninterceptedOrReturn has one argument that we will call suspend lambda. Suspend lambda needs to be
+executed to decide whether we should suspend or not, but to do so it requires that we pass it a continuation.
+This continuation should represent the rest of the current suspend function. In the context of the suspend function
+that's currently being executed, we can't provide the necessary continuation. Instead, we can suspend, and with
+\wasmsuspend instruction we can pass the lambda that needs to be executed to the main context, where the Wasm
+continuation we need becomes available.
+
+The \wasmsuspend instruction puts the execution back into the body of \doResume. At the top of the stack there will be
+a suspend lambda to be executed and the Wasm continuation object we need for it. So, the next step is to create a
+\WasmContinuation from the Wasm continuation and execute the suspend lambda with it. If the lambda returns
+\COROUTINESUSPENDED, that means that the coroutine really suspended and it's time to return. If the lambda returns
+another value, that means that we have to keep executing the suspend function. So, we resume the new continuation with
+the value returned from the lambda.
+
 \section{Suspension count optimization}
 \label{sec:optimization}
 

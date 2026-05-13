@@ -29,7 +29,7 @@
     \node[title] at (13, 0.8) {Suspend function\\context};
 
     \node[subtitle, text width=13em] (sub1) at (0, -0.8) {\texttt{startCoroutine-\\UninterceptedOrReturn}};
-    \node[subtitle, text width=13em] (sub2) at (5, -0.8) {\texttt{WasmContinuation::doResume}};
+    \node[subtitle, text width=13em] (sub2) at (5, -0.8) {\texttt{WasmContinuation::\\doResume}};
     \node[subtitle] (sub3) at (10.5, -0.8) {suspend fun};
     \node[subtitle, text width=13em] (sub4) at (14.5, -0.8) {\texttt{suspendCoroutine-\\UninterceptedOrReturn}};
 
@@ -37,7 +37,7 @@
 % Nodes - Column 1 (X=0)
 % -------------------------
     \node[blueNote] (n1_1) at (0, -2.5) {\texttt{cont.new}};
-    \node[yellowNote, text width=8em] (n1_2) at (0, -4.5) {\texttt{WasmContinuation::}\\{\texttt{resumeWith(Unit)}}};
+    \node[yellowNote, text width=8.5em] (n1_2) at (0, -4.5) {\texttt{WasmContinuation::}\\{\texttt{resumeWith(Unit)}}};
     \node[whiteNote] (n1_3) at (0, -15.5) {return\\value};
     \node[whiteNote, text width=9em] (n1_4) at (0, -17.5) {return\\\texttt{COROUTINE\_SUSPENDED}};
     \node[whiteNote, text width=8em] (n2_2) at (5, -17.5) {put Wasm\\continuation in \texttt{Continuation}};
