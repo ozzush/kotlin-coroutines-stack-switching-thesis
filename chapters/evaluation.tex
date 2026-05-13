@@ -79,11 +79,10 @@ fun box(): String {
 \subsection*{Box tests for coroutines}
 
 This is an extensive collection of tests that verifies that coroutines work with other Kotlin features. Some of the things that are tested include:
-TODO(for each item specify which directory handles the corresponding tests)
 \begin{itemize}
-    \item \textbf{Control flow}: verifying that coroutines work correctly with \texttt{if}, \texttt{while}, \texttt{try-catch-finally}, and other control flow structures.
-    \item \textbf{Default and variadic parameters}: ensuring that suspend functions with default or variadic arguments are handled correctly.
-    \item \textbf{Exception handling}: verifying that exceptions thrown inside coroutines are correctly propagated to the completion continuation or handled by \texttt{try-catch} blocks.
+    \item \textbf{Control flow} (tests in \texttt{controlFlow/} directory): verifying that coroutines work correctly with \texttt{if}, \texttt{while}, \texttt{try-catch-finally}, and other control flow structures.
+    \item \textbf{Default and variadic parameters} (e.g., \texttt{defaultParametersInSuspend.kt}, \texttt{varargCallFromSuspend.kt}): ensuring that suspend functions with default or variadic arguments are handled correctly.
+    \item \textbf{Exception handling} (e.g., \texttt{handleException.kt}, \texttt{simpleException.kt}): verifying that exceptions thrown inside coroutines are correctly propagated to the completion continuation or handled by \texttt{try-catch} blocks.
 \end{itemize}
 
 Among the things that are tested, here is a short test that verifies coroutine behavior with an \texttt{if} expression:

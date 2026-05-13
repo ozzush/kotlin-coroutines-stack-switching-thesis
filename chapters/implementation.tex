@@ -121,7 +121,7 @@ a coroutine.
 In \doResume we call the Wasm instruction to resume the continuation. The type of Wasm continuations handled
 in \WasmContinuation is always the same: they have to be resumed with and object of type \texttt{Any?}.
 When \WasmContinuation is resumed in \startCoroutineUninterceptedOrReturn, the resume value
-will be a completion. As discussed in TODO(reference subsec:suspend-funs), completion is a parameter added
+will be a completion. As discussed in Section~\ref{subsec:suspend-funs}, completion is a parameter added
 to all suspend functions during compilation. When \WasmContinuation is resumed outside
 \startCoroutineUninterceptedOrReturn, the resume value will be the value provided with the method
 \resumeWith

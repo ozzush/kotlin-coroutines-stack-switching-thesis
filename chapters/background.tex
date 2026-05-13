@@ -92,9 +92,12 @@ implement higher-level APIs such as the \texttt{kotlinx.coroutines} library. Let
 relevant primitives:
 
 \subsection*{Suspend functions}
-\label(subsec:suspend-funs)
+\label{subsec:suspend-funs}
 
-TODO(explain how all suspend functions are appended with a completion parameter)
+Suspend functions in Kotlin represent TODO().
+Every suspend function receives an additional parameter called \texttt{completion}
+of type \Continuation. This completion is resumed after the suspend function
+completes.
 
 \subsection*{Continuation}
 
