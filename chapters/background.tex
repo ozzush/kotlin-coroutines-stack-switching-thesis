@@ -6,61 +6,19 @@
 \section{WebAssembly and Stack-switching}
 \label{sec:webassembly}
 
-Stack-switching proposal introduces a type for continuation and instructions to work with continuations.
+Stack-switching proposal introduces a continuation type and instructions to work with it.
 Continuation is an object that represents a function at some point in its execution. That point is either the beginning
 of the function or a \wasmsuspend instruction. Resuming continuation resumes the function from the recorded point.
-Continuation can also be understood as \("\)the rest of a computation.\("\)
+Continuation can be understood as \("\)the rest of a function.\("\)
 
 A good intuition for understanding resuming and suspending in the stack-switching proposal is that it is similar to
 calling a function inside a try-catch block: the \wasmresume instruction (try block) specifies handlers (catch blocks) for
-different suspension tags (exceptions). A function resumed via continuation can specify a suspension tag with the
-\wasmsuspend instruction. After that execution will jump to the corresponding handler. Here is where differences appear:
+different \textit{suspension tags} (exception types). A function resumed via continuation can suspend with a \wasmsuspend
+instruction. Depending on the suspension tag provided with the \wasmsuspend instruction, execution will jump to a
+specific suspension handler. That is where differences from throwing an exception appear:
 after jumping to the handler, there will be a new continuation object on the stack. Resuming this continuation will
-resume the function that has just suspended.
-
-Figure~\ref{fig:stack-switching-example}
-gives an example code using stack-switching in Wasm.
-
-To better understand what role each stack-switching primitive plays, see Figure~\ref{fig:stack-switching-primitives}.
-
-\begin{figure}[H]
-    \centering
-        \begin{lstlisting}[language=wasm, label={lst:wasm-example}, basicstyle=\footnotesize\ttfamily]
-(func $generator
-  ...
-  (loop $loop
-    ;; Suspend execution, pass current value of $i to consumer.
-    (suspend $generate (local.get $i))
-    ...
-  )
-)
-
-(func $consumer
- ...
- ;; Create continuation executing function $generator.
- (local.set $generator_cont (cont.new $cont_type (ref.func $generator)))
-
- (loop $loop
-   (block $on_generate (result i32 (ref $cont_type))
-     ;; Resume continuation $generator_cont.
-     ;; When $generate tag is thrown,
-     ;; go to label $on_generate (points to right after this block)
-     (resume $cont_type (on $generate $on_generate) (local.get $generator_cont))
-     ;; $generator returned: no more data.
-     (return)
-   )
-   ;; $generator suspended.
-   ;; The stack now contains the value
-   ;; produced by the generator and the new continuation.
-   ;; Save continuation to resume it in the next iteration
-   (local.set $generator_cont)
-   ...
- )
-)
-        \end{lstlisting}
-    \caption{Stack-switching example in WebAssembly}
-    \label{fig:stack-switching-example}
-\end{figure}
+resume the function that has just suspended. This is in contrast to throwing exceptions: throwing
+an exception ends the function completely and it can't be resumed.
 
 \begin{figure}[H]
     \centering
@@ -68,28 +26,91 @@ To better understand what role each stack-switching primitive plays, see Figure~
     \caption{Stack-switching primitives}
     \label{fig:stack-switching-primitives}
 \end{figure}
-\begin{description}
-    \item[\contnew] creates a continuation from a function. Continuation has a type that reflects the signature of the
-    underlying function.
 
-    \item[\wasmresume] resumes a continuation and
-    specifies what to do when the underlying function suspends. Depending on the type of the continuation, the
-    \wasmresume instruction also takes some values from the stack and passes them as arguments to the underlying
-    function.
+On Figure~\ref{fig:stack-switching-primitives} you can see the most important stack-switching primitives and what they
+do in the grand scheme of things. Below is an introduction for each of the depicted primitives.
 
-    \item[\wasmsuspend] suspends the execution. Suspension tags also have a type. The suspension tag type
-    determines what objects (other than the new continuation) will be on the stack at the handler site and the input type
-    of the new continuation (they don't have to be the same). This makes it possible to pass values in both directions:
-    from the main context into continuation and from continuation into the main context.
-\end{description}
+\subsection*{\contnew}
+\contnew instruction creates a continuation from a function. Continuation has a type that reflects the signature of the
+underlying function.
 
+\subsection*{\wasmresume}
+\wasmresume instruction resumes a continuation and specifies what to do when the underlying function suspends by installing
+suspension handlers for particular suspension tags. As you may recall from the beginning of the section,
+continuation objects have a type that matches the underlying function. Since functions can have arguments,
+continuations can also expect some values to be passed to fill those arguments. The \wasmresume
+instruction expects these values to be on the stack.
+
+\subsection*{\wasmsuspend}
+\wasmsuspend instruction suspends the execution with some suspension tag. Suspension tags also have a function-like
+type. The input parameters of a suspension tag are values that will be taken by \wasmsuspend instruction from the stack
+and passed to the suspension handler. The result type of a suspension tag describes the values that should appear on
+the stack of the suspended function after it's resumed again. It also becomes the input type of the continuation
+object that will appear on the stack at the handler. Essentially, it is possible to pass values both
+from the main context into continuation and from continuation into the main context, and suspension tags
+define the types of the passed values.
+
+\begin{figure}[H]
+    \centering
+        \begin{lstlisting}[language=wasm, label={lst:wasm-example}, basicstyle=\footnotesize\ttfamily]
+;; Tag used to coordinate between generator and consumer:
+;; The i32 param corresponds to the generated values passed
+;; to consumer; no values are passed from consumer to generator.
+(tag $generate (param i32))
+
+(func $generator
+ (local $i i32)
+ (local.set $i (i32.const 100))
+ (loop $loop
+  ;; Suspend execution, pass current value of $i to consumer.
+  (suspend $generate (local.get $i))
+  ;; Decrement $i and exit loop once $i reaches 0.
+  (local.tee $i (i32.sub (local.get $i) (i32.const 1)))
+  (br_if $loop)
+ )
+)
+
+(func $consumer
+ (local $generator_cont (ref $cont_type))
+ ;; Create continuation executing function $generator.
+ (local.set $generator_cont (cont.new $cont_type (ref.func $generator)))
+ (loop $loop
+  (block $on_generate (result i32 (ref $cont_type))
+   ;; Resume continuation $generator_cont.
+   ;; When $generate tag is thrown,
+   ;; go to label $on_generate (points to right after this block)
+   (resume $cont_type (on $generate $on_generate) (local.get $generator_cont))
+   ;; $generator returned: no more data.
+   (return)
+  )
+  ;; Generator suspended, stack now contains [i32 (ref $cont_type)]
+  ;; Save continuation to resume it in next iteration
+  (local.set $generator_cont)
+  ;; Stack now contains the i32 value yielded by $generator
+  (call $print)
+  ;; Go to the beginning of the loop (br means branch)
+  (br $loop)
+ )
+)
+        \end{lstlisting}
+    \caption{Stack-switching example in WebAssembly}
+    \label{fig:stack-switching-example}
+\end{figure}
+TODO(reference example to https://github.com/WebAssembly/stack-switching/blob/main/proposals/stack-switching/examples/generator.wast)
+
+Figure~\ref{fig:stack-switching-example}
+gives an example code using stack-switching in Wasm. This is a simple program with generator and consumer.
+Consumer creates a continuation from generator and continuously resumes it and prints the received values.
+Generator produces values from 100 down to 1 and passes them to the consumer via the suspend instruction.
+If the generator is resumed but all the values have already been passed, it returns. Consumer sees that
+the generator has finished and also returns.
 
 \section{Kotlin Coroutines}
 \label{sec:kotlin-coroutines}
 
 Kotlin provides several low-level coroutines primitives. These primitives are used to
 implement higher-level APIs such as the \texttt{kotlinx.coroutines} library. Let's have a look at the
-relevant primitives:
+relevant primitives.
 
 \subsection*{Suspend functions}
 \label{subsec:suspend-funs}
@@ -100,7 +121,7 @@ Every suspend function receives an additional parameter \texttt{completion}
 of type \Continuation. This completion is resumed after the suspend function
 completes.
 
-\subsection*{Continuation}
+\subsection*{\Continuation}
 
 \texttt{Continuation<T>}
 is an interface that represents a continuation, similar to the continuation concept in WebAssembly described earlier. It
@@ -113,9 +134,9 @@ two main components:
     - resumes the coroutine execution, passing a result value that becomes the return value of the suspension point
 \end{itemize}
 
-\subsection*{startCoroutineUninterceptedOrReturn}
+\subsection*{\startCoroutineUninterceptedOrReturn}
 
-This intrinsic function starts a coroutine:
+This primitive starts a coroutine:
 
 \begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
 (suspend () -> T).startCoroutineUninterceptedOrReturn(
@@ -131,9 +152,9 @@ The function immediately starts the suspending function with the given \texttt{c
     \item The result value if the coroutine completed immediately without suspension
 \end{itemize}
 
-\subsection*{createCoroutineUnintercepted}
+\subsection*{\createCoroutineUnintercepted}
 
-This intrinsic creates a coroutine without starting it:
+This primitive creates a coroutine without starting it:
 
 \begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
 (suspend () -> T).createCoroutineUnintercepted(
@@ -141,9 +162,9 @@ This intrinsic creates a coroutine without starting it:
 ): Continuation<Unit>
 \end{lstlisting}
 
-\subsection*{suspendCoroutineUninterceptedOrReturn}
+\subsection*{\suspendCoroutineUninterceptedOrReturn}
 
-This intrinsic function gives access to the current continuation inside a suspend function. It allows the function
+This primitive gives access to the current continuation inside a suspend function. It allows the function
 to control whether it suspends or returns immediately:
 
 \begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
@@ -158,19 +179,16 @@ The \texttt{block} receives the current continuation and can:
     \item Return a value without suspension
 \end{itemize}
 
-To understand how these primitives interact with each other in user code, see Figure~\ref{fig:kotlin-coroutines-example}.
 
 \begin{figure}[H]
     \centering
-\begin{lstlisting}[language=Kotlin, label={lst:kotlin-coroutines-example}]
-var resumeCoroutine: (() -> Unit)? = null
+    \begin{lstlisting}[language=Kotlin, label={lst:kotlin-coroutines-example}]
+var continuation: Continuation<String>? = null
 var coroutineResult: String? = null
 
 suspend fun suspendFun(): String {
     val result = suspendCoroutineUninterceptedOrReturn { cont ->
-        resumeCoroutine = {
-            cont.resume("OK")
-        }
+        continuation = cont
         COROUTINE_SUSPENDED
     }
     return result
@@ -186,25 +204,30 @@ object Completion : Continuation<String> {
 fun main() {
     // returns COROUTINE_SUSPENDED
     ::suspendFun.startCoroutineUninterceptedOrReturn(Completion)
-    resumeCoroutine!!.invoke()
+    continuation.resume("OK")
     println(coroutineResult) // prints "OK"
 }
-\end{lstlisting}
+    \end{lstlisting}
     \caption{Kotlin coroutines primitives example}
     \label{fig:kotlin-coroutines-example}
 \end{figure}
 
-To understand how these primitives are implemented internally, see Figure~\ref{fig:coroutine-primitives-full}.
+On Figure~\ref{fig:kotlin-coroutines-example} you can see an example program built on the low-level
+coroutine primitives. It's a simple program that starts a coroutine. After the coroutine suspends, it is resumed
+with the value \("\)OK\("\) and the completion saves the result of the coroutine to a variable. The result of
+the coroutine is then printed out.
 
 \begin{figure}[H]
     \centering
     \resizebox{\textwidth}{!}{\input{diagrams/coroutine-primitives-full}}
     \caption{Kotlin Coroutine primitives internals}
+    \begin{description}
+        \item Red blocks represent calls to functions that need to be implemented
+        \item Red columns represent that the function in the column title needs to be implemented
+        \item White blocks represent logic that needs to be implemented
+        \item Gray blocks represent calls to functions and logic that don't need to be implemented or require minimal changes
+    \end{description}
     \label{fig:coroutine-primitives-full}
 \end{figure}
-\begin{description}
-    \item Red blocks represent calls to functions that need to be implemented
-    \item Red columns represent that the function in the column title needs to be implemented
-    \item White blocks represent logic that needs to be implemented
-    \item Gray blocks represent calls to functions and logic that don't need to be implemented or require minimal changes
-\end{description}
+
+To understand how these primitives interact with each other internally, see Figure~\ref{fig:coroutine-primitives-full}.

@@ -4,15 +4,19 @@
 \section{Motivation}
 \label{sec:motivation}
 
-WebAssembly is a binary instruction format for a stack-based virtual machine. Its most mainstream use case is in browsers. Many languages can be compiled to it, including Kotlin.
+WebAssembly is a binary instruction format for a stack-based virtual machine. Its most mainstream use case is in
+browsers. Many languages can be compiled to it, including Kotlin.
 
-There is a proposal to implement stack-switching in WebAssembly. The specification for stack-switching is finalized and its implementation is on the way.
+There is a proposal to implement stack-switching in WebAssembly. The specification for stack-switching is
+finalized and its implementation is on the way. It is currently available in V8, which is a Wasm
+VM used in Google Chrome. Up-to-date information on the availability of Stack-Switching in other
+VMs can be found at https://webassembly.org/features/.
 
-The current implementation of Kotlin Coroutines for Wasm (with state-machines and continuation passing style for suspend function) is based on the implementation of suspend functions for Kotlin/JVM, which doesn't have primitives for continuation objects and suspension of functions.
+The current implementation of Kotlin Coroutines for Wasm (with state-machines) is based on the implementation of
+suspend functions for Kotlin/JVM, which doesn't have primitives for continuation objects and suspension of functions.
 
-The ultimate goal is to verify whether compiling Kotlin Coroutines using stack-switching improves binary size, complexity and performance for available Wasm runtimes with stack-switching support.
-
-There is also an indirect benefit of preparing for eventual release of stack-switching in the mainstream Wasm runtimes.
+The ultimate goal of this thesis is to verify whether compiling Kotlin Coroutines using stack-switching improves
+binary size and performance for available Wasm runtimes with stack-switching support.
 
 \section{Thesis Structure}
 \label{sec:structure}
