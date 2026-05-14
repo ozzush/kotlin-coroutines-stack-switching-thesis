@@ -1,20 +1,22 @@
 \chapter{Implementation}
 \label{ch:implementation}
 
-To implement Kotlin coroutines using Wasm stack-switching proposal we have to implement the intrinsics and primitives
-discussed in the previous section. Kotlin coroutine primitives can be mapped to the Wasm stack-switching
+To implement Kotlin coroutines using Wasm stack-switching proposal we have to implement the primitives
+discussed in TODO(reference section with coroutine primitives). Kotlin coroutine primitives can be mapped to the Wasm stack-switching
 primitives pretty closely:
 \begin{itemize}
-    \item \textbf{Continuation} maps to Wasm continuation objects.
+    \item \textbf{\Continuation} maps to Wasm continuation objects.
 
-    \item \textbf{createCoroutineUnintercepted} maps to \contnew.
+    \item \textbf{\createCoroutineUnintercepted} maps to \contnew.
 
-    \item \textbf{startCoroutineUninterceptedOrReturn} maps to \contnew followed by \wasmresume.
+    \item \textbf{\startCoroutineUninterceptedOrReturn} maps to \contnew followed by \wasmresume.
 
-    \item \textbf{suspendCoroutineUninterceptedOrReturn} maps to the \wasmsuspend instruction with some additional
+    \item \textbf{\suspendCoroutineUninterceptedOrReturn} maps to the \wasmsuspend instruction with some additional
     logic to execute suspend lambda (the \texttt{block} argument that is passed to \suspendCoroutineUninterceptedOrReturn).
-    \item \textbf{Continuation.resumeWith} maps to the \wasmresume instruction.
+    \item \textbf{\texttt{Continuation::resumeWith}} maps to the \wasmresume instruction.
 \end{itemize}
+
+This correspondence can be observed more closely on Figure~\ref{fig:primitives-correspondence}.
 
 \begin{figure}[H]
     \centering
@@ -31,20 +33,18 @@ primitives pretty closely:
         \caption{Wasm stack-switching primitives}
         \label{subfig:wasm-primitives}
     \end{subfigure}
-    \caption{Correspondence between Kotlin and Wasm coroutine primitives}
+    \caption{Comparison between Kotlin and Wasm coroutine primitives}
     \label{fig:primitives-correspondence}
 \end{figure}
 
-This correspondence can be observed more closely on Figure~\ref{fig:primitives-correspondence}.
-
-There is one unfortunate difference in how suspension is handled in Kotlin, which makes it not so obvious how to
+Unfortunately, there is one crucial difference in how suspension is handled in Kotlin, which makes it not so obvious how to
 implement it in Wasm. In Kotlin the function \suspendCoroutineUninterceptedOrReturn
 accepts a lambda which either returns some result or suspends the execution. This lambda accepts an argument: current
 continuation. Resuming this continuation will resume the function. The intention of providing this argument is
 for the suspension lambda to contain code that saves the continuation in some variable. Then, in case
 suspension really happens, the function will be resumed by resuming this saved continuation.
 
-For example, consider this simple suspend function:
+For example, consider this simple suspend function, that adheres to the intention behind suspension lambdas:
 
 \begin{lstlisting}[language=Kotlin, basicstyle=\footnotesize\ttfamily]
 var savedContinuation: Continuation<String>? = null

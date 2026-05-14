@@ -217,17 +217,18 @@ coroutine primitives. It's a simple program that starts a coroutine. After the c
 with the value \("\)OK\("\) and the completion saves the result of the coroutine to a variable. The result of
 the coroutine is then printed out.
 
+To understand how these primitives interact with each other internally, see Figure~\ref{fig:coroutine-primitives-full}.
+
 \begin{figure}[H]
     \centering
     \resizebox{\textwidth}{!}{\input{diagrams/coroutine-primitives-full}}
     \caption{Kotlin Coroutine primitives internals}
     \begin{description}
-        \item Red blocks represent calls to functions that need to be implemented
-        \item Red columns represent that the function in the column title needs to be implemented
-        \item White blocks represent logic that needs to be implemented
-        \item Gray blocks represent calls to functions and logic that don't need to be implemented or require minimal changes
+        \item Red blocks and columns represent functions that need to be implemented
+        \item White blocks represent logic that needs to be implemented inside unimplemented functions
+        \item Gray blocks represent calls to functions and logic that don't need to be implemented
+        or require minimal changes
     \end{description}
     \label{fig:coroutine-primitives-full}
 \end{figure}
 
-To understand how these primitives interact with each other internally, see Figure~\ref{fig:coroutine-primitives-full}.
