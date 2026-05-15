@@ -161,7 +161,9 @@ The benchmarks were executed in two compilation modes:
 Each benchmark was run for 30 iterations after 20 warmup iterations. The figures in this chapter
 will display the average value across 30 iterations.
 
-\subsection*{Raw results}
+\subsection{V8 (Google Chrome)}
+
+\subsubsection*{Raw results}
 
 Tables~\ref{tab:benchmark-dev} and~\ref{tab:benchmark-dce} show the raw benchmark results for dev and dce modes respectively.
 
@@ -201,7 +203,7 @@ startCoroutine & 26,000 & 58,200 & 71,566 \\
 \end{tabular}
 \end{table}
 
-\subsection*{Percentage Changes}
+\subsubsection*{Percentage Changes}
 
 Table~\ref{tab:benchmark-percentage} presents the percentage changes relative to the baseline. Positive values indicate
 performance regression (slower execution), while negative values indicate improvement (faster execution).
@@ -230,7 +232,7 @@ startCoroutine & dce & 26,000 & +123.8\% & +175.3\% & +23.0\% \\
 \end{tabular}
 \end{table}
 
-\subsection*{Visual Comparison}
+\subsubsection*{Visual Comparison}
 
 Figures~\ref{fig:benchmark-dev} and~\ref{fig:benchmark-dce} provide a visual comparison of the benchmark results across
 all three implementations.
@@ -331,5 +333,183 @@ all three implementations.
 \label{fig:benchmark-dce}
 \end{figure}
 
+\subsection{Reference Interpreter}
+
+\subsubsection*{Raw results}
+
+Tables~\ref{tab:benchmark-ref-dev} and~\ref{tab:benchmark-ref-dce} show the raw benchmark results for dev and dce modes respectively.
+
+\begin{table}[H]
+\centering
+\caption{Benchmark results in dev mode (average time in microseconds, Reference Interpreter)}
+\label{tab:benchmark-ref-dev}
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
+\hline
+chainSusp & 758,311 & 486,995 & 955,909 \\
+deepSusp & 887,526 & 565,484 & 1,079,435 \\
+multiSusp1 & 1,214,480 & 849,231 & 131,810 \\
+multiSusp2 & 94,166 & 128,453 & 193,193 \\
+sequence & 36,715 & 50,726 & 84,870 \\
+startCoroutine & 310,222 & 435,650 & 672,933 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Benchmark results in dce mode (average time in microseconds, Reference Interpreter)}
+\label{tab:benchmark-ref-dce}
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
+\hline
+chainSusp & 617,381 & 375,790 & 778,879 \\
+deepSusp & 777,220 & 409,710 & 796,007 \\
+multiSusp1 & 1,040,099 & 918,748 & 86,925 \\
+multiSusp2 & 61,413 & 75,988 & 126,874 \\
+sequence & 27,183 & 32,015 & 55,099 \\
+startCoroutine & 195,163 & 273,544 & 414,767 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection*{Percentage Changes}
+
+Table~\ref{tab:benchmark-ref-percentage} presents the percentage changes relative to the baseline. Positive values indicate
+performance regression (slower execution), while negative values indicate improvement (faster execution).
+
+\begin{table}[H]
+\centering
+\caption{Percentage change compared to baseline (negative values indicate improvement)}
+\label{tab:benchmark-ref-percentage}
+\begin{tabular}{|l|c|r|r|r|r|}
+\hline
+\textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} & \textbf{Opt vs SS} \\
+\hline
+chainSusp & dev & 758,311 & -35.8\% & +26.1\% & +96.3\% \\
+chainSusp & dce & 617,381 & -39.1\% & +26.2\% & +107.3\% \\
+deepSusp & dev & 887,526 & -36.3\% & +21.6\% & +90.9\% \\
+deepSusp & dce & 777,220 & -47.3\% & +2.4\% & +94.3\% \\
+multiSusp1 & dev & 1,214,480 & -30.1\% & -89.1\% & -84.5\% \\
+multiSusp1 & dce & 1,040,099 & -11.7\% & -91.6\% & -90.5\% \\
+multiSusp2 & dev & 94,166 & +36.4\% & +105.2\% & +50.4\% \\
+multiSusp2 & dce & 61,413 & +23.7\% & +106.6\% & +67.0\% \\
+sequence & dev & 36,715 & +38.2\% & +131.2\% & +67.3\% \\
+sequence & dce & 27,183 & +17.8\% & +102.7\% & +72.1\% \\
+startCoroutine & dev & 310,222 & +40.4\% & +116.9\% & +54.5\% \\
+startCoroutine & dce & 195,163 & +40.2\% & +112.5\% & +51.6\% \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection*{Visual Comparison}
+
+Figures~\ref{fig:benchmark-ref-dev} and~\ref{fig:benchmark-ref-dce} provide a visual comparison of the benchmark results across
+all three implementations.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=7pt,
+    width=\textwidth,
+    height=8cm,
+    ylabel={Average time (microseconds)},
+    xlabel={Benchmark test},
+    symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
+    xtick=data,
+    x tick label style={rotate=45, anchor=east},
+    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=3},
+    ymin=0,
+    enlarge x limits=0.1,
+]
+\addplot coordinates {
+    (chainSusp,758311)
+    (deepSusp,887526)
+    (multiSusp1,1214480)
+    (multiSusp2,94166)
+    (sequence,36715)
+    (startCoroutine,310222)
+};
+\addplot coordinates {
+    (chainSusp,486995)
+    (deepSusp,565484)
+    (multiSusp1,849231)
+    (multiSusp2,128453)
+    (sequence,50726)
+    (startCoroutine,435650)
+};
+\addplot coordinates {
+    (chainSusp,955909)
+    (deepSusp,1079435)
+    (multiSusp1,131810)
+    (multiSusp2,193193)
+    (sequence,84870)
+    (startCoroutine,672933)
+};
+\legend{Baseline, Stack-switching, Optimized SS}
+\end{axis}
+\end{tikzpicture}
+\caption{Benchmark comparison in dev mode (Reference Interpreter)}
+\label{fig:benchmark-ref-dev}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=7pt,
+    width=\textwidth,
+    height=8cm,
+    ylabel={Average time (microseconds)},
+    xlabel={Benchmark test},
+    symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
+    xtick=data,
+    x tick label style={rotate=45, anchor=east},
+    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=3},
+    ymin=0,
+    enlarge x limits=0.1,
+]
+\addplot coordinates {
+    (chainSusp,617381)
+    (deepSusp,777220)
+    (multiSusp1,1040099)
+    (multiSusp2,61413)
+    (sequence,27183)
+    (startCoroutine,195163)
+};
+\addplot coordinates {
+    (chainSusp,375790)
+    (deepSusp,409710)
+    (multiSusp1,918748)
+    (multiSusp2,75988)
+    (sequence,32015)
+    (startCoroutine,273544)
+};
+\addplot coordinates {
+    (chainSusp,778879)
+    (deepSusp,796007)
+    (multiSusp1,86925)
+    (multiSusp2,126874)
+    (sequence,55099)
+    (startCoroutine,414767)
+};
+\legend{Baseline, Stack-switching, Optimized SS}
+\end{axis}
+\end{tikzpicture}
+\caption{Benchmark comparison in dce mode (Reference Interpreter)}
+\label{fig:benchmark-ref-dce}
+\end{figure}
+
+\subsection{Analysis}
+
+TODO: analyze benchmark results
+
 \section{Summary}
 \label{sec:evaluation-summary}
+
+TODO: summarize benchmark results, both performance and size.
