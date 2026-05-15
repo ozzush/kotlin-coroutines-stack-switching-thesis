@@ -11,7 +11,7 @@ Continuation is an object that represents a function at some point in its execut
 of the function or a \wasmsuspend instruction. Resuming continuation resumes the function from the recorded point.
 Continuation can be understood as \("\)the rest of a function.\("\)
 
-A good intuition for understanding resuming and suspending in the stack-switching proposal is that it is similar to
+A good intuition for understanding resuming and suspending in the Stack-switching proposal is that it is similar to
 calling a function inside a try-catch block: the \wasmresume instruction (try block) specifies handlers (catch blocks) for
 different \textit{suspension tags} (exception types). A function resumed via continuation can suspend with a \wasmsuspend
 instruction. Depending on the suspension tag provided with the \wasmsuspend instruction, execution will jump to a
@@ -27,7 +27,7 @@ an exception ends the function completely and it can't be resumed.
     \label{fig:stack-switching-primitives}
 \end{figure}
 
-On Figure~\ref{fig:stack-switching-primitives} you can see the most important stack-switching primitives and what they
+On Figure~\ref{fig:stack-switching-primitives} you can see the most important Stack-switching primitives and what they
 do in the grand scheme of things. Below is an introduction for each of the depicted primitives.
 
 \subsection*{\contnew}
@@ -98,7 +98,7 @@ define the types of the passed values.
 \end{figure}
 
 Figure~\ref{fig:stack-switching-example}
-gives an example code using stack-switching in Wasm. This is a simple program with generator and consumer.
+gives an example code using Stack-switching in Wasm. This is a simple program with generator and consumer.
 Consumer creates a continuation from generator and continuously resumes it and prints the received values.
 Generator produces values from 100 down to 1 and passes them to the consumer via the suspend instruction.
 If the generator is resumed but all the values have already been passed, it returns. Consumer sees that

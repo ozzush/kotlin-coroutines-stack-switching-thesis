@@ -1,8 +1,8 @@
 \chapter{Implementation}
 \label{ch:implementation}
 
-To implement Kotlin coroutines using Wasm stack-switching proposal we have to implement the primitives
-discussed in TODO(reference section with coroutine primitives). Kotlin coroutine primitives can be mapped to the Wasm stack-switching
+To implement Kotlin coroutines using Wasm Stack-switching proposal we have to implement the primitives
+discussed in TODO(reference section with coroutine primitives). Kotlin coroutine primitives can be mapped to the Wasm Stack-switching
 primitives pretty closely:
 \begin{itemize}
     \item \textbf{\Continuation} maps to Wasm continuation objects.
@@ -30,7 +30,7 @@ This correspondence can be observed more closely on Figure~\ref{fig:primitives-c
     \begin{subfigure}{0.48\textwidth}
         \centering
         \resizebox{\textwidth}{!}{\input{diagrams/stack-switching-primitives}}
-        \caption{Wasm stack-switching primitives}
+        \caption{Wasm Stack-switching primitives}
         \label{subfig:wasm-primitives}
     \end{subfigure}
     \caption{Comparison between Kotlin and Wasm coroutine primitives}
