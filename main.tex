@@ -22,6 +22,8 @@
 \usetikzlibrary{shapes,arrows,positioning,fit,calc}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
+\usepackage{xurl} % For better line breaking in URLs and paths
+\usepackage{seqsplit} % For splitting long sequences
 
 % Page geometry
 \geometry{
@@ -107,27 +109,32 @@
     pdfauthor={Your Name}
 }
 
+% Custom command for breakable texttt (allows breaks at natural boundaries)
+% Uses \path to allow line breaks at slashes, dots, underscores, etc.
+% while keeping individual words intact
+\newcommand{\btexttt}[1]{{\ttfamily\path{#1}}}
+
 % Line spacing
 \onehalfspacing
 
 % Document information
-\title{Your Thesis Title}
+\title{Compiling Kotlin Coroutines to WebAssembly with Stack-switching}
 \author{Your Name}
 \date{\today}
 
 % New commands for frequently used terms
-\newcommand{\WasmContinuation}{\texttt{WasmContinuation}\xspace}
-\newcommand{\startCoroutineUninterceptedOrReturn}{\texttt{startCoroutineUninterceptedOrReturn}\xspace}
-\newcommand{\suspendCoroutineUninterceptedOrReturn}{\texttt{suspendCoroutineUninterceptedOrReturn}\xspace}
-\newcommand{\createCoroutineUnintercepted}{\texttt{createCoroutineUnintercepted}\xspace}
-\newcommand{\COROUTINESUSPENDED}{\texttt{COROUTINE\_SUSPENDED}\xspace}
-\newcommand{\Continuation}{\texttt{Continuation}\xspace}
-\newcommand{\CoroutineImpl}{\texttt{CoroutineImpl}\xspace}
-\newcommand{\resumeWith}{\texttt{resumeWith}\xspace}
-\newcommand{\doResume}{\texttt{doResume}\xspace}
-\newcommand{\contnew}{\texttt{cont.new}\xspace}
-\newcommand{\wasmresume}{\texttt{resume}\xspace}
-\newcommand{\wasmsuspend}{\texttt{suspend}\xspace}
+\newcommand{\WasmContinuation}{\btexttt{WasmContinuation}\xspace}
+\newcommand{\startCoroutineUninterceptedOrReturn}{\btexttt{startCoroutineUninterceptedOrReturn}\xspace}
+\newcommand{\suspendCoroutineUninterceptedOrReturn}{\btexttt{suspendCoroutineUninterceptedOrReturn}\xspace}
+\newcommand{\createCoroutineUnintercepted}{\btexttt{createCoroutineUnintercepted}\xspace}
+\newcommand{\COROUTINESUSPENDED}{\btexttt{COROUTINE_SUSPENDED}\xspace}
+\newcommand{\Continuation}{\btexttt{Continuation}\xspace}
+\newcommand{\CoroutineImpl}{\btexttt{CoroutineImpl}\xspace}
+\newcommand{\resumeWith}{\btexttt{resumeWith}\xspace}
+\newcommand{\doResume}{\btexttt{doResume}\xspace}
+\newcommand{\contnew}{\btexttt{cont.new}\xspace}
+\newcommand{\wasmresume}{\btexttt{resume}\xspace}
+\newcommand{\wasmsuspend}{\btexttt{suspend}\xspace}
 
 \begin{document}
 

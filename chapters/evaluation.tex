@@ -15,7 +15,7 @@ They also cover low-level coroutine APIs built directly on top of them like \tex
 and \texttt{suspendCoroutine}
 
 The tests are located in the Kotlin repository at
-\texttt{compiler/testData/codegen/box/coroutines/intrinsicSemantics}
+\btexttt{compiler/testData/codegen/box/coroutines/intrinsicSemantics}
 
 You can find an example of what kind of tests are in the \texttt{intrinsicSemantics} folder in Listing~\ref{lst:intrinsic-semantics-example} in the Appendix~\ref{ch:appendix}).
 
@@ -27,8 +27,8 @@ Some of the things that are tested are:
 \begin{itemize}
     \item \textbf{Control flow} (tests in \texttt{controlFlow/} directory): testing coroutines
     with \texttt{if}, \texttt{while}, \texttt{try-catch-finally}, and other control flow structures.
-    \item \textbf{Default and variadic parameters} (e.g., \texttt{defaultParametersInSuspend.kt},
-    \texttt{varargCallFromSuspend.kt}): testing suspend functions with default or variadic arguments.
+    \item \textbf{Default and variadic parameters} (e.g., \btexttt{defaultParametersInSuspend.kt},
+    \btexttt{varargCallFromSuspend.kt}): testing suspend functions with default or variadic arguments.
     \item \textbf{Exception handling} (e.g., \texttt{handleException.kt}, \texttt{simpleException.kt}): testing
     that exceptions thrown inside coroutines are correctly passed to the completion continuation or
     handled by \texttt{try-catch} blocks.
@@ -60,7 +60,7 @@ fun box(): String {
 }
 \end{lstlisting}
 
-The tests are located in the Kotlin repository at \texttt{compiler/testData/codegen/box/coroutines}
+The tests are located in the Kotlin repository at \btexttt{compiler/testData/codegen/box/coroutines}
 
 \section{Size benchmark}
 \label{sec:size-bench}
@@ -77,11 +77,11 @@ was compiled using three different compiler versions:
 
 For each compiler version, two distributions were generated:
 \begin{itemize}
-    \item \texttt{wasmJsBrowserDevelopmentExecutableDistribution}: development build without optimizations
-    \item \texttt{wasmJsBrowserDistribution}: production build with optimizations
+    \item \btexttt{wasmJsBrowserDevelopmentExecutableDistribution}: development build without optimizations
+    \item \btexttt{wasmJsBrowserDistribution}: production build with optimizations
 \end{itemize}
 
-Table~\ref{tab:size-benchmark} shows the size of the compiled \texttt{KotlinProject-composeApp.wasm} file in kilobytes
+Table~\ref{tab:size-benchmark} shows the size of the compiled \btexttt{KotlinProject-composeApp.wasm} file in kilobytes
 for each configuration.
 
 \begin{table}[H]
@@ -126,21 +126,21 @@ The performance of the implementation was measured by running benchmarks on low-
 The following cases are measured:
 
 \begin{itemize}
-    \item \texttt{chainSuspensions.kt}: 20 coroutines are created and suspended. When the first coroutine is resumed, it
+    \item \btexttt{chainSuspensions.kt}: 20 coroutines are created and suspended. When the first coroutine is resumed, it
     suspends again, and in the suspend lambda the second coroutine is resumed. The second coroutine suspends and
     resumes the third coroutine in its suspend lambda. This continues on until the last coroutine is resumed, which
     records the fact that it was reached in a global variable. After that, all coroutines that were suspended so far
     are resumed so that they terminate properly.
-    \item \texttt{deepSuspensions.kt}: same setup as in \texttt{chainSuspensions.kt}, but when the last coroutine
+    \item \btexttt{deepSuspensions.kt}: same setup as in \btexttt{chainSuspensions.kt}, but when the last coroutine
     in the chain is resumed, it also suspends and resumes 20 times.
-    \item \texttt{multipleSuspensions1.kt}: create one coroutine and suspend and resume it 50 times. A pattern
+    \item \btexttt{multipleSuspensions1.kt}: create one coroutine and suspend and resume it 50 times. A pattern
     with immediate resume inside suspend lambda is used.
-    \item \texttt{multipleSuspensions2.kt}: same as \texttt{multipleSuspensions1.kt}, but the immediate resume pattern
+    \item \btexttt{multipleSuspensions2.kt}: same as \btexttt{multipleSuspensions1.kt}, but the immediate resume pattern
     is not used. For each suspension the continuation is saved and resumed from the main context.
     \item \texttt{sequence.kt}: this benchmark is an exception as it's not a benchmark on low-level primitives. It's a
     benchmark for a Kotlin sequence builder, which is built on top of coroutines. For this test a sequence builder
     is used to compute the first 20 numbers from the Fibonacci sequence.
-    \item \texttt{startCoroutinePerformance.kt}: start 100 coroutines with \texttt{startCoroutine}
+    \item \btexttt{startCoroutinePerformance.kt}: start 100 coroutines with \texttt{startCoroutine}
 \end{itemize}
 
 Three code versions were used for comparison:
@@ -248,7 +248,7 @@ all three implementations.
     symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
     xtick=data,
     x tick label style={rotate=45, anchor=east},
-    legend style={at={(0.5,-0.25)}, anchor=north, legend columns=3},
+    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=3},
     ymin=0,
     enlarge x limits=0.1,
 ]
@@ -296,7 +296,7 @@ all three implementations.
     symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
     xtick=data,
     x tick label style={rotate=45, anchor=east},
-    legend style={at={(0.5,-0.25)}, anchor=north, legend columns=3},
+    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=3},
     ymin=0,
     enlarge x limits=0.1,
 ]
