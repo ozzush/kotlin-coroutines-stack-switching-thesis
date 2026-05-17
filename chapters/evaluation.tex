@@ -90,7 +90,7 @@ for each configuration.
 \label{tab:size-benchmark}
 \begin{tabular}{|l|r|r|r|}
 \hline
-\textbf{Build Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
+\textbf{Build Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Resume opt} \\
 \hline
 Dev & 20,460.67 & 19,987.97 & 19,992.46 \\
 Prod & 2,082.82 & 1,857.17 & 1,858.34 \\
@@ -106,7 +106,7 @@ Table~\ref{tab:size-percentage} shows the percentage change in binary size compa
 \label{tab:size-percentage}
 \begin{tabular}{|l|r|r|r|}
 \hline
-\textbf{Build Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
+\textbf{Build Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Resume opt} \\
 \hline
 Dev & 20,460.67 KB & -2.3\% & -2.3\% \\
 Prod & 2,082.82 KB & -10.8\% & -10.8\% \\
@@ -143,12 +143,13 @@ The following cases are measured:
     \item \btexttt{startCoroutinePerformance.kt}: start 100 coroutines with \texttt{startCoroutine}
 \end{itemize}
 
-Three code versions were used for comparison:
+Four code versions were used for comparison:
 
 \begin{itemize}
     \item \textbf{Baseline} (commit \texttt{0da05969}): The original implementation without Stack-switching
     \item \textbf{Stack-switching} (commit \texttt{1ad2ba84}): Initial Stack-switching implementation
-    \item \textbf{Optimized SS} (commit \texttt{9c55cf92}): Stack-switching with immediate resume optimization
+    \item \textbf{Resume optimization} (commit \texttt{9c55cf92}): Stack-switching with immediate resume optimization
+    \item \textbf{Value-passing optimization} (commit \texttt{81cac385}): Value-passing optimization
 \end{itemize}
 
 The benchmarks were executed in two compilation modes:
@@ -163,6 +164,10 @@ will display the average value across 30 iterations.
 
 \subsection{V8 (Google Chrome)}
 
+V8 benchmark results are the most interesting since it's the VM used by Chromium, and, consequently, Google Chrome,
+which is the most used browser app TODO(reference). This is precisely the use-case for Kotlin/Wasm, which is used by
+Compose Multiplatform to provide a Web application target.
+
 \subsubsection*{Raw results}
 
 Tables~\ref{tab:benchmark-dev} and~\ref{tab:benchmark-dce} show the raw benchmark results for dev and dce modes respectively.
@@ -171,16 +176,16 @@ Tables~\ref{tab:benchmark-dev} and~\ref{tab:benchmark-dce} show the raw benchmar
 \centering
 \caption{Benchmark results in dev mode (average time in microseconds, V8 runtime)}
 \label{tab:benchmark-dev}
-\begin{tabular}{|l|r|r|r|}
+\begin{tabular}{|l|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
+\textbf{Test} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
 \hline
-chainSusp & 20,900 & 115,500 & 113,100 \\
-deepSusp & 29,100 & 109,466 & 124,433 \\
-multiSusp1 & 10,600 & 17,466 & 10,500 \\
-multiSusp2 & 9,266 & 17,666 & 25,300 \\
-sequence & 6,900 & 36,066 & 22,800 \\
-startCoroutine & 24,000 & 113,333 & 120,400 \\
+chainSusp & 20,900 & 115,500 & 113,100 & 93,566 \\
+deepSusp & 29,100 & 109,466 & 124,433 & 112,200 \\
+multiSusp1 & 10,600 & 17,466 & 10,500 & 10,466 \\
+multiSusp2 & 9,266 & 17,666 & 25,300 & 18,900 \\
+sequence & 6,900 & 36,066 & 22,800 & 14,200 \\
+startCoroutine & 24,000 & 113,333 & 120,400 & 68,300 \\
 \hline
 \end{tabular}
 \end{table}
@@ -189,16 +194,16 @@ startCoroutine & 24,000 & 113,333 & 120,400 \\
 \centering
 \caption{Benchmark results in dce mode (average time in microseconds, V8 runtime)}
 \label{tab:benchmark-dce}
-\begin{tabular}{|l|r|r|r|}
+\begin{tabular}{|l|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
+\textbf{Test} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
 \hline
-chainSusp & 20,600 & 100,166 & 106,200 \\
-deepSusp & 26,766 & 114,633 & 115,466 \\
-multiSusp1 & 9,866 & 16,500 & 10,300 \\
-multiSusp2 & 9,400 & 16,266 & 19,966 \\
-sequence & 5,266 & 13,266 & 13,133 \\
-startCoroutine & 26,000 & 58,200 & 71,566 \\
+chainSusp & 20,600 & 100,166 & 106,200 & 90,766 \\
+deepSusp & 26,766 & 114,633 & 115,466 & 107,033 \\
+multiSusp1 & 9,866 & 16,500 & 10,300 & 11,100 \\
+multiSusp2 & 9,400 & 16,266 & 19,966 & 19,466 \\
+sequence & 5,266 & 13,266 & 13,133 & 12,266 \\
+startCoroutine & 26,000 & 58,200 & 71,566 & 68,200 \\
 \hline
 \end{tabular}
 \end{table}
@@ -212,23 +217,23 @@ performance regression (slower execution), while negative values indicate improv
 \centering
 \caption{Percentage change compared to baseline (negative values indicate improvement)}
 \label{tab:benchmark-percentage}
-\rowcolors{2}{gray!10}{white}
-\begin{tabular}{|l|c|r|r|r|r|}
+\begin{tabular}{|l|c|r|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} & \textbf{Opt vs SS} \\
+\textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
 \hline
-chainSusp & dev & 20,900 & +452.6\% & +441.1\% & -2.1\% \\
-deepSusp & dev & 29,100 & +276.2\% & +327.6\% & +13.7\% \\
-multiSusp1 & dev & 10,600 & +64.8\% & -0.9\% & -39.9\% \\
-multiSusp2 & dev & 9,266 & +90.7\% & +173.0\% & +43.2\% \\
-sequence & dev & 6,900 & +422.7\% & +230.4\% & -36.8\% \\
-startCoroutine & dev & 24,000 & +372.2\% & +401.7\% & +6.2\% \\
-chainSusp & dce & 20,600 & +386.2\% & +415.5\% & +6.0\% \\
-deepSusp & dce & 26,766 & +328.3\% & +331.4\% & +0.7\% \\
-multiSusp1 & dce & 9,866 & +67.2\% & +4.4\% & -37.6\% \\
-multiSusp2 & dce & 9,400 & +73.0\% & +112.4\% & +22.7\% \\
-sequence & dce & 5,266 & +151.9\% & +149.4\% & -1.0\% \\
-startCoroutine & dce & 26,000 & +123.8\% & +175.3\% & +23.0\% \\
+chainSusp & dev & 20,900 & +452.6\% & +441.1\% & +347.7\% \\
+deepSusp & dev & 29,100 & +276.2\% & +327.6\% & +285.6\% \\
+multiSusp1 & dev & 10,600 & +64.8\% & -0.9\% & -1.3\% \\
+multiSusp2 & dev & 9,266 & +90.7\% & +173.0\% & +104.0\% \\
+sequence & dev & 6,900 & +422.7\% & +230.4\% & +105.8\% \\
+startCoroutine & dev & 24,000 & +372.2\% & +401.7\% & +184.6\% \\
+\hline
+chainSusp & dce & 20,600 & +386.2\% & +415.5\% & +340.6\% \\
+deepSusp & dce & 26,766 & +328.3\% & +331.4\% & +299.8\% \\
+multiSusp1 & dce & 9,866 & +67.2\% & +4.4\% & +12.5\% \\
+multiSusp2 & dce & 9,400 & +73.0\% & +112.4\% & +107.1\% \\
+sequence & dce & 5,266 & +151.9\% & +149.4\% & +133.0\% \\
+startCoroutine & dce & 26,000 & +123.8\% & +175.3\% & +162.3\% \\
 \hline
 \end{tabular}
 \end{table}
@@ -251,7 +256,7 @@ all three implementations.
     symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
     xtick=data,
     x tick label style={rotate=45, anchor=east},
-    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=3},
+    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=4},
     ymin=0,
     enlarge x limits=0.1,
 ]
@@ -279,7 +284,15 @@ all three implementations.
     (sequence,22800)
     (startCoroutine,120400)
 };
-\legend{Baseline, Stack-switching, Optimized SS}
+\addplot coordinates {
+    (chainSusp,93566)
+    (deepSusp,112200)
+    (multiSusp1,10466)
+    (multiSusp2,18900)
+    (sequence,14200)
+    (startCoroutine,68300)
+};
+\legend{Baseline, SS, Resume opt, Value-passing opt}
 \end{axis}
 \end{tikzpicture}
 \caption{Benchmark comparison in dev mode (V8 runtime)}
@@ -299,7 +312,7 @@ all three implementations.
     symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
     xtick=data,
     x tick label style={rotate=45, anchor=east},
-    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=3},
+    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=4},
     ymin=0,
     enlarge x limits=0.1,
 ]
@@ -327,7 +340,15 @@ all three implementations.
     (sequence,13133)
     (startCoroutine,71566)
 };
-\legend{Baseline, Stack-switching, Optimized SS}
+\addplot coordinates {
+    (chainSusp,90766)
+    (deepSusp,107033)
+    (multiSusp1,11100)
+    (multiSusp2,19466)
+    (sequence,12266)
+    (startCoroutine,68200)
+};
+\legend{Baseline, SS, Resume opt, Value-passing opt}
 \end{axis}
 \end{tikzpicture}
 \caption{Benchmark comparison in dce mode (V8 runtime)}
@@ -335,6 +356,12 @@ all three implementations.
 \end{figure}
 
 \subsection{Reference Interpreter}
+
+Reference interpreter (TODO: reference https://github.com/WebAssembly/stack-switching) is a toy interpreter with
+a proof-of-concept implementation of Stack-switching. It is not designed to be fast and, frankly, performance benchmarks
+on it are of little interest as it is not used anywhere as a production VM. However, it was the only VM available
+for testing when I was ready to write benchmarks, so I happen to have the setup ready and could as well share the
+results for reference.
 
 \subsubsection*{Raw results}
 
@@ -344,16 +371,16 @@ Tables~\ref{tab:benchmark-ref-dev} and~\ref{tab:benchmark-ref-dce} show the raw 
 \centering
 \caption{Benchmark results in dev mode (average time in microseconds, Reference Interpreter)}
 \label{tab:benchmark-ref-dev}
-\begin{tabular}{|l|r|r|r|}
+\begin{tabular}{|l|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
+\textbf{Test} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
 \hline
-chainSusp & 758,311 & 486,995 & 955,909 \\
-deepSusp & 887,526 & 565,484 & 1,079,435 \\
-multiSusp1 & 1,214,480 & 849,231 & 131,810 \\
-multiSusp2 & 94,166 & 128,453 & 193,193 \\
-sequence & 36,715 & 50,726 & 84,870 \\
-startCoroutine & 310,222 & 435,650 & 672,933 \\
+chainSusp & 758,311 & 486,995 & 955,909 & 655,928 \\
+deepSusp & 887,526 & 565,484 & 1,079,435 & 741,057 \\
+multiSusp1 & 1,214,480 & 849,231 & 131,810 & 89,758 \\
+multiSusp2 & 94,166 & 128,453 & 193,193 & 149,726 \\
+sequence & 36,715 & 50,726 & 84,870 & 61,019 \\
+startCoroutine & 310,222 & 435,650 & 672,933 & 507,360 \\
 \hline
 \end{tabular}
 \end{table}
@@ -362,16 +389,16 @@ startCoroutine & 310,222 & 435,650 & 672,933 \\
 \centering
 \caption{Benchmark results in dce mode (average time in microseconds, Reference Interpreter)}
 \label{tab:benchmark-ref-dce}
-\begin{tabular}{|l|r|r|r|}
+\begin{tabular}{|l|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
+\textbf{Test} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
 \hline
-chainSusp & 617,381 & 375,790 & 778,879 \\
-deepSusp & 777,220 & 409,710 & 796,007 \\
-multiSusp1 & 1,040,099 & 918,748 & 86,925 \\
-multiSusp2 & 61,413 & 75,988 & 126,874 \\
-sequence & 27,183 & 32,015 & 55,099 \\
-startCoroutine & 195,163 & 273,544 & 414,767 \\
+chainSusp & 617,381 & 375,790 & 778,879 & 561,023 \\
+deepSusp & 777,220 & 409,710 & 796,007 & 617,720 \\
+multiSusp1 & 1,040,099 & 918,748 & 86,925 & 60,248 \\
+multiSusp2 & 61,413 & 75,988 & 126,874 & 91,712 \\
+sequence & 27,183 & 32,015 & 55,099 & 39,727 \\
+startCoroutine & 195,163 & 273,544 & 414,767 & 310,497 \\
 \hline
 \end{tabular}
 \end{table}
@@ -385,23 +412,23 @@ performance regression (slower execution), while negative values indicate improv
 \centering
 \caption{Percentage change compared to baseline (negative values indicate improvement)}
 \label{tab:benchmark-ref-percentage}
-\rowcolors{2}{gray!10}{white}
-\begin{tabular}{|l|c|r|r|r|r|}
+\begin{tabular}{|l|c|r|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} & \textbf{Opt vs SS} \\
+\textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
 \hline
-chainSusp & dev & 758,311 & -35.8\% & +26.1\% & +96.3\% \\
-deepSusp & dev & 887,526 & -36.3\% & +21.6\% & +90.9\% \\
-multiSusp1 & dev & 1,214,480 & -30.1\% & -89.1\% & -84.5\% \\
-multiSusp2 & dev & 94,166 & +36.4\% & +105.2\% & +50.4\% \\
-sequence & dev & 36,715 & +38.2\% & +131.2\% & +67.3\% \\
-startCoroutine & dev & 310,222 & +40.4\% & +116.9\% & +54.5\% \\
-chainSusp & dce & 617,381 & -39.1\% & +26.2\% & +107.3\% \\
-deepSusp & dce & 777,220 & -47.3\% & +2.4\% & +94.3\% \\
-multiSusp1 & dce & 1,040,099 & -11.7\% & -91.6\% & -90.5\% \\
-multiSusp2 & dce & 61,413 & +23.7\% & +106.6\% & +67.0\% \\
-sequence & dce & 27,183 & +17.8\% & +102.7\% & +72.1\% \\
-startCoroutine & dce & 195,163 & +40.2\% & +112.5\% & +51.6\% \\
+chainSusp & dev & 758,311 & -35.8\% & +26.1\% & -13.5\% \\
+deepSusp & dev & 887,526 & -36.3\% & +21.6\% & -16.5\% \\
+multiSusp1 & dev & 1,214,480 & -30.1\% & -89.1\% & -92.6\% \\
+multiSusp2 & dev & 94,166 & +36.4\% & +105.2\% & +59.0\% \\
+sequence & dev & 36,715 & +38.2\% & +131.2\% & +66.2\% \\
+startCoroutine & dev & 310,222 & +40.4\% & +116.9\% & +63.5\% \\
+\hline
+chainSusp & dce & 617,381 & -39.1\% & +26.2\% & -9.1\% \\
+deepSusp & dce & 777,220 & -47.3\% & +2.4\% & -20.5\% \\
+multiSusp1 & dce & 1,040,099 & -11.7\% & -91.6\% & -94.2\% \\
+multiSusp2 & dce & 61,413 & +23.7\% & +106.6\% & +49.3\% \\
+sequence & dce & 27,183 & +17.8\% & +102.7\% & +46.2\% \\
+startCoroutine & dce & 195,163 & +40.2\% & +112.5\% & +59.1\% \\
 \hline
 \end{tabular}
 \end{table}
@@ -424,7 +451,7 @@ all three implementations.
     symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
     xtick=data,
     x tick label style={rotate=45, anchor=east},
-    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=3},
+    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=4},
     ymin=0,
     enlarge x limits=0.1,
 ]
@@ -452,7 +479,15 @@ all three implementations.
     (sequence,84870)
     (startCoroutine,672933)
 };
-\legend{Baseline, Stack-switching, Optimized SS}
+\addplot coordinates {
+    (chainSusp,655928)
+    (deepSusp,741057)
+    (multiSusp1,89758)
+    (multiSusp2,149726)
+    (sequence,61019)
+    (startCoroutine,507360)
+};
+\legend{Baseline, SS, Resume opt, Value-passing opt}
 \end{axis}
 \end{tikzpicture}
 \caption{Benchmark comparison in dev mode (Reference Interpreter)}
@@ -472,7 +507,7 @@ all three implementations.
     symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
     xtick=data,
     x tick label style={rotate=45, anchor=east},
-    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=3},
+    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=4},
     ymin=0,
     enlarge x limits=0.1,
 ]
@@ -500,7 +535,15 @@ all three implementations.
     (sequence,55099)
     (startCoroutine,414767)
 };
-\legend{Baseline, Stack-switching, Optimized SS}
+\addplot coordinates {
+    (chainSusp,561023)
+    (deepSusp,617720)
+    (multiSusp1,60248)
+    (multiSusp2,91712)
+    (sequence,39727)
+    (startCoroutine,310497)
+};
+\legend{Baseline, SS, Resume opt, Value-passing opt}
 \end{axis}
 \end{tikzpicture}
 \caption{Benchmark comparison in dce mode (Reference Interpreter)}
@@ -509,7 +552,7 @@ all three implementations.
 
 \subsection{Analysis}
 
-One might notice that the new implementation with Stack-switching is much slower 
+One might notice that the new implementation with Stack-switching is much slower
 than the baseline. While the results for reference-interpreter are not as bad
 
 \section{Summary}
