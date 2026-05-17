@@ -165,8 +165,8 @@ will display the average value across 30 iterations.
 \subsection{V8 (Google Chrome)}
 
 V8 benchmark results are the most interesting since it's the VM used by Chromium, and, consequently, Google Chrome,
-which is the most used browser app TODO(reference). This is precisely the use-case for Kotlin/Wasm, which is used by
-Compose Multiplatform to provide a Web application target.
+which is the most used browser app~\cite{statcounter-browser-market-share}. This is precisely the use-case for
+Kotlin/Wasm, which is used by Compose Multiplatform to provide a Web application target.
 
 \subsubsection*{Raw results}
 
@@ -357,7 +357,7 @@ all three implementations.
 
 \subsection{Reference Interpreter}
 
-Reference interpreter (TODO: reference https://github.com/WebAssembly/stack-switching) is a toy interpreter with
+The Reference Interpreter~\cite{wasm-stack-switching-repo} is a toy interpreter with
 a proof-of-concept implementation of Stack-switching. It is not designed to be fast and, frankly, performance benchmarks
 on it are of little interest as it is not used anywhere as a production VM. However, it was the only VM available
 for testing when I was ready to write benchmarks, so I happen to have the setup ready and could as well share the
