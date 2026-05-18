@@ -155,7 +155,7 @@ Four code versions were used for comparison:
     \item \textbf{Baseline} (commit \texttt{0da05969}): The original implementation without Stack-switching
     \item \textbf{Stack-switching} (commit \texttt{1ad2ba84}): Initial Stack-switching implementation
     \item \textbf{Optimized SS} (commit \texttt{279301e1}): Stack-switching with immediate resume optimization
-    \item \textbf{Opt + param} (commit \texttt{1142df47}): Optimized SS with \texttt{--experimental-wasm-growable-stacks} flag passed to V8
+    \item \textbf{Opt + param} (commit \texttt{1142df47}): Optimized SS with \btexttt{--experimental-wasm-growable-stacks} flag passed to V8
 \end{itemize}
 
 The benchmarks were executed in two compilation modes:
@@ -548,19 +548,24 @@ all three implementations.
 
 \subsection{Analysis}
 
-One might notice that the new implementation with Stack-switching is much slower
+One might notice that the new implementation with Stack-switching is comparably slower
 than the baseline. While the results for Reference Interpreter are not as bad, they do
 not represent the experience that the actual users will have.
 
-One somewhat good piece of news is that the benchmarks that show the worst regression,
-\btexttt{chainSuspensions} and \btexttt{deepSuspensions}, are patterns that will rarely show
-up in application code. Among the presented benchmarks, the one that is the closest in
+\btexttt{chainSuspensions} and \btexttt{deepSuspensions} show the worst regression due to the nature of the V8
+implementation, showing a 4–4,5 times slow-down. Passing the special parameter,
+\btexttt{--experimental-wasm-growable-stacks}, makes the results much better, bringing them down to around 1,5 times
+slow-down compared to the baseline, but other cases become slightly worse. Whether the parameter is worth it or not
+will depend on a particular application.
+
+Among the presented benchmarks, the one that is the closest in
 nature to what one might see in production code is \btexttt{multipleSuspensions2}. This benchmark
-is around two times slower than the baseline when tested in V8. This is still a big regression, even though
-it's not as drastic as a 4–4,5 times increase for \btexttt{chainSuspensions} and \btexttt{deepSuspensions}.
+is around 2 times slower than the baseline when tested in V8, which is a noticeable regression.
+
 The \btexttt{multipleSuspensions1} benchmark is comparable to the baseline, but the immediate resume pattern used in
 this benchmark is very unlikely to be used in real code. This is because resuming a continuation right inside the
-suspend lambda contradicts the intention behind suspending in the first place.
+suspend lambda contradicts the intention behind suspending in the first place. If the author could compute the resume
+value right inside the suspend lambda, they wouldn't need to suspend at all.
 
 
 \section{Summary}
@@ -572,6 +577,7 @@ as big on an application which has some business logic that doesn't use Kotlin C
 the program that doesn't use Kotlin Coroutines is not affected by the new coroutines implementation.
 
 On the other hand,
-performance benchmarks show a big regression. The cases that are most similar to what could appear in
-real code are around 2 times slower. Cases with intensive stack-switching are around 4 times slower. Cases with the
-immediate resume pattern are slightly faster, but they are unlikely to appear in production code at all.
+performance benchmarks show a noticeable regression. The cases that are most similar to what could appear in
+real code are around 2 times slower. Cases with intensive stack-switching are 1,5 times slower if an additional V8
+parameter is provided and around 4 times slower without it. Cases with the
+immediate resume pattern are comparable to the baseline, but they are unlikely to appear in production code.
