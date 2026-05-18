@@ -12,12 +12,14 @@ two levels.
 These tests verify the behavior of the lowest-level coroutine
 primitives like \startCoroutineUninterceptedOrReturn and \suspendCoroutineUninterceptedOrReturn.
 They also cover low-level coroutine APIs built directly on top of them like \texttt{startCoroutine}
-and \texttt{suspendCoroutine}
+and \texttt{suspendCoroutine}.
 
 The tests are located in the Kotlin repository at
-\btexttt{compiler/testData/codegen/box/coroutines/intrinsicSemantics}
+\btexttt{compiler/testData/codegen/box/coroutines/intrinsicSemantics}.
 
 You can find an example of what kind of tests are in the \texttt{intrinsicSemantics} folder in Listing~\ref{lst:intrinsic-semantics-example} in the Appendix~\ref{ch:appendix}).
+
+All discussed Stack-switching implementations pass all intrinsic semantics tests.
 
 \subsection*{Box tests for coroutines}
 
@@ -60,7 +62,11 @@ fun box(): String {
 }
 \end{lstlisting}
 
-The tests are located in the Kotlin repository at \btexttt{compiler/testData/codegen/box/coroutines}
+The tests are located in the Kotlin repository at \btexttt{compiler/testData/codegen/box/coroutines}.
+
+Both the initial and the optimized implementations pass 517 out of 523 coroutine tests. The 6 last tests are failing
+due to some objects missing casts to \btexttt{Any?} in the generated Wasm code, which is a minor issue that doesn't
+interfere with further analysis of the implementations.
 
 \section{Size benchmark}
 \label{sec:size-bench}
@@ -559,9 +565,22 @@ not represent the experience that the actual users will have.
 One somewhat good piece of news is that the benchmarks that show the worst regression,
 \btexttt{chainSuspensions} and \btexttt{deepSuspensions}, are patterns that will rarely show
 up in application code. Among the presented benchmarks, the one that is the closest in
-nature to what one might see in actual application code is \btexttt{multipleSuspensions2}. This benchmark
-is around two times slower than the baseline when tested in V8.
+nature to what one might see in production code is \btexttt{multipleSuspensions2}. This benchmark
+is around two times slower than the baseline when tested in V8. This is still a big regression, even though
+it's not as drastic as a 4–4,5 times increase for \btexttt{chainSuspensions} and \btexttt{deepSuspensions}.
+The \btexttt{multipleSuspensions1} benchmark shows a slight improvement, but the immediate resume pattern used in this
+benchmark is very unlikely to be used in real code. This is because resuming a continuation right inside the suspend
+lambda contradicts the intention behind suspending in the first place.
 
 \section{Summary}
 \label{sec:evaluation-summary}
 
+Stack-switching implementation leads to a modest but noticeable decrease in binary size. The decrease is around 10\%
+for a small application with little to no business logic written with Compose Multiplatform. The decrease would not be
+as big on an application which has some business logic that doesn't use Kotlin Coroutines, since the part of
+the program that doesn't use Kotlin Coroutines is not affected by the new coroutines implementation.
+
+On the other hand,
+performance benchmarks show a big regression. The cases that are most similar to what could appear in
+real code are around 2 times slower. Cases with intensive stack-switching are around 4 times slower. Cases with the
+immediate resume pattern are slightly faster, but they are unlikely to appear in production code at all.
