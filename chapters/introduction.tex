@@ -1,19 +1,17 @@
 \chapter{Introduction}
 \label{ch:introduction}
 
-\section{Motivation}
-\label{sec:motivation}
-
-WebAssembly is a binary instruction format for a stack-based virtual machine. Its most mainstream use case is in
+WebAssembly (Wasm) is a binary instruction format for a stack-based virtual machine. Its most mainstream use case is in
 browsers. Many languages can be compiled to it, including Kotlin.
 
-There is a proposal to implement Stack-switching in WebAssembly. The specification for Stack-switching is
-finalized and its implementation is on the way. It is currently available in V8, which is a Wasm
-VM used in Google Chrome. Up-to-date information on the availability of Stack-switching in other
-VMs can be found at the WebAssembly features page~\cite{wasm-features}.
+The current implementation of Kotlin Coroutines for Kotlin/Wasm is based on the implementation for Kotlin/JS, which,
+similar to Kotlin/JVM, uses state-machine transformation on suspend functions.
 
-The current implementation of Kotlin Coroutines for Wasm (with state-machines) is based on the implementation of
-suspend functions for Kotlin/JVM, which doesn't have primitives for continuation objects and suspension of functions.
+Wasm has a proposal called Stack-switching. It introduces new primitives that can be used to write an alternative
+implementation for Kotlin Coroutines.
+
+\section{Motivation}
+\label{sec:motivation}
 
 The ultimate goal of this thesis is to verify whether compiling Kotlin Coroutines using Stack-switching improves
 binary size and performance for available Wasm runtimes with Stack-switching support.
@@ -21,4 +19,8 @@ binary size and performance for available Wasm runtimes with Stack-switching sup
 \section{Thesis Structure}
 \label{sec:structure}
 
-The thesis is organized as follows: Chapter~\ref{ch:background} provides background information on WebAssembly Stack-switching and Kotlin coroutines primitives. Chapter~\ref{ch:implementation} describes the implementation of Kotlin coroutines using the WebAssembly Stack-switching proposal. Chapter~\ref{ch:evaluation} evaluates the implementation in terms of performance and binary size. Finally, Chapter~\ref{ch:conclusion} concludes the thesis and discusses future work.
+The thesis is organized as follows: Chapter~\ref{ch:background} provides background information on WebAssembly
+Stack-switching and Kotlin coroutines primitives. Chapter~\ref{ch:implementation} describes the implementation of
+Kotlin coroutines using the WebAssembly Stack-switching proposal. Chapter~\ref{ch:evaluation} evaluates the
+implementation in terms of performance and binary size. Finally, Chapter~\ref{ch:conclusion} concludes the thesis and
+discusses current state of the coroutines with Stack-switching implementation.

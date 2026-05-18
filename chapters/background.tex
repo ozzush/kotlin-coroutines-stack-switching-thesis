@@ -2,14 +2,150 @@
 \label{ch:background}
 \raggedbottom
 
+\section{Kotlin Coroutines}
+\label{sec:kotlin-coroutines}
+
+\subsection{Introduction}
+
+TODO(write introduction. reference the coroutines guide on kotlin website.)
+
+\subsection{Primitives}
+
+Kotlin provides several low-level coroutines primitives. These primitives are used to
+implement higher-level APIs such as the \texttt{kotlinx.coroutines} library. Let's have a look at the
+relevant primitives.
+
+\subsection*{\Continuation}
+
+\texttt{Continuation<T>} represents a coroutine at some point in its execution. That point could be the beginning
+of the coroutine if it was not started yet, or a point at which it was interrupted by calling
+\suspendCoroutineUninterceptedOrReturn function. Resuming continuation resumes the coroutine from the recorded point.
+Continuation can be understood as \("\)the rest of a coroutine.\("\) The interface has
+two main components:
+
+\begin{itemize}
+    \item \texttt{context: CoroutineContext} – the context of the coroutine
+    \item \texttt{resumeWith(result: Result<T>)} - resumes the coroutine execution, passing a result value that becomes
+    the return value of the \suspendCoroutineUninterceptedOrReturn call
+\end{itemize}
+
+\subsection*{Suspend functions}
+\label{subsec:suspend-funs}
+
+Suspend functions in Kotlin represent a computation that can be suspended and resumed later.
+
+Every suspend function receives an additional parameter \texttt{completion}
+of type \Continuation. This completion is resumed after the suspend function
+completes. This means that whenever you see that a function has type \texttt{suspend () -> T}, the actual type
+of the function after a round of lowerings during compilation will become \texttt{(completion: Continuation<T>) -> T}.
+
+\subsection*{\startCoroutineUninterceptedOrReturn}
+
+This primitive starts a coroutine from the given suspend function:
+
+\begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
+(suspend () -> T).startCoroutineUninterceptedOrReturn(
+    completion: Continuation<T>
+): Any?
+\end{lstlisting}
+
+\startCoroutineUninterceptedOrReturn immediately starts the suspend function with the given \texttt{completion}
+continuation as the completion parameter (remember, suspend functions are appended an additional completion parameter
+during compilation). The \texttt{completion} parameter is the continuation that will be resumed when the coroutine
+finishes its execution (either with a result or an exception).
+The function \startCoroutineUninterceptedOrReturn returns:
+\begin{itemize}
+    \item \COROUTINESUSPENDED if the coroutine suspends
+    \item The result value if the coroutine completes immediately without suspension
+\end{itemize}
+
+\subsection*{\createCoroutineUnintercepted}
+
+This primitive creates a coroutine without starting it:
+
+\begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
+(suspend () -> T).createCoroutineUnintercepted(
+    completion: Continuation<T>
+): Continuation<Unit>
+\end{lstlisting}
+
+\subsection*{\suspendCoroutineUninterceptedOrReturn}
+
+This primitive gives access to the current continuation inside a suspend function. It allows the function
+to control whether it suspends or returns immediately:
+
+\begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
+suspendCoroutineUninterceptedOrReturn<T>(
+    block: (Continuation<T>) -> Any?
+): T
+\end{lstlisting}
+
+The \texttt{block} receives the current continuation and can:
+\begin{itemize}
+    \item Return \COROUTINESUSPENDED to indicate that the coroutine has suspended and will be resumed later
+    \item Return a value without suspension
+\end{itemize}
+
+
+\begin{figure}[H]
+    \centering
+    \begin{lstlisting}[language=Kotlin, label={lst:kotlin-coroutines-example}]
+var continuation: Continuation<String>? = null
+var coroutineResult: String? = null
+
+suspend fun suspendFun(): String {
+    val result = suspendCoroutineUninterceptedOrReturn { cont ->
+        continuation = cont
+        COROUTINE_SUSPENDED
+    }
+    return result
+}
+
+object Completion : Continuation<String> {
+    override val context: CoroutineContext = EmptyCoroutineContext
+    override fun resumeWith(result: Result<String>) {
+        coroutineResult = result.getOrThrow()
+    }
+}
+
+fun main() {
+    // returns COROUTINE_SUSPENDED
+    ::suspendFun.startCoroutineUninterceptedOrReturn(Completion)
+    continuation.resume("OK")
+    println(coroutineResult) // prints "OK"
+}
+    \end{lstlisting}
+    \caption{Kotlin coroutines primitives example}
+    \label{fig:kotlin-coroutines-example}
+\end{figure}
+
+On Figure~\ref{fig:kotlin-coroutines-example} you can see an example program built on the low-level
+coroutine primitives. It's a simple program that starts a coroutine. After the coroutine suspends, it is resumed
+with the value \("\)OK\("\) and the completion saves the result of the coroutine to a variable. The result of
+the coroutine is then printed out.
+
+To understand how these primitives interact with each other internally, see Figure~\ref{fig:coroutine-primitives-full}.
+
+\begin{figure}[H]
+    \centering
+    \resizebox{\textwidth}{!}{\input{diagrams/coroutine-primitives-full}}
+    \caption{Kotlin Coroutine primitives internals}
+    \begin{description}
+        \item Red blocks and columns represent functions that need to be implemented
+        \item White blocks represent logic that needs to be implemented inside unimplemented functions
+        \item Gray blocks represent calls to functions and logic that don't need to be implemented
+        or require minimal changes
+    \end{description}
+    \label{fig:coroutine-primitives-full}
+\end{figure}
 
 \section{WebAssembly and Stack-switching}
 \label{sec:webassembly}
 
-Stack-switching proposal introduces a continuation type and instructions to work with it.
-Continuation is an object that represents a function at some point in its execution. That point is either the beginning
-of the function or a \wasmsuspend instruction. Resuming continuation resumes the function from the recorded point.
-Continuation can be understood as \("\)the rest of a function.\("\)
+\subsection{Primitives}
+
+Stack-switching proposal introduces a continuation type similar to the one described in TODO(reference prev section)
+and instructions to work with it.
 
 A good intuition for understanding resuming and suspending in the Stack-switching proposal is that it is similar to
 calling a function inside a try-catch block: the \wasmresume instruction (try block) specifies handlers (catch blocks) for
@@ -104,130 +240,7 @@ Generator produces values from 100 down to 1 and passes them to the consumer via
 If the generator is resumed but all the values have already been passed, it returns. Consumer sees that
 the generator has finished and also returns.
 
-\section{Kotlin Coroutines}
-\label{sec:kotlin-coroutines}
+\subsection{State of the proposal}
 
-Kotlin provides several low-level coroutines primitives. These primitives are used to
-implement higher-level APIs such as the \texttt{kotlinx.coroutines} library. Let's have a look at the
-relevant primitives.
-
-\subsection*{Suspend functions}
-\label{subsec:suspend-funs}
-
-Suspend functions in Kotlin represent a computation that can be suspended and resumed later.
-
-Every suspend function receives an additional parameter \texttt{completion}
-of type \Continuation. This completion is resumed after the suspend function
-completes.
-
-\subsection*{\Continuation}
-
-\texttt{Continuation<T>}
-is an interface that represents a continuation, similar to the continuation concept in WebAssembly described earlier. It
-represents a coroutine at a suspension point. The interface has
-two main components:
-
-\begin{itemize}
-    \item \texttt{context: CoroutineContext} – the context of the coroutine
-    \item \texttt{resumeWith(result: Result<T>)}
-    - resumes the coroutine execution, passing a result value that becomes the return value of the suspension point
-\end{itemize}
-
-\subsection*{\startCoroutineUninterceptedOrReturn}
-
-This primitive starts a coroutine:
-
-\begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
-(suspend () -> T).startCoroutineUninterceptedOrReturn(
-    completion: Continuation<T>
-): Any?
-\end{lstlisting}
-
-The function immediately starts the suspending function with the given \texttt{completion} continuation. The
-\texttt{completion} parameter is the continuation that will be resumed when the coroutine finishes its execution
-(either with a result or an exception). The function \startCoroutineUninterceptedOrReturn returns:
-\begin{itemize}
-    \item \COROUTINESUSPENDED if the coroutine was suspended
-    \item The result value if the coroutine completed immediately without suspension
-\end{itemize}
-
-\subsection*{\createCoroutineUnintercepted}
-
-This primitive creates a coroutine without starting it:
-
-\begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
-(suspend () -> T).createCoroutineUnintercepted(
-    completion: Continuation<T>
-): Continuation<Unit>
-\end{lstlisting}
-
-\subsection*{\suspendCoroutineUninterceptedOrReturn}
-
-This primitive gives access to the current continuation inside a suspend function. It allows the function
-to control whether it suspends or returns immediately:
-
-\begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
-suspendCoroutineUninterceptedOrReturn<T>(
-    block: (Continuation<T>) -> Any?
-): T
-\end{lstlisting}
-
-The \texttt{block} receives the current continuation and can:
-\begin{itemize}
-    \item Return \COROUTINESUSPENDED to indicate that the coroutine has suspended and will be resumed later
-    \item Return a value without suspension
-\end{itemize}
-
-
-\begin{figure}[H]
-    \centering
-    \begin{lstlisting}[language=Kotlin, label={lst:kotlin-coroutines-example}]
-var continuation: Continuation<String>? = null
-var coroutineResult: String? = null
-
-suspend fun suspendFun(): String {
-    val result = suspendCoroutineUninterceptedOrReturn { cont ->
-        continuation = cont
-        COROUTINE_SUSPENDED
-    }
-    return result
-}
-
-object Completion : Continuation<String> {
-    override val context: CoroutineContext = EmptyCoroutineContext
-    override fun resumeWith(result: Result<String>) {
-        coroutineResult = result.getOrThrow()
-    }
-}
-
-fun main() {
-    // returns COROUTINE_SUSPENDED
-    ::suspendFun.startCoroutineUninterceptedOrReturn(Completion)
-    continuation.resume("OK")
-    println(coroutineResult) // prints "OK"
-}
-    \end{lstlisting}
-    \caption{Kotlin coroutines primitives example}
-    \label{fig:kotlin-coroutines-example}
-\end{figure}
-
-On Figure~\ref{fig:kotlin-coroutines-example} you can see an example program built on the low-level
-coroutine primitives. It's a simple program that starts a coroutine. After the coroutine suspends, it is resumed
-with the value \("\)OK\("\) and the completion saves the result of the coroutine to a variable. The result of
-the coroutine is then printed out.
-
-To understand how these primitives interact with each other internally, see Figure~\ref{fig:coroutine-primitives-full}.
-
-\begin{figure}[H]
-    \centering
-    \resizebox{\textwidth}{!}{\input{diagrams/coroutine-primitives-full}}
-    \caption{Kotlin Coroutine primitives internals}
-    \begin{description}
-        \item Red blocks and columns represent functions that need to be implemented
-        \item White blocks represent logic that needs to be implemented inside unimplemented functions
-        \item Gray blocks represent calls to functions and logic that don't need to be implemented
-        or require minimal changes
-    \end{description}
-    \label{fig:coroutine-primitives-full}
-\end{figure}
+TODO(describe the current state. reference the feature state list from bibliography)
 

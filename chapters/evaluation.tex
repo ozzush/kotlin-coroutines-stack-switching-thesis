@@ -542,9 +542,9 @@ up in application code. Among the presented benchmarks, the one that is the clos
 nature to what one might see in production code is \btexttt{multipleSuspensions2}. This benchmark
 is around two times slower than the baseline when tested in V8. This is still a big regression, even though
 it's not as drastic as a 4–4,5 times increase for \btexttt{chainSuspensions} and \btexttt{deepSuspensions}.
-The \btexttt{multipleSuspensions1} benchmark shows a slight improvement, but the immediate resume pattern used in this
-benchmark is very unlikely to be used in real code. This is because resuming a continuation right inside the suspend
-lambda contradicts the intention behind suspending in the first place.
+The \btexttt{multipleSuspensions1} benchmark is comparable to the baseline, but the immediate resume pattern used in
+this benchmark is very unlikely to be used in real code. This is because resuming a continuation right inside the
+suspend lambda contradicts the intention behind suspending in the first place.
 
 
 \section{Summary}
