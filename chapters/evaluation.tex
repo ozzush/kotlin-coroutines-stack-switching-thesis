@@ -154,8 +154,7 @@ Four code versions were used for comparison:
 \begin{itemize}
     \item \textbf{Baseline} (commit \texttt{0da05969}): The original implementation without Stack-switching
     \item \textbf{Stack-switching} (commit \texttt{1ad2ba84}): Initial Stack-switching implementation
-    \item \textbf{Resume optimization} (commit \texttt{9c55cf92}): Stack-switching with immediate resume optimization
-    \item \textbf{Value-passing optimization} (commit \texttt{81cac385}): Value-passing optimization
+    \item \textbf{Optimized SS} (commit \texttt{81cac385}): Stack-switching with immediate resume optimization
 \end{itemize}
 
 The benchmarks were executed in two compilation modes:
@@ -184,14 +183,14 @@ Tables~\ref{tab:benchmark-dev} and~\ref{tab:benchmark-dce} show the raw benchmar
 \label{tab:benchmark-dev}
 \begin{tabular}{|l|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
+\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
 \hline
-chainSusp & 20,900 & 115,500 & 113,100 & 93,566 \\
-deepSusp & 29,100 & 109,466 & 124,433 & 112,200 \\
-multiSusp1 & 10,600 & 17,466 & 10,500 & 10,466 \\
-multiSusp2 & 9,266 & 17,666 & 25,300 & 18,900 \\
-sequence & 6,900 & 36,066 & 22,800 & 14,200 \\
-startCoroutine & 24,000 & 113,333 & 120,400 & 68,300 \\
+chainSusp & 20,900 & 115,500 & 93,566 \\
+deepSusp & 29,100 & 109,466 & 112,200 \\
+multiSusp1 & 10,600 & 17,466 & 10,466 \\
+multiSusp2 & 9,266 & 17,666 & 18,900 \\
+sequence & 6,900 & 36,066 & 14,200 \\
+startCoroutine & 24,000 & 113,333 & 68,300 \\
 \hline
 \end{tabular}
 \end{table}
@@ -202,14 +201,14 @@ startCoroutine & 24,000 & 113,333 & 120,400 & 68,300 \\
 \label{tab:benchmark-dce}
 \begin{tabular}{|l|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
+\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
 \hline
-chainSusp & 20,600 & 100,166 & 106,200 & 90,766 \\
-deepSusp & 26,766 & 114,633 & 115,466 & 107,033 \\
-multiSusp1 & 9,866 & 16,500 & 10,300 & 11,100 \\
-multiSusp2 & 9,400 & 16,266 & 19,966 & 19,466 \\
-sequence & 5,266 & 13,266 & 13,133 & 12,266 \\
-startCoroutine & 26,000 & 58,200 & 71,566 & 68,200 \\
+chainSusp & 20,600 & 100,166 & 90,766 \\
+deepSusp & 26,766 & 114,633 & 107,033 \\
+multiSusp1 & 9,866 & 16,500 & 11,100 \\
+multiSusp2 & 9,400 & 16,266 & 19,466 \\
+sequence & 5,266 & 13,266 & 12,266 \\
+startCoroutine & 26,000 & 58,200 & 68,200 \\
 \hline
 \end{tabular}
 \end{table}
@@ -225,21 +224,20 @@ performance regression (slower execution), while negative values indicate improv
 \label{tab:benchmark-percentage}
 \begin{tabular}{|l|c|r|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
+\textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
 \hline
-chainSusp & dev & 20,900 & +452.6\% & +441.1\% & +347.7\% \\
-deepSusp & dev & 29,100 & +276.2\% & +327.6\% & +285.6\% \\
-multiSusp1 & dev & 10,600 & +64.8\% & -0.9\% & -1.3\% \\
-multiSusp2 & dev & 9,266 & +90.7\% & +173.0\% & +104.0\% \\
-sequence & dev & 6,900 & +422.7\% & +230.4\% & +105.8\% \\
-startCoroutine & dev & 24,000 & +372.2\% & +401.7\% & +184.6\% \\
-\hline
-chainSusp & dce & 20,600 & +386.2\% & +415.5\% & +340.6\% \\
-deepSusp & dce & 26,766 & +328.3\% & +331.4\% & +299.8\% \\
-multiSusp1 & dce & 9,866 & +67.2\% & +4.4\% & +12.5\% \\
-multiSusp2 & dce & 9,400 & +73.0\% & +112.4\% & +107.1\% \\
-sequence & dce & 5,266 & +151.9\% & +149.4\% & +133.0\% \\
-startCoroutine & dce & 26,000 & +123.8\% & +175.3\% & +162.3\% \\
+chainSusp & dev & 20,900 & +452.6\% & +347.7\% \\
+deepSusp & dev & 29,100 & +276.2\% & +285.6\% \\
+multiSusp1 & dev & 10,600 & +64.8\% & -1.3\% \\
+multiSusp2 & dev & 9,266 & +90.7\% & +104.0\% \\
+sequence & dev & 6,900 & +422.7\% & +105.8\% \\
+startCoroutine & dev & 24,000 & +372.2\% & +184.6\% \\
+chainSusp & dce & 20,600 & +386.2\% & +340.6\% \\
+deepSusp & dce & 26,766 & +328.3\% & +299.8\% \\
+multiSusp1 & dce & 9,866 & +67.2\% & +12.5\% \\
+multiSusp2 & dce & 9,400 & +73.0\% & +107.1\% \\
+sequence & dce & 5,266 & +151.9\% & +133.0\% \\
+startCoroutine & dce & 26,000 & +123.8\% & +162.3\% \\
 \hline
 \end{tabular}
 \end{table}
@@ -283,14 +281,6 @@ all three implementations.
     (startCoroutine,113333)
 };
 \addplot coordinates {
-    (chainSusp,113100)
-    (deepSusp,124433)
-    (multiSusp1,10500)
-    (multiSusp2,25300)
-    (sequence,22800)
-    (startCoroutine,120400)
-};
-\addplot coordinates {
     (chainSusp,93566)
     (deepSusp,112200)
     (multiSusp1,10466)
@@ -298,7 +288,7 @@ all three implementations.
     (sequence,14200)
     (startCoroutine,68300)
 };
-\legend{Baseline, SS, Resume opt, Value-passing opt}
+\legend{Baseline, Stack-switching, Optimized SS}
 \end{axis}
 \end{tikzpicture}
 \caption{Benchmark comparison in dev mode (V8 runtime)}
@@ -339,14 +329,6 @@ all three implementations.
     (startCoroutine,58200)
 };
 \addplot coordinates {
-    (chainSusp,106200)
-    (deepSusp,115466)
-    (multiSusp1,10300)
-    (multiSusp2,19966)
-    (sequence,13133)
-    (startCoroutine,71566)
-};
-\addplot coordinates {
     (chainSusp,90766)
     (deepSusp,107033)
     (multiSusp1,11100)
@@ -354,7 +336,7 @@ all three implementations.
     (sequence,12266)
     (startCoroutine,68200)
 };
-\legend{Baseline, SS, Resume opt, Value-passing opt}
+\legend{Baseline, Stack-switching, Optimized SS}
 \end{axis}
 \end{tikzpicture}
 \caption{Benchmark comparison in dce mode (V8 runtime)}
@@ -379,14 +361,14 @@ Tables~\ref{tab:benchmark-ref-dev} and~\ref{tab:benchmark-ref-dce} show the raw 
 \label{tab:benchmark-ref-dev}
 \begin{tabular}{|l|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
+\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} &\textbf{Optimized SS} \\
 \hline
-chainSusp & 758,311 & 486,995 & 955,909 & 655,928 \\
-deepSusp & 887,526 & 565,484 & 1,079,435 & 741,057 \\
-multiSusp1 & 1,214,480 & 849,231 & 131,810 & 89,758 \\
-multiSusp2 & 94,166 & 128,453 & 193,193 & 149,726 \\
-sequence & 36,715 & 50,726 & 84,870 & 61,019 \\
-startCoroutine & 310,222 & 435,650 & 672,933 & 507,360 \\
+chainSusp & 758,311 & 486,995 & 655,928 \\
+deepSusp & 887,526 & 565,484 & 741,057 \\
+multiSusp1 & 1,214,480 & 849,231 & 89,758 \\
+multiSusp2 & 94,166 & 128,453 & 149,726 \\
+sequence & 36,715 & 50,726 & 61,019 \\
+startCoroutine & 310,222 & 435,650 & 507,360 \\
 \hline
 \end{tabular}
 \end{table}
@@ -397,14 +379,14 @@ startCoroutine & 310,222 & 435,650 & 672,933 & 507,360 \\
 \label{tab:benchmark-ref-dce}
 \begin{tabular}{|l|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
+\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
 \hline
-chainSusp & 617,381 & 375,790 & 778,879 & 561,023 \\
-deepSusp & 777,220 & 409,710 & 796,007 & 617,720 \\
-multiSusp1 & 1,040,099 & 918,748 & 86,925 & 60,248 \\
-multiSusp2 & 61,413 & 75,988 & 126,874 & 91,712 \\
-sequence & 27,183 & 32,015 & 55,099 & 39,727 \\
-startCoroutine & 195,163 & 273,544 & 414,767 & 310,497 \\
+chainSusp & 617,381 & 375,790 & 561,023 \\
+deepSusp & 777,220 & 409,710 & 617,720 \\
+multiSusp1 & 1,040,099 & 918,748 & 60,248 \\
+multiSusp2 & 61,413 & 75,988 & 91,712 \\
+sequence & 27,183 & 32,015 & 39,727 \\
+startCoroutine & 195,163 & 273,544 & 310,497 \\
 \hline
 \end{tabular}
 \end{table}
@@ -420,21 +402,20 @@ performance regression (slower execution), while negative values indicate improv
 \label{tab:benchmark-ref-percentage}
 \begin{tabular}{|l|c|r|r|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{SS} & \textbf{Resume opt} & \textbf{Value-passing opt} \\
+\textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
 \hline
-chainSusp & dev & 758,311 & -35.8\% & +26.1\% & -13.5\% \\
-deepSusp & dev & 887,526 & -36.3\% & +21.6\% & -16.5\% \\
-multiSusp1 & dev & 1,214,480 & -30.1\% & -89.1\% & -92.6\% \\
-multiSusp2 & dev & 94,166 & +36.4\% & +105.2\% & +59.0\% \\
-sequence & dev & 36,715 & +38.2\% & +131.2\% & +66.2\% \\
-startCoroutine & dev & 310,222 & +40.4\% & +116.9\% & +63.5\% \\
-\hline
-chainSusp & dce & 617,381 & -39.1\% & +26.2\% & -9.1\% \\
-deepSusp & dce & 777,220 & -47.3\% & +2.4\% & -20.5\% \\
-multiSusp1 & dce & 1,040,099 & -11.7\% & -91.6\% & -94.2\% \\
-multiSusp2 & dce & 61,413 & +23.7\% & +106.6\% & +49.3\% \\
-sequence & dce & 27,183 & +17.8\% & +102.7\% & +46.2\% \\
-startCoroutine & dce & 195,163 & +40.2\% & +112.5\% & +59.1\% \\
+chainSusp & dev & 758,311 & -35.8\% & -13.5\% \\
+deepSusp & dev & 887,526 & -36.3\% & -16.5\% \\
+multiSusp1 & dev & 1,214,480 & -30.1\% & -92.6\% \\
+multiSusp2 & dev & 94,166 & +36.4\% & +59.0\% \\
+sequence & dev & 36,715 & +38.2\% & +66.2\% \\
+startCoroutine & dev & 310,222 & +40.4\% & +63.5\% \\
+chainSusp & dce & 617,381 & -39.1\% -9.1\% \\
+deepSusp & dce & 777,220 & -47.3\% -20.5\% \\
+multiSusp1 & dce & 1,040,099 & -11.7\% & -94.2\% \\
+multiSusp2 & dce & 61,413 & +23.7\% & +49.3\% \\
+sequence & dce & 27,183 & +17.8\% & +46.2\% \\
+startCoroutine & dce & 195,163 & +40.2\% & +59.1\% \\
 \hline
 \end{tabular}
 \end{table}
@@ -478,14 +459,6 @@ all three implementations.
     (startCoroutine,435650)
 };
 \addplot coordinates {
-    (chainSusp,955909)
-    (deepSusp,1079435)
-    (multiSusp1,131810)
-    (multiSusp2,193193)
-    (sequence,84870)
-    (startCoroutine,672933)
-};
-\addplot coordinates {
     (chainSusp,655928)
     (deepSusp,741057)
     (multiSusp1,89758)
@@ -493,7 +466,7 @@ all three implementations.
     (sequence,61019)
     (startCoroutine,507360)
 };
-\legend{Baseline, SS, Resume opt, Value-passing opt}
+\legend{Baseline, Stack-switching, Optimized SS}
 \end{axis}
 \end{tikzpicture}
 \caption{Benchmark comparison in dev mode (Reference Interpreter)}
@@ -534,14 +507,6 @@ all three implementations.
     (startCoroutine,273544)
 };
 \addplot coordinates {
-    (chainSusp,778879)
-    (deepSusp,796007)
-    (multiSusp1,86925)
-    (multiSusp2,126874)
-    (sequence,55099)
-    (startCoroutine,414767)
-};
-\addplot coordinates {
     (chainSusp,561023)
     (deepSusp,617720)
     (multiSusp1,60248)
@@ -549,7 +514,7 @@ all three implementations.
     (sequence,39727)
     (startCoroutine,310497)
 };
-\legend{Baseline, SS, Resume opt, Value-passing opt}
+\legend{Baseline, Stack-switching, Optimized SS}
 \end{axis}
 \end{tikzpicture}
 \caption{Benchmark comparison in dce mode (Reference Interpreter)}
@@ -571,6 +536,7 @@ it's not as drastic as a 4–4,5 times increase for \btexttt{chainSuspensions} a
 The \btexttt{multipleSuspensions1} benchmark shows a slight improvement, but the immediate resume pattern used in this
 benchmark is very unlikely to be used in real code. This is because resuming a continuation right inside the suspend
 lambda contradicts the intention behind suspending in the first place.
+
 
 \section{Summary}
 \label{sec:evaluation-summary}
