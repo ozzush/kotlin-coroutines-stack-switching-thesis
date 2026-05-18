@@ -14,13 +14,13 @@ At the moment of writing this, the implementation is being prepared for
 release as an experimental feature under a compiler flag.
 
 There are some benchmark results available for the production version of the implementation.
-KotlinConfApp TODO(reference) was used for the size benchmark of production implementation. Compiling it with the
+KotlinConfApp~\cite{kotlinconf-app} was used for the size benchmark of production implementation. Compiling it with the
 Stack-switching implementation gave around a 5\% improvement in binary size, which is consistent with the analysis
 of the size benchmark presented in this thesis. Low-level benchmarks on the production implementation also show a
 noticeable regression in performance, comparable to the previously presented performance benchmark results.
 There are also high-level performance benchmarks on Compose Multiplatform, which are comparable in performance
 to the baseline implementations. They are slower on some test cases and faster on others. The results were presented
-on a meeting of the Wasm Community Group (TODO: reference https://github.com/WebAssembly/meetings/blob/main/stack/2026/stack-2026-05-18.md)
+on a meeting of the Wasm Community Group~\cite{wasm-stack-meeting-2026}
 
 JetBrains is actively communicating with the V8 team regarding
 the observed regressions from the Stack-switching implementation~\cite{wasm-stack-switching-repo}. V8 team claims
