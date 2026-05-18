@@ -149,12 +149,12 @@ The following cases are measured:
     \item \btexttt{startCoroutinePerformance.kt}: start 100 coroutines with \texttt{startCoroutine}
 \end{itemize}
 
-Four code versions were used for comparison:
+Three code versions were used for comparison:
 
 \begin{itemize}
     \item \textbf{Baseline} (commit \texttt{0da05969}): The original implementation without Stack-switching
     \item \textbf{Stack-switching} (commit \texttt{1ad2ba84}): Initial Stack-switching implementation
-    \item \textbf{Optimized SS} (commit \texttt{81cac385}): Stack-switching with immediate resume optimization
+    \item \textbf{Optimized SS} (commit \texttt{279301e1}): Stack-switching with immediate resume optimization
 \end{itemize}
 
 The benchmarks were executed in two compilation modes:
@@ -350,6 +350,13 @@ a proof-of-concept implementation of Stack-switching. It is not designed to be f
 on it are of little interest as it is not used anywhere as a production VM. However, it was the only VM available
 for testing when I was ready to write benchmarks, so I happen to have the setup ready and could as well share the
 results for reference.
+
+The following revisions where used:
+\begin{itemize}
+    \item \textbf{Baseline}: commit \texttt{f5757858}
+    \item \textbf{Stack-switching}: commit \texttt{5c0d0b1c}
+    \item \textbf{Optimized SS}: commit \texttt{81cac385}
+\end{itemize}
 
 \subsubsection*{Raw results}
 
