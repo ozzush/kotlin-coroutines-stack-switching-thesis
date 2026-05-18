@@ -7,7 +7,12 @@
 
 \subsection{Introduction}
 
-TODO(write introduction. reference the coroutines guide on kotlin website.)
+Kotlin Coroutines is a concurrency framework built into Kotlin that enables writing asynchronous,
+non-blocking code in a sequential style. Coroutines can be suspended and resumed without blocking
+a thread, making them well-suited for tasks such as network I/O and UI interactions. The official
+coroutines guide~\cite{kotlin-coroutines-guide} provides a comprehensive introduction to the
+higher-level coroutines API. This section focuses on the low-level primitives that underpin the
+implementation.
 
 \subsection{Primitives}
 
@@ -144,8 +149,8 @@ To understand how these primitives interact with each other internally, see Figu
 
 \subsection{Primitives}
 
-Stack-switching proposal introduces a continuation type similar to the one described in TODO(reference prev section)
-and instructions to work with it.
+Stack-switching proposal introduces a continuation type similar to the Kotlin Continuation described in
+Section~\ref{sec:kotlin-coroutines} and instructions to work with it.
 
 A good intuition for understanding resuming and suspending in the Stack-switching proposal is that it is similar to
 calling a function inside a try-catch block: the \wasmresume instruction (try block) specifies handlers (catch blocks) for
@@ -242,5 +247,9 @@ the generator has finished and also returns.
 
 \subsection{State of the proposal}
 
-TODO(describe the current state. reference the feature state list from bibliography)
+As of today, the Stack-switching proposal is at Phase~3 (Implementation Phase) of the WebAssembly
+standardization process~\cite{wasm-proposals}. At this phase the proposal has a complete
+specification text and implementations in WebAssembly runtimes. Currently, the most notable implementation
+is the one used in V8 (VM for Chrome and Node.js). The proposal is being actively developed with the goal of
+eventually adding it to the WebAssembly standard.
 

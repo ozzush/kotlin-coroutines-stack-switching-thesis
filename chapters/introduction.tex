@@ -1,9 +1,11 @@
 \chapter{Introduction}
 \label{ch:introduction}
 
-WebAssembly (Wasm) is a binary instruction format for a stack-based virtual machine. Its most mainstream use case is in
+\section{Context}
+
+WebAssembly (Wasm) is a binary instruction format for a stack-based virtual machine~\cite{wasm-spec}. Its most mainstream use case is in
 browsers. Many languages can be compiled to it, including Kotlin. Kotlin/Wasm is used, for example, by the Compose
-Multiplatform library for its Web target. Compose Multiplatform also uses Kotlin Coroutines extensively in its
+Multiplatform library~\cite{compose-multiplatform} for its Web target. Compose Multiplatform also uses Kotlin Coroutines extensively in its
 implementation.
 
 The current implementation of Kotlin Coroutines for Kotlin/Wasm is based on the implementation for Kotlin/JS, which,
