@@ -2,7 +2,9 @@
 \label{ch:introduction}
 
 WebAssembly (Wasm) is a binary instruction format for a stack-based virtual machine. Its most mainstream use case is in
-browsers. Many languages can be compiled to it, including Kotlin.
+browsers. Many languages can be compiled to it, including Kotlin. Kotlin/Wasm is used, for example, by the Compose
+Multiplatform library for its Web target. Compose Multiplatform also uses Kotlin Coroutines extensively in its
+implementation.
 
 The current implementation of Kotlin Coroutines for Kotlin/Wasm is based on the implementation for Kotlin/JS, which,
 similar to Kotlin/JVM, uses state-machine transformation on suspend functions.
@@ -10,11 +12,11 @@ similar to Kotlin/JVM, uses state-machine transformation on suspend functions.
 Wasm has a proposal called Stack-switching. It introduces new primitives that can be used to write an alternative
 implementation of Kotlin Coroutines for Kotlin/Wasm.
 
-\section{Motivation}
+\section{Goal}
 \label{sec:motivation}
 
-The ultimate goal of this thesis is to verify whether compiling Kotlin Coroutines using Stack-switching improves
-binary size and performance for available Wasm runtimes with Stack-switching support.
+The ultimate goal of this thesis is to verify whether compiling Kotlin Coroutines with Stack-switching primitives
+improves binary size and performance for the Kotlin/Wasm projects that use Kotlin Coroutines.
 
 \section{Thesis Structure}
 \label{sec:structure}
