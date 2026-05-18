@@ -33,10 +33,10 @@
 % -------------------------
 % Nodes - Column 2 (suspendCoroutine) (X=4.5)
 % -------------------------
-    \node[whiteNote, font=\scriptsize, text width=7em] (n4_1) at (4.5, -5) {*create empty\\\texttt{Continuation}\\which does\\nothing on\\resume*};
+    \node[whiteNote, font=\scriptsize, text width=7em] (n4_1) at (4.5, -5) {*create\\\texttt{WasmContinuation}\\which does\\nothing on\\resume*};
     \node[whiteNote, font=\scriptsize] (n4_2) at (4.5, -7) {execute\\suspendLambda};
     \node[decision, font=\scriptsize] (n4_3) at (4.5, -9) {suspendLambda\\returned a value};
-    \node[decision, font=\scriptsize] (n4_4) at (4.5, -11) {\texttt{Continuation}\\was resumed\\in lambda};
+    \node[decision, font=\scriptsize] (n4_4) at (4.5, -11) {\texttt{WasmContinuation}\\was resumed\\in lambda};
     \node[blueNote] (n4_5) at (4.5, -13) {\texttt{suspend}};
 
 % -------------------------
