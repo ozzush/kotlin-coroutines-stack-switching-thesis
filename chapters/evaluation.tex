@@ -553,9 +553,15 @@ all three implementations.
 \subsection{Analysis}
 
 One might notice that the new implementation with Stack-switching is much slower
-than the baseline. While the results for reference-interpreter are not as bad
+than the baseline. While the results for Reference Interpreter are not as bad, they do
+not represent the experience that the actual users will have.
+
+One somewhat good piece of news is that the benchmarks that show the worst regression,
+\btexttt{chainSuspensions} and \btexttt{deepSuspensions}, are patterns that will rarely show
+up in application code. Among the presented benchmarks, the one that is the closest in
+nature to what one might see in actual application code is \btexttt{multipleSuspensions2}. This benchmark
+is around two times slower than the baseline when tested in V8.
 
 \section{Summary}
 \label{sec:evaluation-summary}
 
-TODO: summarize benchmark results, both performance and size.
