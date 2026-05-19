@@ -18,7 +18,7 @@ primitives pretty closely:
     \item \textbf{\texttt{Continuation::resumeWith}} maps to the \wasmresume instruction.
 \end{itemize}
 
-This correspondence can be observed more closely on Figure~\ref{fig:primitives-correspondence}.
+This correspondence can be observed more closely in Figure~\ref{fig:primitives-correspondence}.
 
 \begin{figure}[H]
     \centering
@@ -65,7 +65,8 @@ In this code, the continuation \texttt{cont} is available inside the lambda and 
 \texttt{savedContinuation?.resume("result")} will resume the suspended function.
 
 However, there is a more subtle case that must also be supported: the continuation can be resumed immediately inside
-the suspension lambda. This is illustrated by the following example:
+the suspension lambda. Although this pattern is unusual in user code, it is not prohibited and is covered by Kotlin's
+semantics tests. The pattern is illustrated by the following example:
 
 \begin{lstlisting}[language=Kotlin, basicstyle=\footnotesize\ttfamily]
 suspend fun suspendFun(): String =
@@ -91,7 +92,7 @@ fun test() {
 
 Essentially, in Kotlin the continuation object has to be available and fully functional before we even know whether
 a function suspends or not. On the contrary, in Wasm we only get the continuation object after the function actually
-suspends. This difference can be observed on Figure~\ref{fig:primitives-correspondence-r}. The figure highlights the
+suspends. This difference can be observed in Figure~\ref{fig:primitives-correspondence-r}. The figure highlights the
 mismatch in when continuation is required in Kotlin and when it becomes available in Wasm.
 
 Next we will discuss two ways to solve this problem.
@@ -125,7 +126,7 @@ Next we will discuss two ways to solve this problem.
     \label{fig:base-implementation}
 \end{figure}
 
-The first implementation idea is shown in Figure~\ref{fig:base-implementation}. Let's go through it in more detail.
+The first implementation idea is shown in Figure~\ref{fig:base-implementation}. The control flow is as follows.
 
 \startCoroutineUninterceptedOrReturn is called on a suspend function. The first thing we do is create a Wasm
 continuation from the suspend function.
@@ -137,14 +138,14 @@ be implemented in \WasmContinuation is \texttt{CoroutineImpl::doResume()}. When 
 a coroutine.
 
 In \doResume we call the Wasm instruction to resume the continuation. The type of Wasm continuations handled
-in \WasmContinuation is always the same: they have to be resumed with and object of type \texttt{Any?}.
+in \WasmContinuation is always the same: they have to be resumed with an object of type \texttt{Any?}.
 When \WasmContinuation is resumed in \startCoroutineUninterceptedOrReturn, the resume value
 will be a completion. As discussed in Section~\ref{subsec:suspend-funs}, completion is a parameter added
 to all suspend functions during compilation. When \WasmContinuation is resumed outside
 \startCoroutineUninterceptedOrReturn, the resume value will be the value provided with the method
 \resumeWith
 
-When suspend function is being executed, it may at some point call \suspendCoroutineUninterceptedOrReturn.
+When a suspend function is being executed, it may at some point call \suspendCoroutineUninterceptedOrReturn.
 \suspendCoroutineUninterceptedOrReturn has one argument that we will call suspend lambda. Suspend lambda needs to be
 executed to decide whether we should suspend or not, but to do so it requires that we pass it a continuation.
 This continuation should represent the rest of the current suspend function. In the context of the suspend function
@@ -159,24 +160,24 @@ a suspend lambda to be executed and the Wasm continuation object we need for it.
 another value, that means that we have to keep executing the suspend function. So, we resume the new continuation with
 the value returned from the lambda.
 
-\section{Suspension count optimization}
+\section{Immediate resume optimization}
 \label{sec:optimization}
 
 \begin{figure}[H]
     \centering
     \resizebox{\textwidth}{!}{\input{diagrams/coroutines-optimization}}
-    \caption{Suspension count optimization}
+    \caption{Immediate resume optimization}
     \label{fig:optimization-impl}
 \end{figure}
 
 The optimized implementation idea is shown in Figure~\ref{fig:optimization-impl}.
 
 Behind this optimization is a heuristic. What is the actual meaning of resuming a continuation
-that is passed to the suspend lambda? It means that the author wants to continue executing the
-function. With this in mind, we can adopt the following course of action: we call suspend lambda with
-a \WasmContinuation object, that doesn't have an actual Wasm continuation inside. If the author
-wants to save this \WasmContinuation, that's fine – we will tie it to a Wasm continuation later.
-If the author wants to resume this \WasmContinuation, we will record the value they passed to
+that is passed to the suspend lambda? It means that the suspension lambda requests immediate continuation of the suspended computation.
+With this in mind, we can adopt the following course of action: we call suspend lambda with
+a \WasmContinuation object, that doesn't have an actual Wasm continuation inside. If the lambda
+saves this \WasmContinuation, that is fine – we will tie it to a Wasm continuation later.
+If the lambda resumes this \WasmContinuation, we will record the value passed to
 \resumeWith, but otherwise we will do nothing. Once the lambda completes, we will check whether
 \WasmContinuation was resumed, and if it was, we will get the resume value out of it and act
 as if that was the value that the lambda returned.

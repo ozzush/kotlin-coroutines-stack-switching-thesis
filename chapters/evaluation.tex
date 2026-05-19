@@ -366,7 +366,7 @@ The Reference Interpreter~\cite{wasm-stack-switching-repo} is a toy interpreter 
 a proof-of-concept implementation of Stack-switching. It is not designed to be fast, and performance benchmarks
 on it are of limited interest as it is not used anywhere as a production VM. However, it is the VM that I initially
 used for testing, and when I was ready to write benchmarks, there were no production VMs available yet.
-So I ran the first benchmarks on Reference Interpreter and I might as well share the results.
+The results are included here for completeness.
 
 The following revisions where used:
 \begin{itemize}
@@ -549,7 +549,7 @@ all three implementations.
 \subsection{Analysis}
 
 One might notice that the new implementation with Stack-switching is comparably slower
-than the baseline. While the results for Reference Interpreter are not as bad, they do
+than the baseline. While the results for Reference Interpreter are less severe, they do
 not represent the experience that the actual users will have.
 
 \btexttt{chainSuspensions} and \btexttt{deepSuspensions} show the worst regression due to the nature of the V8
@@ -585,8 +585,7 @@ immediate resume pattern are comparable to the baseline, but they are unlikely t
 \section{Note on other VMs}
 
 One might ask why there are no benchmarks for other production VMs. The reason is that other VMs lack some features that are
-necessary for the Kotlin Coroutines implementation to function. Let's go through
-a list of VMs that weren't tested.
+necessary for the Kotlin Coroutines implementation to function. The following is a list of VMs that were not tested.
 
 \begin{itemize}
     \item \textbf{Wasmer}: according to the Wasm feature roadmap~\cite{wasm-features}, Wasmer fully supports
@@ -594,8 +593,8 @@ a list of VMs that weren't tested.
     whole: Garbage collection.
     \item \textbf{SpiderMonkey (Mozilla Firefox)}: Stack-switching is only partially implemented. The implemented
     feature subset is not enough to run the Kotlin Coroutines implementation. While adapting the implementation to run
-    only on the supported primitives is technically possible, it is not straightforward and the result would be quite a
-    bit different from the initial implementation~\cite{spidermonkey-stack-switching}.
+    only on the supported primitives is technically possible, it is not straightforward and the result would be substantially
+    different from the initial implementation~\cite{spidermonkey-stack-switching}.
     \item \textbf{Wasmtime}: Stack-switching implementation in Wasmtime has a bug which prevents Kotlin Coroutines from running properly~\cite{wasmtime-stack-switching-bug}.
 \end{itemize}
 

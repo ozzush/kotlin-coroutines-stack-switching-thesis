@@ -15,7 +15,7 @@ provides structured concurrency constructs such as \btexttt{launch}, \btexttt{as
 
 \subsection{Coroutines example}
 
-On Figure~\ref{fig:kotlin-coroutines-example} you can see an example program built on the low-level
+In Figure~\ref{fig:kotlin-coroutines-example} you can see an example program built on the low-level
 coroutine primitives. It's a simple program that starts a coroutine. After the coroutine suspends, it is resumed
 with the value \("\)OK\("\) and the completion saves the result of the coroutine to a variable. The result of
 the coroutine is then printed out.
@@ -81,7 +81,7 @@ Suspend functions in Kotlin represent a computation that can be suspended and re
 Every suspend function receives an additional parameter \texttt{completion}
 of type \Continuation. This completion is resumed after the suspend function
 completes. This means that whenever you see that a function has type \texttt{suspend () -> T}, the actual type
-of the function after a round of lowerings during compilation will become \texttt{(completion: Continuation<T>) -> T}.
+of the function after a particular lowering during compilation will become \texttt{(completion: Continuation<T>) -> T}.
 
 \subsection*{\startCoroutineUninterceptedOrReturn}
 
@@ -175,7 +175,7 @@ after jumping to the handler, there will be a new continuation object on the sta
 resume the function that has just suspended. This is in contrast to throwing exceptions: throwing
 an exception ends the function completely and it can't be resumed.
 
-On Figure~\ref{fig:stack-switching-primitives} you can see the most important Stack-switching primitives and what they
+In Figure~\ref{fig:stack-switching-primitives} you can see the most important Stack-switching primitives and what they
 do.
 
 \subsection{Primitives}
@@ -267,6 +267,6 @@ the generator has finished and also returns.
 As of today, the Stack-switching proposal is at Phase~3 (Implementation Phase) of the WebAssembly
 standardization process~\cite{wasm-features}. At this phase the proposal has a complete
 specification text and implementations in WebAssembly runtimes. Currently, the most notable implementation
-is the one used in V8 (VM for Google Chrome). The proposal is being actively developed with the goal of
+is the one used in V8, the JavaScript and WebAssembly engine used by Chromium-based browsers, including Google Chrome. The proposal is being actively developed with the goal of
 eventually adding it to the WebAssembly standard.
 
