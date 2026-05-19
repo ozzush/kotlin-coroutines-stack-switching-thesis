@@ -220,7 +220,7 @@ performance regression (slower execution), while negative values indicate improv
 
 \begin{table}[H]
 \centering
-\caption{Percentage change compared to baseline (negative values indicate improvement)}
+\caption{Percentage change compared to baseline (V8)}
 \label{tab:benchmark-percentage}
 \begin{tabular}{|l|c|r|r|r|r|r|}
 \hline
@@ -363,10 +363,10 @@ all three implementations.
 \subsection{Reference Interpreter}
 
 The Reference Interpreter~\cite{wasm-stack-switching-repo} is a toy interpreter with
-a proof-of-concept implementation of Stack-switching. It is not designed to be fast and, frankly, performance benchmarks
-on it are of little interest as it is not used anywhere as a production VM. However, it was the only VM available
-for testing when I was ready to write benchmarks, so I happen to have the setup ready and could as well share the
-results for reference.
+a proof-of-concept implementation of Stack-switching. It is not designed to be fast, and performance benchmarks
+on it are of limited interest as it is not used anywhere as a production VM. However, it is the VM that I initially
+used for testing, and when I was ready to write benchmarks, there were no production VMs available yet.
+So I ran the first benchmarks on Reference Interpreter and I might as well share the results.
 
 The following revisions where used:
 \begin{itemize}
@@ -422,7 +422,7 @@ performance regression (slower execution), while negative values indicate improv
 
 \begin{table}[H]
 \centering
-\caption{Percentage change compared to baseline (negative values indicate improvement)}
+\caption{Percentage change compared to baseline (Reference Interpreter)}
 \label{tab:benchmark-ref-percentage}
 \begin{tabular}{|l|c|r|r|r|r|r|}
 \hline
@@ -581,3 +581,21 @@ performance benchmarks show a noticeable regression. The cases that are most sim
 real code are around 2 times slower. Cases with intensive stack-switching are 1,5 times slower if an additional V8
 parameter is provided and around 4 times slower without it. Cases with the
 immediate resume pattern are comparable to the baseline, but they are unlikely to appear in production code.
+
+\section{Note on other VMs}
+
+One might ask why there are no benchmarks for other VMs. The reason is that other VMs lack some features that are
+necessary for the Kotlin Coroutines implementation to function. Let's go through
+a list of VMs that weren't tested.
+
+\begin{itemize}
+    \item \textbf{Wasmer}: according to the Wasm feature roadmap (TODO: reference), Wasmer fully supports
+    Stack-switching. Unfortunately, it doesn't support another Wasm feature that is necessary for Kotlin/Wasm as a
+    whole: Garbage collection.
+    \item \textbf{SpiderMonkey (Mozilla Firefox)}: Stack-switching is only partially implemented. The implemented
+    feature subset is not enough to run the Kotlin Coroutines implementation. While adapting the implementation to run
+    only on the supported primitives is technically possible, it is not straightforward and the result would be quite a
+    bit different from the initial implementation. (TODO: reference: meta ticket for implementing stack-switching in spider monkey https://bugzilla.mozilla.org/show_bug.cgi?id=2032477, diff contains documentation on supported Stack-switching features https://phabricator.services.mozilla.com/D293529)
+    \item \textbf{Wasmtime}: Stack-switching implementation in Wasmtime has a bug which prevents Kotlin Coroutines from running properly. (TODO: reference https://github.com/bytecodealliance/wasmtime/issues/12941)
+\end{itemize}
+
