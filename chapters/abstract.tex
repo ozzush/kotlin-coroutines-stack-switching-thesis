@@ -3,7 +3,7 @@
 
 This thesis presents an alternative implementation of Kotlin Coroutines for Kotlin/Wasm using the
 WebAssembly Stack-switching proposal, replacing the current state-machine transformation with direct
-stack-switching instructions.
+Stack-switching instructions.
 
 The main technical challenge is a mismatch between the two models: Kotlin requires a continuation
 object to be available before a function suspends, while Wasm Stack-switching only provides it after suspension.

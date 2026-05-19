@@ -43,6 +43,6 @@ improvements may follow.
 Several directions for future work follow from this thesis. First, the current implementation allocates a new
 \btexttt{WasmContinuation} object for each suspension point. Reusing or pooling these objects could reduce garbage
 collection pressure and improve performance. Second, a hybrid compilation strategy could be explored: using the
-state-machine approach for some functions and stack-switching for others. Finally, once other production WebAssembly
+state-machine approach for some functions and Stack-switching for others. Finally, once other production WebAssembly
 engines add sufficient support for the Stack-switching proposal, benchmarks should be repeated on those engines to
 determine whether the performance regression is specific to the current V8 implementation.
