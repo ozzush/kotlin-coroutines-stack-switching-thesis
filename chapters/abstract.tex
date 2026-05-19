@@ -4,9 +4,8 @@
 Kotlin/Wasm is a compilation target for the Kotlin programming language that compiles Kotlin code to
 WebAssembly. It is used, for example, by the Compose Multiplatform library for its Web target.
 Kotlin Coroutines are central to Kotlin/Wasm applications, yet the current implementation is based on
-state-machine transformation: each suspend function is compiled into a state machine that saves and
-restores local variables at each suspension point. This approach adds code that increases binary size
-and introduces runtime overhead.
+state-machine transformation: each suspend function is compiled into a state machine. This approach adds
+generated code that increases binary size and introduces runtime overhead.
 
 The WebAssembly Stack-switching proposal provides native primitives for suspending and resuming
 execution contexts. This thesis presents an alternative implementation of Kotlin Coroutines for

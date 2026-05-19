@@ -10,8 +10,7 @@ implementation.
 
 The current implementation of Kotlin Coroutines for Kotlin/Wasm is based on the implementation for Kotlin/JS, which,
 similar to Kotlin/JVM, uses state-machine transformation on suspend functions. Each suspend function is compiled into
-a state machine that saves and restores local variables at each suspension point. This transformation adds generated
-code to the binary and introduces overhead at runtime.
+a state machine. This transformation adds generated code to the binary and introduces overhead at runtime.
 
 Wasm has a proposal called Stack-switching. It introduces new primitives for suspending and resuming execution
 contexts at the Wasm level, which can be used to write an alternative implementation of Kotlin Coroutines for
