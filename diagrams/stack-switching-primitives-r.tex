@@ -25,7 +25,7 @@
 % -------------------------
     % Use primitive style for Wasm primitives
     \node[primitive] (n1) at (0, -1.5) {\texttt{cont.new}};
-    \node[primitive] (n2) at (0, -3) {\texttt{resume}};
+    \node[primitive] (n2) at (0, -3.5) {\texttt{resume}};
 
     % Use note style for description, correct typo "continuaion" -> "continuation"
     \node[note] (n3) at (0, -5.5) {*\textcolor{red}{continuation} is on\\the stack*};
@@ -39,7 +39,7 @@
 % Right Column Nodes (Suspend Function Context)
 % -------------------------
     % Align this with the first resume (n2)
-    \node[note] (n6) at (7, -3) {*fun body executes*};
+    \node[note] (n6) at (7, -3.5) {*fun body executes*};
 
     % Use primitive style for Wasm suspend instruction
     \node[primitive] (n7) at (7, -5.5) {\texttt{suspend}};
