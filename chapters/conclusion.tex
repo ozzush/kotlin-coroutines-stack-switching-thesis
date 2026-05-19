@@ -4,12 +4,20 @@
 This thesis presented an alternative implementation of Kotlin Coroutines for Kotlin/Wasm based on the
 WebAssembly Stack-switching proposal. The implementation maps Kotlin coroutine primitives to
 Wasm Stack-switching instructions, replacing the state-machine transformation approach used by the
-existing Kotlin/JS-based implementation. The evaluation showed measurable improvements in binary size.
-Unfortunately, performance benchmarks showed noticeable regressions in performance across the tested benchmarks.
+existing Kotlin/JS-based implementation.
+
+The evaluation showed measurable improvements in binary size: approximately 10.8\% reduction in production builds and
+2.3\% in development builds for a small Compose Multiplatform project. On the other hand, performance benchmarks showed
+a noticeable regression. The benchmark cases most representative of real-world code are around 2 times slower than the
+baseline in V8. Cases with intensive suspension chaining regress by a factor of 4--4.5 without extra V8 flags,
+and around 1.5 with the \btexttt{--experimental-wasm-growable-stacks} flag.
+
+Some of the observed performance gap may close as both the V8 Stack-switching implementation and the Kotlin compiler
+support for it are developed further.
 
 \section*{Current state}
 
-JetBrains continues the development of Kotlin Coroutines with Stack-switching.
+The development of Kotlin Coroutines with Stack-switching is continued by JetBrains.
 At the moment of writing this, the implementation is being prepared for
 release as an experimental feature under a compiler flag.
 
@@ -18,11 +26,21 @@ For example, KotlinConfApp~\cite{kotlinconf-app} was used for the size benchmark
 Compiling it with the Stack-switching implementation gave around a 5\% improvement in binary size, which is consistent
 with the analysis of the size benchmark presented in this thesis. Low-level performance benchmarks on the production
 implementation also show a noticeable regression in performance, comparable to the previously presented performance
-benchmark results. There are also higher-level performance benchmarks on Compose Multiplatform, which are similar in
-performance to the baseline implementations. They are slower on some test cases and faster on others. The results were
-presented at a meeting of the Wasm Community Group~\cite{wasm-stack-meeting-2026}
+benchmark results. There are also higher-level Compose Multiplatform benchmarks available: those benchmarks show
+performance results comparable to the baseline, being slower on some test cases and
+faster on others. The results were presented at a meeting of the Wasm Community
+Group~\cite{wasm-stack-meeting-2026}.
 
 JetBrains is actively communicating with the V8 team regarding
-the observed regressions from the Stack-switching implementation~\cite{wasm-stack-switching-repo}. V8 team claims
-that their Stack-switching implementation is still in active development. It's possible we might see further performance
-improvements in the future.
+the observed regressions from the Stack-switching implementation~\cite{wasm-stack-switching-repo}. The V8 team has
+indicated that their Stack-switching implementation is still in active development, and further performance
+improvements may follow.
+
+\section*{Future work}
+
+Several directions for future work follow from this thesis. First, the current implementation allocates a new
+\btexttt{WasmContinuation} object for each suspension point. Reusing or pooling these objects could reduce garbage
+collection pressure and improve performance. Second, a hybrid compilation strategy could be explored: using the
+state-machine approach for some functions and stack-switching for others. Finally, once other production WebAssembly
+engines add sufficient support for the Stack-switching proposal, benchmarks should be repeated on those engines to
+determine whether the performance regression is specific to the current V8 implementation.

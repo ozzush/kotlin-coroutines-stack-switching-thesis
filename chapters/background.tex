@@ -163,8 +163,10 @@ that was previously passed to the suspend lambda.
 
 \subsection{Intuition}
 
-Stack-switching proposal introduces a continuation type similar to the Kotlin Continuation described in
-Section~\ref{sec:kotlin-coroutines} and instructions to work with it.
+Stack-switching proposal introduces a continuation type and instructions to work with it.
+Unlike Kotlin's \btexttt{Continuation<T>}, which is typed by a single resume value type \texttt{T}, a Wasm continuation
+is typed by the full signature of the underlying function. Both Kotlin and Wasm continuations are \textit{one-shot}:
+a continuation may be resumed at most once.
 
 A good intuition for understanding resuming and suspending in the Stack-switching proposal is that it is similar to
 calling a function inside a try-catch block: the \wasmresume instruction (try block) specifies handlers (catch blocks) for

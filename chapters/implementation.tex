@@ -160,6 +160,9 @@ a suspend lambda to be executed and the Wasm continuation object we need for it.
 another value, that means that we have to keep executing the suspend function. So, we resume the new continuation with
 the value returned from the lambda.
 
+This solves the problem of immediate resume, because at the moment when \btexttt{suspendLambda} is called,
+the suspension has already happened, so we can provide the \btexttt{suspendLambda} with the actual Wasm continuation.
+
 \section{Immediate resume optimization}
 \label{sec:optimization}
 
