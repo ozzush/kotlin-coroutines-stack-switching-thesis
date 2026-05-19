@@ -25,11 +25,8 @@ existing state-machine-based approach.
 
 A central technical challenge is the mismatch between Kotlin's coroutine model, where a continuation object must be
 available before a suspend function actually suspends, and the Wasm Stack-switching model, where the continuation
-only becomes available after suspension. This thesis describes two implementations that address this mismatch.
-
-The main findings are: the Stack-switching implementation reduces binary size (by approximately 10.8\% in production
-builds for a small Compose Multiplatform project), but currently shows a performance regression compared to the
-baseline on V8, the JavaScript and WebAssembly engine used by Chromium-based browsers.
+only becomes available after suspension. This thesis describes two implementations that address this mismatch and then
+evaluates their correctness and the effect they have on resulting binary size and performance.
 
 \section{Thesis Structure}
 \label{sec:structure}
