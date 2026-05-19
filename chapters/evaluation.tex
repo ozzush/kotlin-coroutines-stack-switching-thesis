@@ -577,14 +577,14 @@ results are less severe, but the Reference Interpreter is not a production VM an
 experience of actual users.
 
 \btexttt{chainSuspensions} and \btexttt{deepSuspensions} show the worst regression due to the nature of the V8
-implementation, showing a 4--4.5 times slowdown. Passing the
-\btexttt{--experimental-wasm-growable-stacks} flag reduces the regression to around 1.5 times
+implementation, showing a 4.5--5.7 times slowdown. Passing the
+\btexttt{--experimental-wasm-growable-stacks} flag reduces the regression to around 1.7 times
 compared to the baseline, though other cases become slightly worse. Whether this flag is beneficial
 depends on the particular application.
 
 Among the presented benchmarks, \btexttt{multipleSuspensions2} is the closest to
 what would appear in production code. This benchmark
-is around 2 times slower than the baseline on V8, which is a noticeable regression.
+is around 2--2.5 times slower than the baseline on V8, which is a noticeable regression.
 
 The \btexttt{multipleSuspensions1} benchmark is comparable to the baseline, but the immediate resume pattern used in
 this benchmark is very unlikely to appear in real code. Resuming a continuation immediately inside the
@@ -603,8 +603,8 @@ binary that do not use coroutines are not affected by the new implementation.
 
 On the other hand,
 performance benchmarks show a noticeable regression. The cases most similar to production code
-are around 2 times slower. Cases with intensive suspension chaining are 1.5 times slower if the
-\btexttt{--experimental-wasm-growable-stacks} flag is passed to V8, and around 4 times slower without it. Cases with the
+are around 2--2.5 times slower. Cases with intensive suspension chaining are around 1.7 times slower if the
+\btexttt{--experimental-wasm-growable-stacks} flag is passed to V8, and around 4.5--5.7 times slower without it. Cases with the
 immediate resume pattern are comparable to the baseline, but they are unlikely to appear in production code.
 
 \section{Threats to Validity}

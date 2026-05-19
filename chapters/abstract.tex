@@ -11,6 +11,6 @@ The thesis describes two implementations that resolve this issue.
 
 The Stack-switching implementation reduces binary size by approximately 10.8\% in production builds
 and 2.3\% in development builds. Performance benchmarks on a production VM (V8) show a regression: realistic cases
-are around 2 times slower than the baseline, and cases with intensive suspension chaining are
-4--4.5 times slower without a special V8 flag, or around 1.5 times slower with it. The Stack-switching proposal is still
+are around 2--2.5 times slower than the baseline, and cases with intensive suspension chaining are
+4.5--5.7 times slower without a special V8 flag, or around 1.7 times slower with it. The Stack-switching proposal is still
 under active development, and the performance may improve as both the Kotlin Coroutines and V8 implementations mature.

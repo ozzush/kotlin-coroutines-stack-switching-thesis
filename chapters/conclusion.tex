@@ -8,9 +8,9 @@ existing Kotlin/JS-based implementation.
 
 The evaluation showed measurable improvements in binary size: approximately 10.8\% reduction in production builds and
 2.3\% in development builds for a small Compose Multiplatform project. On the other hand, performance benchmarks showed
-a noticeable regression. The benchmark cases most representative of real-world code are around 2 times slower than the
-baseline in V8. Cases with intensive suspension chaining regress by a factor of 4--4.5 without the
-\btexttt{--experimental-wasm-growable-stacks} flag, and around 1.5 times with it.
+a noticeable regression. The benchmark cases most representative of real-world code are around 2--2.5 times slower than the
+baseline in V8. Cases with intensive suspension chaining regress by a factor of 4.5--5.7 without the
+\btexttt{--experimental-wasm-growable-stacks} flag, and around 1.7 times with it.
 
 Some of the observed performance regressions may decrease or even disappear as both the V8 Stack-switching
 implementation and the Kotlin compiler support for it are developed further.
