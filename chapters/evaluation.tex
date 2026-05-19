@@ -195,12 +195,12 @@ Tables~\ref{tab:benchmark-dev} and~\ref{tab:benchmark-dce} show the raw benchmar
 \hline
 \textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} & \textbf{Opt+param} \\
 \hline
-chainSusp & 18,644 & 93,227 & 96,872 & 30,711 \\
-deepSusp & 23,119 & 118,298 & 102,826 & 42,617 \\
-multiSusp1 & 7,196 & 14,114 & 7,500 & 8,114 \\
-multiSusp2 & 6,930 & 14,395 & 16,000 & 16,439 \\
-sequence & 2,250 & 9,214 & 11,935 & 9,809 \\
-startCor & 25,020 & 37,625 & 42,562 & 37,400 \\
+chainSusp & 18{,}644 & 93{,}227 & 96{,}872 & 30{,}711 \\
+deepSusp & 23{,}119 & 118{,}298 & 102{,}826 & 42{,}617 \\
+multiSusp1 & 7{,}196 & 14{,}114 & 7{,}500 & 8{,}114 \\
+multiSusp2 & 6{,}930 & 14{,}395 & 16{,}000 & 16{,}439 \\
+sequence & 2{,}250 & 9{,}214 & 11{,}935 & 9{,}809 \\
+startCor & 25{,}020 & 37{,}625 & 42{,}562 & 32{,}842 \\
 \hline
 \end{tabular}
 \end{table}
@@ -213,12 +213,12 @@ startCor & 25,020 & 37,625 & 42,562 & 37,400 \\
 \hline
 \textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} & \textbf{Opt+param} \\
 \hline
-chainSusp & 18,109 & 102,787 & 103,000 & 30,568 \\
-deepSusp & 22,761 & 101,364 & 105,979 & 37,674 \\
-multiSusp1 & 6,947 & 13,447 & 7,043 & 7,163 \\
-multiSusp2 & 6,718 & 15,111 & 16,156 & 16,744 \\
-sequence & 2,458 & 9,178 & 10,286 & 9,718 \\
-startCor & 22,809 & 33,956 & 33,326 & 33,043 \\
+chainSusp & 18{,}109 & 102{,}787 & 103{,}000 & 30{,}262 \\
+deepSusp & 22{,}761 & 101{,}364 & 105{,}979 & 37{,}674 \\
+multiSusp1 & 6{,}947 & 13{,}447 & 7{,}043 & 7{,}163 \\
+multiSusp2 & 6{,}718 & 15{,}111 & 16{,}156 & 16{,}744 \\
+sequence & 2{,}458 & 9{,}178 & 10{,}286 & 9{,}718 \\
+startCor & 22{,}809 & 33{,}956 & 33{,}326 & 33{,}043 \\
 \hline
 \end{tabular}
 \end{table}
@@ -314,7 +314,7 @@ all three implementations.
 \legend{Baseline, Stack-switching, Optimized SS, Opt + param}
 \end{axis}
 \end{tikzpicture}
-\caption{Benchmark comparison in dev mode (V8 runtime)}
+\caption{Benchmark comparison in dev mode, V8 runtime (error bars show 95\% CI)}
 \label{fig:benchmark-dev}
 \end{figure}
 
@@ -374,7 +374,7 @@ all three implementations.
 \legend{Baseline, Stack-switching, Optimized SS, Opt + param}
 \end{axis}
 \end{tikzpicture}
-\caption{Benchmark comparison in dce mode (V8 runtime)}
+\caption{Benchmark comparison in dce mode, V8 runtime (error bars show 95\% CI)}
 \label{fig:benchmark-dce}
 \end{figure}
 
@@ -399,36 +399,36 @@ Tables~\ref{tab:benchmark-ref-dev} and~\ref{tab:benchmark-ref-dce} show the raw 
 
 \begin{table}[H]
 \centering
-\caption{Benchmark results in dev mode (average time in milliseconds \(\pm\) 95\% CI, Reference Interpreter)}
+\caption{Benchmark results in dev mode (average time in milliseconds, Reference Interpreter)}
 \label{tab:benchmark-ref-dev}
 \begin{tabular}{|l|r|r|r|}
 \hline
 \textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
 \hline
-chainSusp & $576 \pm 2$ & $372 \pm 1$ & $657 \pm 2$ \\
-deepSusp & $690 \pm 3$ & $425 \pm 1$ & $743 \pm 2$ \\
-multiSusp1 & $972 \pm 5$ & $761 \pm 4$ & $91 \pm 1$ \\
-multiSusp2 & $74 \pm 0$ & $98 \pm 1$ & $146 \pm 1$ \\
-sequence & $29 \pm 0$ & $44 \pm 2$ & $66 \pm 0$ \\
-startCor & $255 \pm 7$ & $376 \pm 5$ & $519 \pm 1$ \\
+chainSusp & 576 & 372 & 657 \\
+deepSusp & 690 & 425 & 743 \\
+multiSusp1 & 972 & 761 & 91 \\
+multiSusp2 & 74 & 98 & 146 \\
+sequence & 29 & 44 & 66 \\
+startCor & 255 & 376 & 519 \\
 \hline
 \end{tabular}
 \end{table}
 
 \begin{table}[H]
 \centering
-\caption{Benchmark results in dce mode (average time in milliseconds \(\pm\) 95\% CI, Reference Interpreter)}
+\caption{Benchmark results in dce mode (average time in milliseconds, Reference Interpreter)}
 \label{tab:benchmark-ref-dce}
 \begin{tabular}{|l|r|r|r|}
 \hline
 \textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
 \hline
-chainSusp & $519 \pm 4$ & $297 \pm 1$ & $554 \pm 3$ \\
-deepSusp & $601 \pm 2$ & $330 \pm 2$ & $629 \pm 3$ \\
-multiSusp1 & $926 \pm 4$ & $709 \pm 2$ & $61 \pm 0$ \\
-multiSusp2 & $48 \pm 1$ & $60 \pm 0$ & $93 \pm 0$ \\
-sequence & $18 \pm 0$ & $26 \pm 0$ & $40 \pm 0$ \\
-startCor & $152 \pm 0$ & $218 \pm 3$ & $310 \pm 2$ \\
+chainSusp & 519 & 297 & 554 \\
+deepSusp & 601 & 330 & 629 \\
+multiSusp1 & 926 & 709 & 61 \\
+multiSusp2 & 48 & 60 & 93 \\
+sequence & 18 & 26 & 40 \\
+startCor & 152 & 218 & 310 \\
 \hline
 \end{tabular}
 \end{table}
@@ -515,7 +515,7 @@ all three implementations.
 \legend{Baseline, Stack-switching, Optimized SS}
 \end{axis}
 \end{tikzpicture}
-\caption{Benchmark comparison in dev mode (Reference Interpreter)}
+\caption{Benchmark comparison in dev mode, Reference Interpreter (error bars show 95\% CI)}
 \label{fig:benchmark-ref-dev}
 \end{figure}
 
@@ -566,7 +566,7 @@ all three implementations.
 \legend{Baseline, Stack-switching, Optimized SS}
 \end{axis}
 \end{tikzpicture}
-\caption{Benchmark comparison in dce mode (Reference Interpreter)}
+\caption{Benchmark comparison in dce mode, Reference Interpreter (error bars show 95\% CI)}
 \label{fig:benchmark-ref-dce}
 \end{figure}
 
@@ -621,7 +621,7 @@ Several factors limit the generalizability of the evaluation results.
     \item \textbf{Low-level benchmarks.} The performance benchmarks focus on low-level coroutine primitives.
     They may not reflect the performance characteristics of higher-level application code.
     \item \textbf{Single VM.} Production benchmarks were only run on V8. Other production WebAssembly engines
-    could not be tested due to incomplete, incompatible Stack-switching support.
+    could not be tested due to incomplete or incompatible Stack-switching support.
     \item \textbf{Correctness test failures.} Six out of 523 coroutine tests fail due to an implementation bug
     (missing \btexttt{Any?} casts). While this bug does not affect the benchmarks, it indicates that the
     implementation is not fully complete.
