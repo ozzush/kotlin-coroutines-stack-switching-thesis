@@ -1,0 +1,79 @@
+\chapter{Related Work}
+\label{ch:related-work}
+\raggedbottom
+
+This chapter discusses approaches related to compiling coroutines and asynchronous code to WebAssembly,
+as well as alternative designs for Stack-switching in Wasm.
+
+\section{Approaches to Asynchronous Code in WebAssembly}
+
+\subsection{Asyncify}
+
+Before the Stack-switching proposal, the most widely used technique for compiling asynchronous languages to
+WebAssembly was Asyncify~\cite{asyncify}, a binary transformation pass implemented in Binaryen.
+Asyncify works by rewriting a compiled Wasm binary to make it possible to pause and resume execution at
+arbitrary points. At suspension points, the transformation inserts code to unwind the current call stack
+into a pre-allocated buffer, and at resumption points it inserts code to rewind the stack from that buffer.
+
+The approach is analogous to the state-machine transformation used by the Kotlin compiler for the JVM and JS
+targets: both convert stackful suspension into a representation that can be managed by a
+runtime without native stack-switching support. The key difference is that Asyncify operates at the Wasm
+binary level rather than at the source or IR level, making it language-agnostic.
+
+Asyncify has been used to port a number of languages and runtimes to WebAssembly, including Python (Pyodide)
+and Ruby. Its main drawbacks are increased binary size and runtime overhead from the stack save and restore
+operations~\cite{asyncify}.
+
+\subsection{JS Promise Integration (JSPI)}
+
+An alternative approach for asynchronous WebAssembly is the JS Promise Integration (JSPI) proposal~\cite{jspi-proposal}.
+JSPI provides a JavaScript API that allows Wasm imports and exports to be wrapped so that a
+synchronous Wasm call can suspend waiting for a JavaScript \texttt{Promise} to settle, and then be resumed
+when the promise resolves. From the Wasm side, JSPI is transparent: the module does not need to be modified.
+The suspension and resumption are managed by the JavaScript engine.
+
+JSPI addresses the specific use case of interoperating with asynchronous JavaScript APIs from synchronous
+Wasm code. It does not provide general-purpose stack switching within the Wasm module itself, and therefore
+cannot be used to implement language-level coroutines that suspend and resume within Wasm. The Stack-switching
+proposal is a more general solution that covers this use case as well.
+
+JSPI has been presented and discussed in the WebAssembly Stack Subgroup~\cite{jspi-wasm-meeting}. It has also
+been partially implemented in SpiderMonkey using Stack-switching primitives~\cite{spidermonkey-stack-switching-diff}.
+
+\subsection{WasmFX and Typed Continuations}
+
+WasmFX~\cite{wasmfx-proposal} is an alternative proposal for adding stack-switching capabilities to
+WebAssembly, based on the theory of algebraic effects and typed continuations.
+Unlike the Stack-switching proposal (which uses a \texttt{cont.new}/\texttt{resume}/\texttt{suspend}
+interface), WasmFX uses a \texttt{cont.new}/\texttt{cont.bind}/\texttt{resume}/\texttt{barrier}
+interface with a different semantic model. The core difference is that WasmFX continuations are
+designed to compose with effect handlers, enabling a richer set of control-flow abstractions.
+
+WasmFX was presented and developed in the WebAssembly Stack Subgroup over several meetings~\cite{wasmfx-meeting-2021,wasmfx-meeting-2023}.
+A prototype implementation in the Wasmtime engine was discussed in the subgroup in 2023~\cite{wasmfx-wasmtime-2023}.
+The current Stack-switching proposal in the repository is a convergence of ideas from both proposals.
+
+\section{Other Language Runtimes on WebAssembly}
+
+Multiple language communities have explored how to compile their runtimes to WebAssembly, which requires
+solving problems similar to the ones addressed in this thesis.
+
+\textbf{Go and TinyGo.} The Go runtime uses goroutines, which are stackful coroutines. Two separate presentations
+in the WebAssembly Stack Subgroup discussed the challenges of compiling Go to Wasm: one covering the full
+Go runtime~\cite{go-wasm-meeting}, and one covering TinyGo~\cite{tinygo-wasm-meeting}, a Go compiler for
+embedded and Wasm targets. Both noted the difficulty of mapping Go's concurrency model to WebAssembly's
+linear stack model.
+
+\textbf{OCaml.} Multicore OCaml adds support for algebraic effects, which generalize coroutines and other
+control-flow abstractions. The OCaml community presented its experience compiling to Wasm in the
+Stack Subgroup~\cite{ocaml-wasm-meeting}, discussing how native OCaml effects could be compiled to
+WebAssembly using stack-switching primitives.
+
+\textbf{Erlang.} The Erlang language model is based on lightweight processes, which are a form of
+stackful coroutine. Challenges in implementing the Erlang runtime in WebAssembly were presented in the
+Stack Subgroup~\cite{erlang-wasm-meeting}, noting that native Wasm stack switching would significantly
+simplify the port compared to the Asyncify-based approach.
+
+These cases, together with Kotlin, illustrate that language-level concurrency abstractions and
+stack-switching support in WebAssembly are broadly needed across many language communities.
+
