@@ -15,10 +15,10 @@ provides structured concurrency constructs such as \btexttt{launch}, \btexttt{as
 
 \subsection{Coroutines example}
 
-In Figure~\ref{fig:kotlin-coroutines-example} you can see an example program built on the low-level
-coroutine primitives. It's a simple program that starts a coroutine. After the coroutine suspends, it is resumed
-with the value \("\)OK\("\) and the completion saves the result of the coroutine to a variable. The result of
-the coroutine is then printed out.
+Figure~\ref{fig:kotlin-coroutines-example} shows an example program built on the low-level
+coroutine primitives. The program starts a coroutine. After the coroutine suspends, it is resumed
+with the value \("\)OK\("\) and the completion saves the result of the coroutine to a variable. The result is
+then printed.
 
 \begin{figure}[H]
     \centering
@@ -54,14 +54,14 @@ fun main() {
 
 \subsection{Primitives}
 
-Let's have a closer look at the relevant coroutine primitives from the standard library.
+The following sections describe the relevant coroutine primitives from the standard library.
 
 \subsection*{\Continuation and \CoroutineImpl}
 
 \btexttt{Continuation<T>} represents a coroutine at some point in its execution. That point could be the beginning
 of the coroutine if it was not started yet, or some point at which the coroutine was interrupted by calling
 \suspendCoroutineUninterceptedOrReturn function. Resuming continuation resumes the coroutine from the recorded point.
-Continuation can be understood as \("\)the rest of a coroutine.\("\) The interface has
+A continuation can be understood as \("\)the rest of a coroutine.\("\) The interface has
 two main components:
 
 \begin{itemize}
@@ -116,7 +116,7 @@ This primitive creates a coroutine without starting it:
 \subsection*{\suspendCoroutineUninterceptedOrReturn}
 
 This primitive gives access to the current continuation inside a suspend function. It allows the function
-to control whether it suspends or returns immediately:
+to control whether it suspends:
 
 \begin{lstlisting}[language=Kotlin, basicstyle=\small\ttfamily]
 suspendCoroutineUninterceptedOrReturn<T>(

@@ -64,9 +64,12 @@ fun box(): String {
 
 The tests are located in the Kotlin repository at \btexttt{compiler/testData/codegen/box/coroutines}.
 
-Both the initial and the optimized implementations pass 517 out of 523 coroutine tests. The 6 last tests are failing
-due to some objects missing casts to \btexttt{Any?} in the generated Wasm code, which is a minor issue that doesn't
-interfere with further analysis of the implementations.
+Both the initial and the optimized implementations pass 517 out of 523 coroutine tests. The 6 failing tests are
+caused by a bug in the implementation: in certain cases, the generated Wasm code omits explicit casts to
+\btexttt{Any?}. In Kotlin, all types are subtypes of \btexttt{Any?}, so no cast is needed; in Wasm, however,
+such casts must be emitted explicitly. Adding the missing casts fixes the failures. These tests do not exercise
+the coroutine suspension or resumption paths that are relevant to the size and performance analysis, so the
+failures do not affect the conclusions of the evaluation.
 
 \section{Size benchmark}
 \label{sec:size-bench}
@@ -165,6 +168,9 @@ The benchmarks were executed in two compilation modes:
     \item \textbf{dce mode}: Production build with dead code elimination
 \end{itemize}
 
+All benchmarks were run on a MacBook Pro with an Apple M2 Max chip (12-core: 8 performance + 4 efficiency
+cores, 64\,GB RAM) running macOS. The V8 version used was 14.7.89.
+
 Each benchmark was run for 50 iterations after 50 warmup iterations. Some iterations were removed
 as outliers before computing the average: any measurement exceeding $Q_3 + 1.5 \times IQR$ (where
 $Q_3$ is the third quartile and $IQR$ is the interquartile range) was excluded, as such spikes are
@@ -174,8 +180,8 @@ interval computed from the filtered sample using the $t$-distribution.
 
 \subsection{V8}
 
-V8 benchmark results are the most interesting since it's the VM used by Chromium, and, consequently, Google Chrome,
-which is the most used browser app~\cite{statcounter-browser-market-share}.
+V8 benchmark results are the most relevant, since V8 is the engine used by Chromium, and consequently Google Chrome,
+which is the most widely used browser~\cite{statcounter-browser-market-share}.
 
 \subsubsection*{Raw results}
 
@@ -374,13 +380,13 @@ all three implementations.
 
 \subsection{Reference Interpreter}
 
-The Reference Interpreter~\cite{wasm-stack-switching-repo} is a toy interpreter with
+The Reference Interpreter~\cite{wasm-stack-switching-repo} is a reference interpreter with
 a proof-of-concept implementation of Stack-switching. It is not designed to be fast, and performance benchmarks
-on it are of limited interest as it is not used anywhere as a production VM. However, it is the VM that I initially
-used for testing, and when I was ready to write benchmarks, there were no production VMs available yet.
+on it are of limited interest as it is not used as a production VM. However, it is the VM that was initially
+used for testing, and at that time no production VMs were available.
 The results are included here for completeness.
 
-The following revisions where used:
+The following revisions were used:
 \begin{itemize}
     \item \textbf{Baseline}: commit \texttt{f5757858}
     \item \textbf{Stack-switching}: commit \texttt{5c0d0b1c}
@@ -560,44 +566,66 @@ all three implementations.
 
 \subsection{Analysis}
 
-One might notice that the new implementation with Stack-switching is comparably slower
-than the baseline. While the results for Reference Interpreter are less severe, they do
-not represent the experience that the actual users will have.
+The Stack-switching implementation is noticeably slower than the baseline on V8. The Reference Interpreter
+results are less severe, but the Reference Interpreter is not a production VM and does not reflect the
+experience of actual users.
 
 \btexttt{chainSuspensions} and \btexttt{deepSuspensions} show the worst regression due to the nature of the V8
-implementation, showing a 4–4,5 times slow-down. Passing the special parameter,
-\btexttt{--experimental-wasm-growable-stacks}, makes the results much better, bringing them down to around 1,5 times
-slow-down compared to the baseline, but other cases become slightly worse. Whether the parameter is worth it or not
-will depend on a particular application.
+implementation, showing a 4--4.5 times slowdown. Passing the
+\btexttt{--experimental-wasm-growable-stacks} flag reduces the regression to around 1.5 times
+compared to the baseline, though other cases become slightly worse. Whether this flag is beneficial
+depends on the particular application.
 
-Among the presented benchmarks, the one that is the closest in
-nature to what one might see in production code is \btexttt{multipleSuspensions2}. This benchmark
-is around 2 times slower than the baseline when tested in V8, which is a noticeable regression.
+Among the presented benchmarks, \btexttt{multipleSuspensions2} is the closest to
+what would appear in production code. This benchmark
+is around 2 times slower than the baseline on V8, which is a noticeable regression.
 
 The \btexttt{multipleSuspensions1} benchmark is comparable to the baseline, but the immediate resume pattern used in
-this benchmark is very unlikely to be used in real code. This is because resuming a continuation right inside the
-suspend lambda contradicts the intention behind suspending in the first place. If the author could compute the resume
-value right inside the suspend lambda, they wouldn't need to suspend at all.
+this benchmark is very unlikely to appear in real code. Resuming a continuation immediately inside the
+suspend lambda contradicts the purpose of suspending: if the resume value is available inside the
+suspend lambda, the function does not need to suspend at all. The immediate-resume optimization therefore
+has limited practical value.
 
 
 \section{Summary}
 \label{sec:evaluation-summary}
 
-Stack-switching implementation leads to a modest but noticeable decrease in binary size. The decrease is around 10\%
-for a small application with little to no business logic written with Compose Multiplatform. The decrease would not be
-as big on an application which has some business logic that doesn't use Kotlin Coroutines, since the part of
-the program that doesn't use Kotlin Coroutines is not affected by the new coroutines implementation.
+The Stack-switching implementation leads to a modest but noticeable decrease in binary size. The decrease is around 10\%
+for a small application with little to no business logic written with Compose Multiplatform. The decrease would be
+smaller for an application that has business logic not involving Kotlin Coroutines, since the parts of the
+binary that do not use coroutines are not affected by the new implementation.
 
 On the other hand,
-performance benchmarks show a noticeable regression. The cases that are most similar to what could appear in
-real code are around 2 times slower. Cases with intensive stack-switching are 1,5 times slower if an additional V8
-parameter is provided and around 4 times slower without it. Cases with the
+performance benchmarks show a noticeable regression. The cases most similar to production code
+are around 2 times slower. Cases with intensive suspension chaining are 1.5 times slower if the
+\btexttt{--experimental-wasm-growable-stacks} flag is passed to V8, and around 4 times slower without it. Cases with the
 immediate resume pattern are comparable to the baseline, but they are unlikely to appear in production code.
+
+\section{Threats to Validity}
+\label{sec:threats}
+
+Several factors limit the generalizability of the evaluation results.
+
+\begin{itemize}
+    \item \textbf{Limited number of applications.} The size benchmark uses a single small Compose Multiplatform
+    project generated by the Kotlin Multiplatform Wizard. The result may not generalize to larger or more
+    complex applications.
+    \item \textbf{Immature V8 Stack-switching implementation.} The V8 Stack-switching support is still under
+    active development. The observed performance regression may decrease as the implementation matures.
+    \item \textbf{Low-level benchmarks.} The performance benchmarks focus on low-level coroutine primitives.
+    They may not reflect the performance characteristics of higher-level application code.
+    \item \textbf{Single VM.} Production benchmarks were only run on V8. Other production WebAssembly engines
+    could not be tested due to incomplete, incompatible Stack-switching support.
+    \item \textbf{Correctness test failures.} Six out of 523 coroutine tests fail due to an implementation bug
+    (missing \btexttt{Any?} casts). While this bug does not affect the benchmarks, it indicates that the
+    implementation is not fully complete.
+\end{itemize}
 
 \section{Note on other VMs}
 
-One might ask why there are no benchmarks for other production VMs. The reason is that other VMs lack some features that are
-necessary for the Kotlin Coroutines implementation to function. The following is a list of VMs that were not tested.
+No benchmarks for other production VMs are included because those VMs lack features necessary for the
+Kotlin Coroutines implementation to function. The following is a list of VMs that have some progress in implementing
+the Stack-switching proposal, but were not tested due to various issues.
 
 \begin{itemize}
     \item \textbf{Wasmer}: according to the Wasm feature roadmap~\cite{wasm-features}, Wasmer fully supports

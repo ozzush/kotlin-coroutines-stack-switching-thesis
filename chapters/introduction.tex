@@ -9,16 +9,28 @@ Multiplatform library~\cite{compose-multiplatform} for its Web target. Compose M
 implementation.
 
 The current implementation of Kotlin Coroutines for Kotlin/Wasm is based on the implementation for Kotlin/JS, which,
-similar to Kotlin/JVM, uses state-machine transformation on suspend functions.
+similar to Kotlin/JVM, uses state-machine transformation on suspend functions. Each suspend function is compiled into
+a state machine that saves and restores local variables at each suspension point. This transformation adds generated
+code to the binary and introduces overhead at runtime.
 
-Wasm has a proposal called Stack-switching. It introduces new primitives that can be used to write an alternative
-implementation of Kotlin Coroutines for Kotlin/Wasm.
+Wasm has a proposal called Stack-switching. It introduces new primitives for suspending and resuming execution
+contexts at the Wasm level, which can be used to write an alternative implementation of Kotlin Coroutines for
+Kotlin/Wasm without state-machine transformation.
 
 \section{Goal}
 \label{sec:motivation}
 
-The ultimate goal of this thesis is to verify whether compiling Kotlin Coroutines with Stack-switching primitives
-improves binary size and performance for the Kotlin/Wasm projects that use Kotlin Coroutines.
+The goal of this thesis is to implement Kotlin Coroutines for Kotlin/Wasm using WebAssembly Stack-switching
+primitives, and to evaluate whether this implementation improves binary size and performance compared to the
+existing state-machine-based approach.
+
+A central technical challenge is the mismatch between Kotlin's coroutine model, where a continuation object must be
+available before a suspend function actually suspends, and the Wasm Stack-switching model, where the continuation
+only becomes available after suspension. This thesis describes two implementations that address this mismatch.
+
+The main findings are: the Stack-switching implementation reduces binary size (by approximately 10.8\% in production
+builds for a small Compose Multiplatform project), but currently shows a performance regression compared to the
+baseline on V8, the JavaScript and WebAssembly engine used by Chromium-based browsers.
 
 \section{Thesis Structure}
 \label{sec:structure}
@@ -26,5 +38,5 @@ improves binary size and performance for the Kotlin/Wasm projects that use Kotli
 The thesis is organized as follows: Chapter~\ref{ch:background} provides background information on WebAssembly
 Stack-switching and Kotlin coroutines primitives. Chapter~\ref{ch:implementation} describes the implementation of
 Kotlin coroutines using the WebAssembly Stack-switching proposal. Chapter~\ref{ch:evaluation} evaluates the
-implementation in terms of performance and binary size. Finally, Chapter~\ref{ch:conclusion} concludes the thesis and
-discusses current state of the coroutines with Stack-switching implementation.
+implementation in terms of correctness, binary size, and performance. Finally, Chapter~\ref{ch:conclusion} concludes the thesis and
+discusses the current state of the coroutines with Stack-switching implementation.

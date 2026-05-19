@@ -3,9 +3,9 @@
 
 \section{Primitives correspondence}
 
-To implement Kotlin coroutines using Wasm Stack-switching proposal we have to implement the primitives
-discussed in Section~\ref{sec:kotlin-coroutines}. Kotlin coroutine primitives can be mapped to the Wasm Stack-switching
-primitives pretty closely:
+To implement Kotlin coroutines using the Wasm Stack-switching proposal, the primitives
+discussed in Section~\ref{sec:kotlin-coroutines} must be implemented. Kotlin coroutine primitives map
+closely to the Wasm Stack-switching primitives:
 \begin{itemize}
     \item \textbf{\Continuation} maps to Wasm continuation objects.
 
@@ -90,12 +90,11 @@ fun test() {
 }
 \end{lstlisting}
 
-Essentially, in Kotlin the continuation object has to be available and fully functional before we even know whether
-a function suspends or not. On the contrary, in Wasm we only get the continuation object after the function actually
-suspends. This difference can be observed in Figure~\ref{fig:primitives-correspondence-r}. The figure highlights the
-mismatch in when continuation is required in Kotlin and when it becomes available in Wasm.
+In Kotlin, the continuation object must be available before it is known whether a function suspends.
+In Wasm, the continuation only becomes available after the function actually suspends.
+This mismatch is illustrated in Figure~\ref{fig:primitives-correspondence-r}.
 
-Next we will discuss two ways to solve this problem.
+The following sections describe two ways to resolve this problem.
 
 \begin{figure}[H]
     \centering
