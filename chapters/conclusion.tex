@@ -19,7 +19,9 @@ implementation and the Kotlin compiler support for it are developed further.
 
 The development of Kotlin Coroutines with Stack-switching is continued by JetBrains.
 At the moment of writing this, the implementation is being prepared for
-release as an experimental feature under a compiler flag.
+release as an experimental feature under a compiler flag. The production
+implementation is based on the second implementation idea, which uses the immediate
+resume optimization.
 
 There are some benchmark results available for the production version of the implementation.
 For example, KotlinConfApp~\cite{kotlinconf-app} was used for the size benchmark of production implementation.
