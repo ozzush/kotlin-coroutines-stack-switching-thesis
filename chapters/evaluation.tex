@@ -152,10 +152,10 @@ The following cases are measured:
 Four code versions were used for comparison:
 
 \begin{itemize}
-    \item \textbf{Baseline} (commit \texttt{329a3015}): The original implementation without Stack-switching
-    \item \textbf{Stack-switching} (commit \texttt{9076a044}): Initial Stack-switching implementation
-    \item \textbf{Optimized SS} (commit \texttt{31fb669a}): Stack-switching with immediate resume optimization
-    \item \textbf{Opt + param} (commit \texttt{129bb54f}): Optimized SS with \btexttt{--experimental-wasm-growable-stacks} flag passed to V8
+    \item \textbf{Baseline} (commit \texttt{359b8303}): The original implementation without Stack-switching
+    \item \textbf{Stack-switching} (commit \texttt{96b5d449}): Initial Stack-switching implementation
+    \item \textbf{Optimized SS} (commit \texttt{4ffd6205}): Stack-switching with immediate resume optimization
+    \item \textbf{Opt + param} (commit \texttt{2f6a6ebb}): Optimized SS with \btexttt{--experimental-wasm-growable-stacks} flag passed to V8
 \end{itemize}
 
 The benchmarks were executed in two compilation modes:
@@ -165,7 +165,7 @@ The benchmarks were executed in two compilation modes:
     \item \textbf{dce mode}: Production build with dead code elimination
 \end{itemize}
 
-Each benchmark was run for 30 iterations after 100 warmup iterations. Some iterations were removed
+Each benchmark was run for 50 iterations after 50 warmup iterations. Some iterations were removed
 as outliers before computing the average: any measurement exceeding $Q_3 + 1.5 \times IQR$ (where
 $Q_3$ is the third quartile and $IQR$ is the interquartile range) was excluded, as such spikes are
 typically caused by garbage collection pauses rather than the code under test. The bar charts in this
@@ -189,12 +189,12 @@ Tables~\ref{tab:benchmark-dev} and~\ref{tab:benchmark-dce} show the raw benchmar
 \hline
 \textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} & \textbf{Opt+param} \\
 \hline
-chainSusp & 18,269 & 381,167 & 91,519 & 32,321 \\
-deepSusp & 22,962 & 93,414 & 96,385 & 38,000 \\
-multiSusp1 & 4,037 & 11,929 & 7,400 & 7,577 \\
-multiSusp2 & 7,786 & 10,042 & 16,538 & 17,037 \\
-sequence & 2,571 & 9,385 & 10,160 & 10,074 \\
-startCor & 22,960 & 23,778 & 27,240 & 28,966 \\
+chainSusp & 18,644 & 93,227 & 96,872 & 30,711 \\
+deepSusp & 23,119 & 118,298 & 102,826 & 42,617 \\
+multiSusp1 & 7,196 & 14,114 & 7,500 & 8,114 \\
+multiSusp2 & 6,930 & 14,395 & 16,000 & 16,439 \\
+sequence & 2,250 & 9,214 & 11,935 & 9,809 \\
+startCor & 25,020 & 37,625 & 42,562 & 37,400 \\
 \hline
 \end{tabular}
 \end{table}
@@ -207,12 +207,12 @@ startCor & 22,960 & 23,778 & 27,240 & 28,966 \\
 \hline
 \textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} & \textbf{Opt+param} \\
 \hline
-chainSusp & 18,571 & 90,000 & 96,000 & 32,357 \\
-deepSusp & 23,125 & 86,786 & 99,444 & 38,593 \\
-multiSusp1 & 5,276 & 8,880 & 6,960 & 7,240 \\
-multiSusp2 & 6,714 & 10,240 & 16,120 & 17,077 \\
-sequence & 2,607 & 9,103 & 9,630 & 10,107 \\
-startCor & 11,143 & 23,926 & 28,640 & 28,320 \\
+chainSusp & 18,109 & 102,787 & 103,000 & 30,568 \\
+deepSusp & 22,761 & 101,364 & 105,979 & 37,674 \\
+multiSusp1 & 6,947 & 13,447 & 7,043 & 7,163 \\
+multiSusp2 & 6,718 & 15,111 & 16,156 & 16,744 \\
+sequence & 2,458 & 9,178 & 10,286 & 9,718 \\
+startCor & 22,809 & 33,956 & 33,326 & 33,043 \\
 \hline
 \end{tabular}
 \end{table}
@@ -230,19 +230,19 @@ performance regression (slower execution), while negative values indicate improv
 \hline
 \textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} & \textbf{Opt+param} \\
 \hline
-chainSusp & dev & 18,269 & +1986.4\% & +401.0\% & +76.9\% \\
-deepSusp & dev & 22,962 & +306.8\% & +319.8\% & +65.5\% \\
-multiSusp1 & dev & 4,037 & +195.5\% & +83.3\% & +87.7\% \\
-multiSusp2 & dev & 7,786 & +29.0\% & +112.4\% & +118.8\% \\
-sequence & dev & 2,571 & +265.0\% & +295.2\% & +291.8\% \\
-startCor & dev & 22,960 & +3.6\% & +18.6\% & +26.2\% \\
+chainSusp & dev & 18,644 & +400.0\% & +419.6\% & +64.7\% \\
+deepSusp & dev & 23,119 & +411.7\% & +344.8\% & +84.3\% \\
+multiSusp1 & dev & 7,196 & +96.1\% & +4.2\% & +12.8\% \\
+multiSusp2 & dev & 6,930 & +107.7\% & +130.9\% & +137.2\% \\
+sequence & dev & 2,250 & +309.5\% & +430.4\% & +335.9\% \\
+startCor & dev & 25,020 & +50.4\% & +70.1\% & +49.5\% \\
 \hline
-chainSusp & dce & 18,571 & +384.6\% & +416.9\% & +74.2\% \\
-deepSusp & dce & 23,125 & +275.3\% & +330.0\% & +66.9\% \\
-multiSusp1 & dce & 5,276 & +68.3\% & +31.9\% & +37.2\% \\
-multiSusp2 & dce & 6,714 & +52.5\% & +140.1\% & +154.3\% \\
-sequence & dce & 2,607 & +249.2\% & +269.4\% & +287.7\% \\
-startCor & dce & 11,143 & +114.7\% & +157.0\% & +154.2\% \\
+chainSusp & dce & 18,109 & +467.6\% & +468.8\% & +68.8\% \\
+deepSusp & dce & 22,761 & +345.3\% & +365.6\% & +65.5\% \\
+multiSusp1 & dce & 6,947 & +93.6\% & +1.4\% & +3.1\% \\
+multiSusp2 & dce & 6,718 & +124.9\% & +140.5\% & +149.2\% \\
+sequence & dce & 2,458 & +273.3\% & +318.4\% & +295.3\% \\
+startCor & dce & 22,809 & +48.9\% & +46.1\% & +44.9\% \\
 \hline
 \end{tabular}
 \end{table}
@@ -271,39 +271,39 @@ all three implementations.
 ]
 \addplot+[error bars/.cd,y dir=both,y explicit]
   coordinates {
-    (chainSusp,18080) +- (0,486)
-    (deepSusp,22261) +- (0,369)
-    (multiSusp1,4037) +- (0,299)
-    (multiSusp2,7786) +- (0,607)
-    (sequence,2571) +- (0,221)
-    (startCor,22960) +- (0,323)
+    (chainSusp,18644) +- (0,491)
+    (deepSusp,23119) +- (0,276)
+    (multiSusp1,7196) +- (0,213)
+    (multiSusp2,6930) +- (0,216)
+    (sequence,2250) +- (0,127)
+    (startCor,25020) +- (0,1014)
   };
 \addplot+[error bars/.cd,y dir=both,y explicit]
   coordinates {
-    (chainSusp,381167) +- (0,100319)
-    (deepSusp,93414) +- (0,2793)
-    (multiSusp1,11929) +- (0,1208)
-    (multiSusp2,10042) +- (0,261)
-    (sequence,9385) +- (0,280)
-    (startCor,23778) +- (0,252)
+    (chainSusp,93227) +- (0,1141)
+    (deepSusp,118298) +- (0,3182)
+    (multiSusp1,14114) +- (0,388)
+    (multiSusp2,14395) +- (0,252)
+    (sequence,9214) +- (0,243)
+    (startCor,37625) +- (0,2457)
   };
 \addplot+[error bars/.cd,y dir=both,y explicit]
   coordinates {
-    (chainSusp,91519) +- (0,1879)
-    (deepSusp,96385) +- (0,2135)
-    (multiSusp1,7400) +- (0,289)
-    (multiSusp2,16538) +- (0,204)
-    (sequence,10160) +- (0,255)
-    (startCor,27240) +- (0,319)
+    (chainSusp,96872) +- (0,2576)
+    (deepSusp,102826) +- (0,1577)
+    (multiSusp1,7500) +- (0,219)
+    (multiSusp2,16000) +- (0,241)
+    (sequence,11935) +- (0,908)
+    (startCor,42562) +- (0,4273)
   };
 \addplot+[error bars/.cd,y dir=both,y explicit]
   coordinates {
-    (chainSusp,32321) +- (0,1359)
-    (deepSusp,38000) +- (0,613)
-    (multiSusp1,7577) +- (0,258)
-    (multiSusp2,17037) +- (0,650)
-    (sequence,10074) +- (0,326)
-    (startCor,28966) +- (0,587)
+    (chainSusp,30711) +- (0,455)
+    (deepSusp,42617) +- (0,1117)
+    (multiSusp1,8114) +- (0,322)
+    (multiSusp2,16439) +- (0,199)
+    (sequence,9809) +- (0,284)
+    (startCor,37400) +- (0,3253)
   };
 \legend{Baseline, Stack-switching, Optimized SS, Opt + param}
 \end{axis}
@@ -331,39 +331,39 @@ all three implementations.
 ]
 \addplot+[error bars/.cd,y dir=both,y explicit]
   coordinates {
-    (chainSusp,18481) +- (0,384)
-    (deepSusp,23000) +- (0,364)
-    (multiSusp1,5276) +- (0,717)
-    (multiSusp2,6714) +- (0,545)
-    (sequence,2607) +- (0,265)
-    (startCor,11143) +- (0,2515)
+    (chainSusp,18109) +- (0,406)
+    (deepSusp,22761) +- (0,294)
+    (multiSusp1,6947) +- (0,75)
+    (multiSusp2,6718) +- (0,149)
+    (sequence,2458) +- (0,158)
+    (startCor,22809) +- (0,625)
   };
 \addplot+[error bars/.cd,y dir=both,y explicit]
   coordinates {
-    (chainSusp,89444) +- (0,1844)
-    (deepSusp,86786) +- (0,2136)
-    (multiSusp1,8880) +- (0,650)
-    (multiSusp2,10240) +- (0,271)
-    (sequence,9103) +- (0,398)
-    (startCor,23926) +- (0,407)
+    (chainSusp,102787) +- (0,2925)
+    (deepSusp,101364) +- (0,2961)
+    (multiSusp1,13447) +- (0,453)
+    (multiSusp2,15111) +- (0,487)
+    (sequence,9178) +- (0,250)
+    (startCor,33956) +- (0,703)
   };
 \addplot+[error bars/.cd,y dir=both,y explicit]
   coordinates {
-    (chainSusp,96000) +- (0,4014)
-    (deepSusp,99444) +- (0,3440)
-    (multiSusp1,6960) +- (0,276)
-    (multiSusp2,16120) +- (0,341)
-    (sequence,9630) +- (0,271)
-    (startCor,28640) +- (0,261)
+    (chainSusp,103000) +- (0,1820)
+    (deepSusp,105979) +- (0,1592)
+    (multiSusp1,7043) +- (0,279)
+    (multiSusp2,16156) +- (0,255)
+    (sequence,10286) +- (0,556)
+    (startCor,33326) +- (0,612)
   };
 \addplot+[error bars/.cd,y dir=both,y explicit]
   coordinates {
-    (chainSusp,32357) +- (0,1053)
-    (deepSusp,38593) +- (0,1071)
-    (multiSusp1,7240) +- (0,319)
-    (multiSusp2,16880) +- (0,519)
-    (sequence,10107) +- (0,304)
-    (startCor,28320) +- (0,195)
+    (chainSusp,30568) +- (0,658)
+    (deepSusp,37674) +- (0,442)
+    (multiSusp1,7163) +- (0,211)
+    (multiSusp2,16744) +- (0,190)
+    (sequence,9718) +- (0,149)
+    (startCor,33043) +- (0,428)
   };
 \legend{Baseline, Stack-switching, Optimized SS, Opt + param}
 \end{axis}
