@@ -149,8 +149,6 @@ The following cases are measured:
     \item \btexttt{startCoroutinePerformance.kt}: start 100 coroutines with \texttt{startCoroutine}.
 \end{itemize}
 
-\vspace{}
-
 Four code versions were used for comparison:
 
 \begin{itemize}
@@ -170,8 +168,9 @@ The benchmarks were executed in two compilation modes:
 Each benchmark was run for 30 iterations after 100 warmup iterations. Some iterations were removed
 as outliers before computing the average: any measurement exceeding $Q_3 + 1.5 \times IQR$ (where
 $Q_3$ is the third quartile and $IQR$ is the interquartile range) was excluded, as such spikes are
-typically caused by garbage collection pauses rather than the code under test. The figures in this
-chapter display the average value across the remaining iterations.
+typically caused by garbage collection pauses rather than the code under test. The bar charts in this
+chapter display the average value across the remaining iterations, with error bars showing the 95\% confidence
+interval computed from the filtered sample using the $t$-distribution.
 
 \subsection{V8}
 
@@ -270,38 +269,42 @@ all three implementations.
     ymin=0,
     enlarge x limits=0.1,
 ]
-\addplot coordinates {
-    (chainSusp,18269)
-    (deepSusp,22962)
-    (multiSusp1,4037)
-    (multiSusp2,7786)
-    (sequence,2571)
-    (startCor,22960)
-};
-\addplot coordinates {
-    (chainSusp,381167)
-    (deepSusp,93414)
-    (multiSusp1,11929)
-    (multiSusp2,10042)
-    (sequence,9385)
-    (startCor,23778)
-};
-\addplot coordinates {
-    (chainSusp,91519)
-    (deepSusp,96385)
-    (multiSusp1,7400)
-    (multiSusp2,16538)
-    (sequence,10160)
-    (startCor,27240)
-};
-\addplot coordinates {
-    (chainSusp,32321)
-    (deepSusp,38000)
-    (multiSusp1,7577)
-    (multiSusp2,17037)
-    (sequence,10074)
-    (startCor,28966)
-};
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,18080) +- (0,486)
+    (deepSusp,22261) +- (0,369)
+    (multiSusp1,4037) +- (0,299)
+    (multiSusp2,7786) +- (0,607)
+    (sequence,2571) +- (0,221)
+    (startCor,22960) +- (0,323)
+  };
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,381167) +- (0,100319)
+    (deepSusp,93414) +- (0,2793)
+    (multiSusp1,11929) +- (0,1208)
+    (multiSusp2,10042) +- (0,261)
+    (sequence,9385) +- (0,280)
+    (startCor,23778) +- (0,252)
+  };
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,91519) +- (0,1879)
+    (deepSusp,96385) +- (0,2135)
+    (multiSusp1,7400) +- (0,289)
+    (multiSusp2,16538) +- (0,204)
+    (sequence,10160) +- (0,255)
+    (startCor,27240) +- (0,319)
+  };
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,32321) +- (0,1359)
+    (deepSusp,38000) +- (0,613)
+    (multiSusp1,7577) +- (0,258)
+    (multiSusp2,17037) +- (0,650)
+    (sequence,10074) +- (0,326)
+    (startCor,28966) +- (0,587)
+  };
 \legend{Baseline, Stack-switching, Optimized SS, Opt + param}
 \end{axis}
 \end{tikzpicture}
@@ -326,38 +329,42 @@ all three implementations.
     ymin=0,
     enlarge x limits=0.1,
 ]
-\addplot coordinates {
-    (chainSusp,18571)
-    (deepSusp,23125)
-    (multiSusp1,5276)
-    (multiSusp2,6714)
-    (sequence,2607)
-    (startCor,11143)
-};
-\addplot coordinates {
-    (chainSusp,90000)
-    (deepSusp,86786)
-    (multiSusp1,8880)
-    (multiSusp2,10240)
-    (sequence,9103)
-    (startCor,23926)
-};
-\addplot coordinates {
-    (chainSusp,96000)
-    (deepSusp,99444)
-    (multiSusp1,6960)
-    (multiSusp2,16120)
-    (sequence,9630)
-    (startCor,28640)
-};
-\addplot coordinates {
-    (chainSusp,32357)
-    (deepSusp,38593)
-    (multiSusp1,7240)
-    (multiSusp2,17077)
-    (sequence,10107)
-    (startCor,28320)
-};
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,18481) +- (0,384)
+    (deepSusp,23000) +- (0,364)
+    (multiSusp1,5276) +- (0,717)
+    (multiSusp2,6714) +- (0,545)
+    (sequence,2607) +- (0,265)
+    (startCor,11143) +- (0,2515)
+  };
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,89444) +- (0,1844)
+    (deepSusp,86786) +- (0,2136)
+    (multiSusp1,8880) +- (0,650)
+    (multiSusp2,10240) +- (0,271)
+    (sequence,9103) +- (0,398)
+    (startCor,23926) +- (0,407)
+  };
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,96000) +- (0,4014)
+    (deepSusp,99444) +- (0,3440)
+    (multiSusp1,6960) +- (0,276)
+    (multiSusp2,16120) +- (0,341)
+    (sequence,9630) +- (0,271)
+    (startCor,28640) +- (0,261)
+  };
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,32357) +- (0,1053)
+    (deepSusp,38593) +- (0,1071)
+    (multiSusp1,7240) +- (0,319)
+    (multiSusp2,16880) +- (0,519)
+    (sequence,10107) +- (0,304)
+    (startCor,28320) +- (0,195)
+  };
 \legend{Baseline, Stack-switching, Optimized SS, Opt + param}
 \end{axis}
 \end{tikzpicture}
