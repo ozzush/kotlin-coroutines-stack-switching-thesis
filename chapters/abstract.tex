@@ -1,27 +1,16 @@
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 
-Kotlin/Wasm is a compilation target for the Kotlin programming language that compiles Kotlin code to
-WebAssembly. It is used, for example, by the Compose Multiplatform library for its Web target.
-Kotlin Coroutines are central to Kotlin/Wasm applications, yet the current implementation is based on
-state-machine transformation: each suspend function is compiled into a state machine. This approach adds
-generated code that increases binary size and introduces runtime overhead.
-
-The WebAssembly Stack-switching proposal provides native primitives for suspending and resuming
-execution contexts. This thesis presents an alternative implementation of Kotlin Coroutines for
-Kotlin/Wasm based on these primitives, replacing the state-machine transformation with direct
+This thesis presents an alternative implementation of Kotlin Coroutines for Kotlin/Wasm using the
+WebAssembly Stack-switching proposal, replacing the current state-machine transformation with direct
 stack-switching instructions.
 
-A key technical challenge addressed in this work is the mismatch between Kotlin's coroutine model,
-where a continuation object must be available before a function suspends, and the Wasm Stack-switching
-model, where the continuation only becomes available after suspension. The thesis describes two
-implementations that resolve this mismatch.
+The main technical challenge is a mismatch between the two models: Kotlin requires a continuation
+object to be available before a function suspends, while Wasm Stack-switching only provides it after suspension.
+The thesis describes two implementations that resolve this issue.
 
-The evaluation shows that the Stack-switching implementation reduces binary size by approximately
-10.8\% in production builds and 2.3\% in development builds for a small Compose Multiplatform
-project. However, performance benchmarks on V8 show a noticeable regression: the most realistic
-benchmark cases are around 2 times slower than the baseline, and cases with intensive suspension
-chaining are 4--4.5 times slower without an additional V8 flag, or around 1.5 times slower with it.
-The performance regression is likely related to the current state of the V8 Stack-switching
-implementation, which is still under active development.
-
+The Stack-switching implementation reduces binary size by approximately 10.8\% in production builds
+and 2.3\% in development builds. Performance benchmarks on a production VM (V8) show a regression: realistic cases
+are around 2 times slower than the baseline, and cases with intensive suspension chaining are
+4--4.5 times slower without a special V8 flag, or around 1.5 times slower with it. The Stack-switching proposal is still
+under active development, and the performance may improve as both the Kotlin Coroutines and V8 implementations mature.
