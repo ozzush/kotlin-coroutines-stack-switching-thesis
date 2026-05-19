@@ -89,14 +89,12 @@ fun test() {
 }
 \end{lstlisting}
 
-In this case, even though the continuation is resumed immediately inside the lambda, the function still returns
-\COROUTINESUSPENDED to the caller. The actual result \texttt{"OK"} is delivered to the completion
-continuation via its \resumeWith method.
-
-Essentially, the problem is that in Kotlin the continuation object has to be available before we even know whether
+Essentially, in Kotlin the continuation object has to be available and fully functional before we even know whether
 a function suspends or not. On the contrary, in Wasm we only get the continuation object after the function actually
-suspends. This difference can be observed on Figure~\ref{fig:primitives-correspondence-r}, which highlights
-when continuation is required for the suspend lambda in Kotlin, and when it becomes available in Wasm.
+suspends. This difference can be observed on Figure~\ref{fig:primitives-correspondence-r}. The figure highlights the
+mismatch in when continuation is required in Kotlin and when it becomes available in Wasm.
+
+Next we will discuss two ways to solve this problem.
 
 \begin{figure}[H]
     \centering
@@ -117,8 +115,6 @@ when continuation is required for the suspend lambda in Kotlin, and when it beco
     \label{fig:primitives-correspondence-r}
 \end{figure}
 
-Next we will discuss two ways to solve this problem.
-
 \section{First implementation}
 \label{sec:base-implementation}
 
@@ -135,8 +131,7 @@ The first implementation idea is shown in Figure~\ref{fig:base-implementation}. 
 continuation from the suspend function.
 
 \WasmContinuation is a class that inherits from \CoroutineImpl and represents a coroutine that
-works on a Wasm continuation object. \CoroutineImpl is a partial implementation of a coroutine that implements
-some handy logic for processing resume values and exceptions. The one method in \CoroutineImpl that needs to
+works on a Wasm continuation object. The one method in \CoroutineImpl that needs to
 be implemented in \WasmContinuation is \texttt{CoroutineImpl::doResume()}. When we call
 \texttt{WasmContinuation::resumeWith}, it in turn calls \doResume, which contains the core logic for resuming
 a coroutine.

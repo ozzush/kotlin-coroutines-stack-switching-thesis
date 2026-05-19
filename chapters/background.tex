@@ -56,7 +56,7 @@ fun main() {
 
 Let's have a closer look at the relevant coroutine primitives from the standard library.
 
-\subsection*{\Continuation}
+\subsection*{\Continuation and \CoroutineImpl}
 
 \btexttt{Continuation<T>} represents a coroutine at some point in its execution. That point could be the beginning
 of the coroutine if it was not started yet, or some point at which the coroutine was interrupted by calling
@@ -69,6 +69,9 @@ two main components:
     \item \texttt{resumeWith(result: Result<T>)} - resumes the coroutine execution, passing a result value that becomes
     the return value of the \suspendCoroutineUninterceptedOrReturn call
 \end{itemize}
+
+This interface is implemented by class \CoroutineImpl. \CoroutineImpl is a partial implementation of a coroutine that
+implements some logic for processing resuming and handling exceptions.
 
 \subsection*{Suspend functions}
 \label{subsec:suspend-funs}
