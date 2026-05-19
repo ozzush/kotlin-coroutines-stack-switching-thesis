@@ -23,23 +23,22 @@
 % Left Column Nodes
 % -------------------------
     \node[note, fill=orange!10, text width=12em] (n1) at (0, -1.5) {\texttt{::suspendFun\\.createCoroutine-\\Unintercepted(completion)}};
-    \node[note, fill=orange!10, text width=7em] (n2) at (0, -3.5) {\texttt{CoroutineImpl::\\doResume()}};
-    \node[note] (n3) at (0, -6) {return\\\texttt{COROUTINE\_\\SUSPENDED}};
-    \node[note, text width=7em] (n4) at (0, -11.5) {\texttt{completion\\.resume(result)}};
-%    \node[note] (n5) at (0, -14) {return\\result};
+    \node[note, fill=orange!10, text width=7em] (n2) at (0, -4) {\texttt{CoroutineImpl::\\doResume()}};
+    \node[note] (n3) at (0, -6.5) {\texttt{return\\COROUTINE\_\\SUSPENDED}};
+    \node[note, text width=7em] (n4) at (0, -13) {\texttt{completion\\.resume(result)}};
 
 % -------------------------
 % Right Column Nodes
 % -------------------------
-    \node[note] (n6) at (7, -3.5) {*execute\\suspendFun\\body*};
+    \node[note] (n6) at (7, -4) {*execute\\suspendFun\\body*};
 
 % Container Box for suspendCoroutine
-    \node[container, text width=14em] (n7_box) at (7, -6) {};
+    \node[container, text width=14em] (n7_box) at (7, -6.5) {};
     \node[anchor=north, font=\small, align=center] (n7_label) at (n7_box.north) {\texttt{suspendCoroutineUnintercepted-}\\\texttt{OrReturn(suspendLambda)}};
-    \node[note, text width=10em] (n7_note) at (7, -6.5) {*call \texttt{suspend-}\\\texttt{Lambda(continuation)}*};
+    \node[note, text width=10em] (n7_note) at (7, -7) {*call \texttt{suspend-}\\\texttt{Lambda(continuation)}*};
 
-    \node[note] (n8) at (7, -9) {*continue\\execution*};
-    \node[note] (n9) at (7, -11.5) {return\\result};
+    \node[note] (n8) at (7, -10) {*continue\\execution*};
+    \node[note] (n9) at (7, -13) {return\\result};
 
 % -------------------------
 % Arrows & Routing
@@ -49,7 +48,7 @@
     \draw[arrow] (n6) -- (n7_box);
 
 % Left arrow from container to return SUSPENDED
-    \draw[arrow] (n7_box.west) -- node[above, align=center, font=\sffamily\scriptsize] {lambda returned \\ \texttt{COROUTINE\_SUSPENDED}} (n3.east);
+    \draw[arrow] (n7_box.west) -- node[above, align=center, font=\sffamily\tiny] {lambda returned\\\texttt{COROUTINE\_SUSPENDED}} (n3.east);
 
 % Down arrow from container to continue execution
     \draw[arrow] (n7_box.south) -- node[fill=white, align=center, font=\sffamily\scriptsize] {lambda returned value} (n8.north);
