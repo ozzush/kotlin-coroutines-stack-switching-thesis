@@ -67,9 +67,8 @@ The tests are located in the Kotlin repository at \btexttt{compiler/testData/cod
 Both the initial and the optimized implementations pass 517 out of 523 coroutine tests. The 6 failing tests are
 caused by a bug in the implementation: in certain cases, the generated Wasm code omits explicit casts to
 \btexttt{Any?}. In Kotlin, all types are subtypes of \btexttt{Any?}, so no cast is needed; in Wasm, however,
-such casts must be emitted explicitly. Adding the missing casts fixes the failures. These tests do not exercise
-the coroutine suspension or resumption paths that are relevant to the size and performance analysis, so the
-failures do not affect the conclusions of the evaluation.
+such casts must be emitted explicitly. Adding the missing casts will fix the failures. Fixing these tests would not
+require any changes to the core implementation, so the failures do not affect the evaluation.
 
 \section{Size benchmark}
 \label{sec:size-bench}
