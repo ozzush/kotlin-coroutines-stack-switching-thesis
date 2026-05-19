@@ -12,8 +12,8 @@ a noticeable regression. The benchmark cases most representative of real-world c
 baseline in V8. Cases with intensive suspension chaining regress by a factor of 4--4.5 without extra V8 flags,
 and around 1.5 with the \btexttt{--experimental-wasm-growable-stacks} flag.
 
-Some of the observed performance gap may close as both the V8 Stack-switching implementation and the Kotlin compiler
-support for it are developed further.
+Some of the observed performance regressions may improve or even completely disappear as both the V8 Stack-switching
+implementation and the Kotlin compiler support for it are developed further.
 
 \section*{Current state}
 
@@ -28,7 +28,7 @@ with the analysis of the size benchmark presented in this thesis. Low-level perf
 implementation also show a noticeable regression in performance, comparable to the previously presented performance
 benchmark results. There are also higher-level Compose Multiplatform benchmarks available: those benchmarks show
 performance results comparable to the baseline, being slower on some test cases and
-faster on others. The results were presented at a meeting of the Wasm Community
+faster on others. These results were presented at a meeting of the Wasm Community
 Group~\cite{wasm-stack-meeting-2026}.
 
 JetBrains is actively communicating with the V8 team regarding
