@@ -383,14 +383,14 @@ all three implementations.
 The Reference Interpreter~\cite{wasm-stack-switching-repo} is a reference interpreter with
 a proof-of-concept implementation of Stack-switching. It is not designed to be fast, and performance benchmarks
 on it are of limited interest as it is not used as a production VM. However, it is the VM that was initially
-used for testing, and at that time no production VMs were available.
+used for testing, and at that time no production VMs were available to run benchmarks.
 The results are included here for completeness.
 
 The following revisions were used:
 \begin{itemize}
-    \item \textbf{Baseline}: commit \texttt{f5757858}
-    \item \textbf{Stack-switching}: commit \texttt{5c0d0b1c}
-    \item \textbf{Optimized SS}: commit \texttt{81cac385}
+    \item \textbf{Baseline}: commit \texttt{0dbc8c49}
+    \item \textbf{Stack-switching}: commit \texttt{01ae026e}
+    \item \textbf{Optimized SS}: commit \texttt{c6c7bc2e}
 \end{itemize}
 
 \subsubsection*{Raw results}
@@ -399,36 +399,36 @@ Tables~\ref{tab:benchmark-ref-dev} and~\ref{tab:benchmark-ref-dce} show the raw 
 
 \begin{table}[H]
 \centering
-\caption{Benchmark results in dev mode (average time in microseconds, Reference Interpreter)}
+\caption{Benchmark results in dev mode (average time in milliseconds \(\pm\) 95\% CI, Reference Interpreter)}
 \label{tab:benchmark-ref-dev}
-\begin{tabular}{|l|r|r|r|r|}
+\begin{tabular}{|l|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} &\textbf{Optimized SS} \\
+\textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
 \hline
-chainSusp & 758,311 & 486,995 & 655,928 \\
-deepSusp & 887,526 & 565,484 & 741,057 \\
-multiSusp1 & 1,214,480 & 849,231 & 89,758 \\
-multiSusp2 & 94,166 & 128,453 & 149,726 \\
-sequence & 36,715 & 50,726 & 61,019 \\
-startCoroutine & 310,222 & 435,650 & 507,360 \\
+chainSusp & $576 \pm 2$ & $372 \pm 1$ & $657 \pm 2$ \\
+deepSusp & $690 \pm 3$ & $425 \pm 1$ & $743 \pm 2$ \\
+multiSusp1 & $972 \pm 5$ & $761 \pm 4$ & $91 \pm 1$ \\
+multiSusp2 & $74 \pm 0$ & $98 \pm 1$ & $146 \pm 1$ \\
+sequence & $29 \pm 0$ & $44 \pm 2$ & $66 \pm 0$ \\
+startCor & $255 \pm 7$ & $376 \pm 5$ & $519 \pm 1$ \\
 \hline
 \end{tabular}
 \end{table}
 
 \begin{table}[H]
 \centering
-\caption{Benchmark results in dce mode (average time in microseconds, Reference Interpreter)}
+\caption{Benchmark results in dce mode (average time in milliseconds \(\pm\) 95\% CI, Reference Interpreter)}
 \label{tab:benchmark-ref-dce}
-\begin{tabular}{|l|r|r|r|r|}
+\begin{tabular}{|l|r|r|r|}
 \hline
 \textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
 \hline
-chainSusp & 617,381 & 375,790 & 561,023 \\
-deepSusp & 777,220 & 409,710 & 617,720 \\
-multiSusp1 & 1,040,099 & 918,748 & 60,248 \\
-multiSusp2 & 61,413 & 75,988 & 91,712 \\
-sequence & 27,183 & 32,015 & 39,727 \\
-startCoroutine & 195,163 & 273,544 & 310,497 \\
+chainSusp & $519 \pm 4$ & $297 \pm 1$ & $554 \pm 3$ \\
+deepSusp & $601 \pm 2$ & $330 \pm 2$ & $629 \pm 3$ \\
+multiSusp1 & $926 \pm 4$ & $709 \pm 2$ & $61 \pm 0$ \\
+multiSusp2 & $48 \pm 1$ & $60 \pm 0$ & $93 \pm 0$ \\
+sequence & $18 \pm 0$ & $26 \pm 0$ & $40 \pm 0$ \\
+startCor & $152 \pm 0$ & $218 \pm 3$ & $310 \pm 2$ \\
 \hline
 \end{tabular}
 \end{table}
@@ -442,23 +442,23 @@ performance regression (slower execution), while negative values indicate improv
 \centering
 \caption{Percentage change compared to baseline (Reference Interpreter)}
 \label{tab:benchmark-ref-percentage}
-\begin{tabular}{|l|c|r|r|r|r|r|}
+\begin{tabular}{|l|c|r|r|r|}
 \hline
-\textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
+\textbf{Test} & \textbf{Mode} & \textbf{Baseline (ms)} & \textbf{Stack-switching} & \textbf{Optimized SS} \\
 \hline
-chainSusp & dev & 758,311 & -35.8\% & -13.5\% \\
-deepSusp & dev & 887,526 & -36.3\% & -16.5\% \\
-multiSusp1 & dev & 1,214,480 & -30.1\% & -92.6\% \\
-multiSusp2 & dev & 94,166 & +36.4\% & +59.0\% \\
-sequence & dev & 36,715 & +38.2\% & +66.2\% \\
-startCoroutine & dev & 310,222 & +40.4\% & +63.5\% \\
+chainSusp & dev & 576 & $-35.5\%$ & $+14.1\%$ \\
+deepSusp & dev & 690 & $-38.4\%$ & $+7.7\%$ \\
+multiSusp1 & dev & 972 & $-21.6\%$ & $-90.6\%$ \\
+multiSusp2 & dev & 74 & $+32.6\%$ & $+96.9\%$ \\
+sequence & dev & 29 & $+51.0\%$ & $+124.4\%$ \\
+startCor & dev & 255 & $+47.3\%$ & $+103.6\%$ \\
 \hline
-chainSusp & dce & 617,381 & -39.1\% & -9.1\% \\
-deepSusp & dce & 777,220 & -47.3\% & -20.5\% \\
-multiSusp1 & dce & 1,040,099 & -11.7\% & -94.2\% \\
-multiSusp2 & dce & 61,413 & +23.7\% & +49.3\% \\
-sequence & dce & 27,183 & +17.8\% & +46.2\% \\
-startCoroutine & dce & 195,163 & +40.2\% & +59.1\% \\
+chainSusp & dce & 519 & $-42.9\%$ & $+6.7\%$ \\
+deepSusp & dce & 601 & $-45.1\%$ & $+4.7\%$ \\
+multiSusp1 & dce & 926 & $-23.4\%$ & $-93.4\%$ \\
+multiSusp2 & dce & 48 & $+25.1\%$ & $+94.4\%$ \\
+sequence & dce & 18 & $+44.7\%$ & $+119.5\%$ \\
+startCor & dce & 152 & $+43.2\%$ & $+103.8\%$ \\
 \hline
 \end{tabular}
 \end{table}
@@ -473,42 +473,45 @@ all three implementations.
 \begin{tikzpicture}
 \begin{axis}[
     ybar,
-    bar width=7pt,
+    bar width=5pt,
     width=\textwidth,
     height=8cm,
-    ylabel={Average time (microseconds)},
+    ylabel={Average time (milliseconds)},
     xlabel={Benchmark test},
-    symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
+    symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCor},
     xtick=data,
     x tick label style={rotate=45, anchor=east},
-    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=4},
+    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=3},
     ymin=0,
     enlarge x limits=0.1,
 ]
-\addplot coordinates {
-    (chainSusp,758311)
-    (deepSusp,887526)
-    (multiSusp1,1214480)
-    (multiSusp2,94166)
-    (sequence,36715)
-    (startCoroutine,310222)
-};
-\addplot coordinates {
-    (chainSusp,486995)
-    (deepSusp,565484)
-    (multiSusp1,849231)
-    (multiSusp2,128453)
-    (sequence,50726)
-    (startCoroutine,435650)
-};
-\addplot coordinates {
-    (chainSusp,655928)
-    (deepSusp,741057)
-    (multiSusp1,89758)
-    (multiSusp2,149726)
-    (sequence,61019)
-    (startCoroutine,507360)
-};
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,576) +- (0,2)
+    (deepSusp,690) +- (0,3)
+    (multiSusp1,972) +- (0,5)
+    (multiSusp2,74) +- (0,0)
+    (sequence,29) +- (0,0)
+    (startCor,255) +- (0,7)
+  };
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,372) +- (0,1)
+    (deepSusp,425) +- (0,1)
+    (multiSusp1,761) +- (0,4)
+    (multiSusp2,98) +- (0,1)
+    (sequence,44) +- (0,2)
+    (startCor,376) +- (0,5)
+  };
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,657) +- (0,2)
+    (deepSusp,743) +- (0,2)
+    (multiSusp1,91) +- (0,1)
+    (multiSusp2,146) +- (0,1)
+    (sequence,66) +- (0,0)
+    (startCor,519) +- (0,1)
+  };
 \legend{Baseline, Stack-switching, Optimized SS}
 \end{axis}
 \end{tikzpicture}
@@ -521,42 +524,45 @@ all three implementations.
 \begin{tikzpicture}
 \begin{axis}[
     ybar,
-    bar width=7pt,
+    bar width=5pt,
     width=\textwidth,
     height=8cm,
-    ylabel={Average time (microseconds)},
+    ylabel={Average time (milliseconds)},
     xlabel={Benchmark test},
-    symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
+    symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCor},
     xtick=data,
     x tick label style={rotate=45, anchor=east},
-    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=4},
+    legend style={at={(0.5,-0.4)}, anchor=north, legend columns=3},
     ymin=0,
     enlarge x limits=0.1,
 ]
-\addplot coordinates {
-    (chainSusp,617381)
-    (deepSusp,777220)
-    (multiSusp1,1040099)
-    (multiSusp2,61413)
-    (sequence,27183)
-    (startCoroutine,195163)
-};
-\addplot coordinates {
-    (chainSusp,375790)
-    (deepSusp,409710)
-    (multiSusp1,918748)
-    (multiSusp2,75988)
-    (sequence,32015)
-    (startCoroutine,273544)
-};
-\addplot coordinates {
-    (chainSusp,561023)
-    (deepSusp,617720)
-    (multiSusp1,60248)
-    (multiSusp2,91712)
-    (sequence,39727)
-    (startCoroutine,310497)
-};
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,519) +- (0,4)
+    (deepSusp,601) +- (0,2)
+    (multiSusp1,926) +- (0,4)
+    (multiSusp2,48) +- (0,1)
+    (sequence,18) +- (0,0)
+    (startCor,152) +- (0,0)
+  };
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,297) +- (0,1)
+    (deepSusp,330) +- (0,2)
+    (multiSusp1,709) +- (0,2)
+    (multiSusp2,60) +- (0,0)
+    (sequence,26) +- (0,0)
+    (startCor,218) +- (0,3)
+  };
+\addplot+[error bars/.cd,y dir=both,y explicit]
+  coordinates {
+    (chainSusp,554) +- (0,3)
+    (deepSusp,629) +- (0,3)
+    (multiSusp1,61) +- (0,0)
+    (multiSusp2,93) +- (0,0)
+    (sequence,40) +- (0,0)
+    (startCor,310) +- (0,2)
+  };
 \legend{Baseline, Stack-switching, Optimized SS}
 \end{axis}
 \end{tikzpicture}
