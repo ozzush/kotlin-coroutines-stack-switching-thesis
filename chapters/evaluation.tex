@@ -161,6 +161,8 @@ Four code versions were used for comparison:
     \item \textbf{Opt + param} (commit \texttt{2f6a6ebb}): Optimized SS with \btexttt{--experimental-wasm-growable-stacks} flag passed to V8
 \end{itemize}
 
+These commits refer to the Kotlin source repository~\cite{kotlin-repo}.
+
 The benchmarks were executed in two compilation modes:
 
 \begin{itemize}
@@ -177,6 +179,7 @@ $Q_3$ is the third quartile and $IQR$ is the interquartile range) was excluded, 
 typically caused by garbage collection pauses rather than the code under test. The bar charts in this
 chapter display the average value across the remaining iterations, with error bars showing the 95\% confidence
 interval computed from the filtered sample using the $t$-distribution.
+The full benchmark data is available in the thesis repository at \url{https://github.com/ozzush/kotlin-coroutines-stack-switching-thesis}.
 
 \subsection{V8}
 
