@@ -154,10 +154,10 @@ The following cases are measured:
 Four code versions were used for comparison:
 
 \begin{itemize}
-    \item \textbf{Baseline} (commit \texttt{0da05969}): The original implementation without Stack-switching
-    \item \textbf{Stack-switching} (commit \texttt{1ad2ba84}): Initial Stack-switching implementation
-    \item \textbf{Optimized SS} (commit \texttt{279301e1}): Stack-switching with immediate resume optimization
-    \item \textbf{Opt + param} (commit \texttt{1142df47}): Optimized SS with \btexttt{--experimental-wasm-growable-stacks} flag passed to V8
+    \item \textbf{Baseline} (commit \texttt{329a3015}): The original implementation without Stack-switching
+    \item \textbf{Stack-switching} (commit \texttt{9076a044}): Initial Stack-switching implementation
+    \item \textbf{Optimized SS} (commit \texttt{31fb669a}): Stack-switching with immediate resume optimization
+    \item \textbf{Opt + param} (commit \texttt{129bb54f}): Optimized SS with \btexttt{--experimental-wasm-growable-stacks} flag passed to V8
 \end{itemize}
 
 The benchmarks were executed in two compilation modes:
@@ -167,8 +167,11 @@ The benchmarks were executed in two compilation modes:
     \item \textbf{dce mode}: Production build with dead code elimination
 \end{itemize}
 
-Each benchmark was run for 30 iterations after 20 warmup iterations. The figures in this chapter
-will display the average value across 30 iterations.
+Each benchmark was run for 30 iterations after 100 warmup iterations. Some iterations were removed
+as outliers before computing the average: any measurement exceeding $Q_3 + 1.5 \times IQR$ (where
+$Q_3$ is the third quartile and $IQR$ is the interquartile range) was excluded, as such spikes are
+typically caused by garbage collection pauses rather than the code under test. The figures in this
+chapter display the average value across the remaining iterations.
 
 \subsection{V8}
 
@@ -181,36 +184,36 @@ Tables~\ref{tab:benchmark-dev} and~\ref{tab:benchmark-dce} show the raw benchmar
 
 \begin{table}[H]
 \centering
-\caption{Benchmark results in dev mode (average time in microseconds, V8 runtime)}
+\caption{Benchmark results in dev mode (average time in nanoseconds, V8 runtime)}
 \label{tab:benchmark-dev}
 \begin{tabular}{|l|r|r|r|r|}
 \hline
 \textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} & \textbf{Opt+param} \\
 \hline
-chainSusp & 20,900 & 115,500 & 93,566 & 36,033 \\
-deepSusp & 29,100 & 109,466 & 112,200 & 43,900 \\
-multiSusp1 & 10,600 & 17,466 & 10,466 & 10,133 \\
-multiSusp2 & 9,266 & 17,666 & 18,900 & 22,133 \\
-sequence & 6,900 & 36,066 & 14,200 & 22,433 \\
-startCor & 24,000 & 113,333 & 68,300 & 104,633 \\
+chainSusp & 18,269 & 381,167 & 91,519 & 32,321 \\
+deepSusp & 22,962 & 93,414 & 96,385 & 38,000 \\
+multiSusp1 & 4,037 & 11,929 & 7,400 & 7,577 \\
+multiSusp2 & 7,786 & 10,042 & 16,538 & 17,037 \\
+sequence & 2,571 & 9,385 & 10,160 & 10,074 \\
+startCor & 22,960 & 23,778 & 27,240 & 28,966 \\
 \hline
 \end{tabular}
 \end{table}
 
 \begin{table}[H]
 \centering
-\caption{Benchmark results in dce mode (average time in microseconds, V8 runtime)}
+\caption{Benchmark results in dce mode (average time in nanoseconds, V8 runtime)}
 \label{tab:benchmark-dce}
 \begin{tabular}{|l|r|r|r|r|}
 \hline
 \textbf{Test} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} & \textbf{Opt+param} \\
 \hline
-chainSusp & 20,600 & 100,166 & 90,766 & 33,966 \\
-deepSusp & 26,766 & 114,633 & 107,033 & 41,233 \\
-multiSusp1 & 9,866 & 16,500 & 11,100 & 10,000 \\
-multiSusp2 & 9,400 & 16,266 & 19,466 & 19,933 \\
-sequence & 5,266 & 13,266 & 12,266 & 12,800 \\
-startCor & 26,000 & 58,200 & 68,200 & 72,166 \\
+chainSusp & 18,571 & 90,000 & 96,000 & 32,357 \\
+deepSusp & 23,125 & 86,786 & 99,444 & 38,593 \\
+multiSusp1 & 5,276 & 8,880 & 6,960 & 7,240 \\
+multiSusp2 & 6,714 & 10,240 & 16,120 & 17,077 \\
+sequence & 2,607 & 9,103 & 9,630 & 10,107 \\
+startCor & 11,143 & 23,926 & 28,640 & 28,320 \\
 \hline
 \end{tabular}
 \end{table}
@@ -228,19 +231,19 @@ performance regression (slower execution), while negative values indicate improv
 \hline
 \textbf{Test} & \textbf{Mode} & \textbf{Baseline} & \textbf{Stack-switching} & \textbf{Optimized SS} & \textbf{Opt+param} \\
 \hline
-chainSusp & dev & 20,900 & +452.6\% & +347.7\% & +72.4\% \\
-deepSusp & dev & 29,100 & +276.2\% & +285.6\% & +50.9\% \\
-multiSusp1 & dev & 10,600 & +64.8\% & -1.3\% & -4.4\% \\
-multiSusp2 & dev & 9,266 & +90.7\% & +104.0\% & +138.9\% \\
-sequence & dev & 6,900 & +422.7\% & +105.8\% & +225.1\% \\
-startCor & dev & 24,000 & +372.2\% & +184.6\% & +335.9\% \\
+chainSusp & dev & 18,269 & +1986.4\% & +401.0\% & +76.9\% \\
+deepSusp & dev & 22,962 & +306.8\% & +319.8\% & +65.5\% \\
+multiSusp1 & dev & 4,037 & +195.5\% & +83.3\% & +87.7\% \\
+multiSusp2 & dev & 7,786 & +29.0\% & +112.4\% & +118.8\% \\
+sequence & dev & 2,571 & +265.0\% & +295.2\% & +291.8\% \\
+startCor & dev & 22,960 & +3.6\% & +18.6\% & +26.2\% \\
 \hline
-chainSusp & dce & 20,600 & +386.2\% & +340.6\% & +64.9\% \\
-deepSusp & dce & 26,766 & +328.3\% & +299.8\% & +54.0\% \\
-multiSusp1 & dce & 9,866 & +67.2\% & +12.5\% & +1.4\% \\
-multiSusp2 & dce & 9,400 & +73.0\% & +107.1\% & +112.1\% \\
-sequence & dce & 5,266 & +151.9\% & +133.0\% & +143.1\% \\
-startCor & dce & 26,000 & +123.8\% & +162.3\% & +177.6\% \\
+chainSusp & dce & 18,571 & +384.6\% & +416.9\% & +74.2\% \\
+deepSusp & dce & 23,125 & +275.3\% & +330.0\% & +66.9\% \\
+multiSusp1 & dce & 5,276 & +68.3\% & +31.9\% & +37.2\% \\
+multiSusp2 & dce & 6,714 & +52.5\% & +140.1\% & +154.3\% \\
+sequence & dce & 2,607 & +249.2\% & +269.4\% & +287.7\% \\
+startCor & dce & 11,143 & +114.7\% & +157.0\% & +154.2\% \\
 \hline
 \end{tabular}
 \end{table}
@@ -258,9 +261,9 @@ all three implementations.
     bar width=7pt,
     width=\textwidth,
     height=8cm,
-    ylabel={Average time (microseconds)},
+    ylabel={Average time (nanoseconds)},
     xlabel={Benchmark test},
-    symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
+    symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCor},
     xtick=data,
     x tick label style={rotate=45, anchor=east},
     legend style={at={(0.5,-0.4)}, anchor=north, legend columns=4},
@@ -268,36 +271,36 @@ all three implementations.
     enlarge x limits=0.1,
 ]
 \addplot coordinates {
-    (chainSusp,20900)
-    (deepSusp,29100)
-    (multiSusp1,10600)
-    (multiSusp2,9266)
-    (sequence,6900)
-    (startCoroutine,24000)
+    (chainSusp,18269)
+    (deepSusp,22962)
+    (multiSusp1,4037)
+    (multiSusp2,7786)
+    (sequence,2571)
+    (startCor,22960)
 };
 \addplot coordinates {
-    (chainSusp,115500)
-    (deepSusp,109466)
-    (multiSusp1,17466)
-    (multiSusp2,17666)
-    (sequence,36066)
-    (startCoroutine,113333)
+    (chainSusp,381167)
+    (deepSusp,93414)
+    (multiSusp1,11929)
+    (multiSusp2,10042)
+    (sequence,9385)
+    (startCor,23778)
 };
 \addplot coordinates {
-    (chainSusp,93566)
-    (deepSusp,112200)
-    (multiSusp1,10466)
-    (multiSusp2,18900)
-    (sequence,14200)
-    (startCoroutine,68300)
+    (chainSusp,91519)
+    (deepSusp,96385)
+    (multiSusp1,7400)
+    (multiSusp2,16538)
+    (sequence,10160)
+    (startCor,27240)
 };
 \addplot coordinates {
-    (chainSusp,36033)
-    (deepSusp,43900)
-    (multiSusp1,10133)
-    (multiSusp2,22133)
-    (sequence,22433)
-    (startCoroutine,104633)
+    (chainSusp,32321)
+    (deepSusp,38000)
+    (multiSusp1,7577)
+    (multiSusp2,17037)
+    (sequence,10074)
+    (startCor,28966)
 };
 \legend{Baseline, Stack-switching, Optimized SS, Opt + param}
 \end{axis}
@@ -314,9 +317,9 @@ all three implementations.
     bar width=7pt,
     width=\textwidth,
     height=8cm,
-    ylabel={Average time (microseconds)},
+    ylabel={Average time (nanoseconds)},
     xlabel={Benchmark test},
-    symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCoroutine},
+    symbolic x coords={chainSusp,deepSusp,multiSusp1,multiSusp2,sequence,startCor},
     xtick=data,
     x tick label style={rotate=45, anchor=east},
     legend style={at={(0.5,-0.4)}, anchor=north, legend columns=4},
@@ -324,36 +327,36 @@ all three implementations.
     enlarge x limits=0.1,
 ]
 \addplot coordinates {
-    (chainSusp,20600)
-    (deepSusp,26766)
-    (multiSusp1,9866)
-    (multiSusp2,9400)
-    (sequence,5266)
-    (startCoroutine,26000)
+    (chainSusp,18571)
+    (deepSusp,23125)
+    (multiSusp1,5276)
+    (multiSusp2,6714)
+    (sequence,2607)
+    (startCor,11143)
 };
 \addplot coordinates {
-    (chainSusp,100166)
-    (deepSusp,114633)
-    (multiSusp1,16500)
-    (multiSusp2,16266)
-    (sequence,13266)
-    (startCoroutine,58200)
+    (chainSusp,90000)
+    (deepSusp,86786)
+    (multiSusp1,8880)
+    (multiSusp2,10240)
+    (sequence,9103)
+    (startCor,23926)
 };
 \addplot coordinates {
-    (chainSusp,90766)
-    (deepSusp,107033)
-    (multiSusp1,11100)
-    (multiSusp2,19466)
-    (sequence,12266)
-    (startCoroutine,68200)
+    (chainSusp,96000)
+    (deepSusp,99444)
+    (multiSusp1,6960)
+    (multiSusp2,16120)
+    (sequence,9630)
+    (startCor,28640)
 };
 \addplot coordinates {
-    (chainSusp,33966)
-    (deepSusp,41233)
-    (multiSusp1,10000)
-    (multiSusp2,19933)
-    (sequence,12800)
-    (startCoroutine,72166)
+    (chainSusp,32357)
+    (deepSusp,38593)
+    (multiSusp1,7240)
+    (multiSusp2,17077)
+    (sequence,10107)
+    (startCor,28320)
 };
 \legend{Baseline, Stack-switching, Optimized SS, Opt + param}
 \end{axis}
