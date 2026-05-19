@@ -35,7 +35,7 @@
 % Container Box for suspendCoroutine
     \node[container, text width=14em] (n7_box) at (7, -6.5) {};
     \node[anchor=north, font=\small, align=center] (n7_label) at (n7_box.north) {\texttt{suspendCoroutineUnintercepted-}\\\texttt{OrReturn(suspendLambda)}};
-    \node[note, text width=10em] (n7_note) at (7, -7) {call \texttt{suspend-}\\\texttt{Lambda(continuation)}};
+    \node[note, text width=10em] (n7_note) at (7, -7) {call \texttt{suspend-}\\\texttt{Lambda(}\textcolor{red}{\texttt{continuation}}\texttt{)}};
 
     \node[note] (n8) at (7, -10) {*execution continues*};
     \node[note] (n9) at (7, -13) {return result};

@@ -94,9 +94,30 @@ In this case, even though the continuation is resumed immediately inside the lam
 continuation via its \resumeWith method.
 
 Essentially, the problem is that in Kotlin the continuation object has to be available before we even know whether
-a function suspends or not. On the contrary, in Wasm we only get the continuation object for the suspended function
-after the function actually suspends. Next we will discuss two ways
-to solve this problem.
+a function suspends or not. On the contrary, in Wasm we only get the continuation object after the function actually
+suspends. This difference can be observed on Figure~\ref{fig:primitives-correspondence-r}, which highlights
+when continuation is required for the suspend lambda in Kotlin, and when it becomes available in Wasm.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \resizebox{\textwidth}{!}{\input{diagrams/coroutine-primitives-r}}
+        \caption{Kotlin coroutine primitives}
+        \label{subfig:kotlin-primitives-r}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \resizebox{\textwidth}{!}{\input{diagrams/stack-switching-primitives-r}}
+        \caption{Wasm Stack-switching primitives}
+        \label{subfig:wasm-primitives-r}
+    \end{subfigure}
+    \caption{Continuation availability problem between Kotlin and Wasm}
+    \label{fig:primitives-correspondence-r}
+\end{figure}
+
+Next we will discuss two ways to solve this problem.
 
 \section{First implementation}
 \label{sec:base-implementation}
