@@ -627,8 +627,8 @@ Several factors limit the generalizability of the evaluation results.
     \item \textbf{Single VM.} Production benchmarks were only run on V8. Other production WebAssembly engines
     could not be tested due to incomplete or incompatible Stack-switching support.
     \item \textbf{Correctness test failures.} Six out of 523 coroutine tests fail due to an implementation bug
-    (missing \btexttt{Any?} casts). While this bug does not affect the benchmarks, it indicates that the
-    implementation is not fully complete.
+    (missing \btexttt{Any?} casts). While this bug does not affect the core implementation, it indicates that the
+    compiler needs some adjustments before the new implementation can be merged to master.
 \end{itemize}
 
 \section{Note on other VMs}
@@ -642,9 +642,9 @@ the Stack-switching proposal, but were not tested due to various issues.
     Stack-switching. Unfortunately, it doesn't support another Wasm feature that is necessary for Kotlin/Wasm as a
     whole: Garbage collection.
     \item \textbf{SpiderMonkey (Mozilla Firefox)}: Stack-switching is only partially implemented. The implemented
-    feature subset is not enough to run the Kotlin Coroutines implementation. While adapting the implementation to run
+    feature subset is not enough to run the Kotlin Coroutines implementation~~\cite{spidermonkey-stack-switching,spidermonkey-stack-switching-diff}. While adapting the implementation to run
     only on the supported primitives is technically possible, it is not straightforward and the result would be substantially
-    different from the initial implementation~\cite{spidermonkey-stack-switching}.
+    different from the initial implementation.
     \item \textbf{Wasmtime}: Stack-switching implementation in Wasmtime has a bug which prevents Kotlin Coroutines from running properly~\cite{wasmtime-stack-switching-bug}.
 \end{itemize}
 
