@@ -584,7 +584,7 @@ immediate resume pattern are comparable to the baseline, but they are unlikely t
 
 \section{Note on other VMs}
 
-One might ask why there are no benchmarks for other VMs. The reason is that other VMs lack some features that are
+One might ask why there are no benchmarks for other production VMs. The reason is that other VMs lack some features that are
 necessary for the Kotlin Coroutines implementation to function. Let's go through
 a list of VMs that weren't tested.
 
@@ -599,3 +599,5 @@ a list of VMs that weren't tested.
     \item \textbf{Wasmtime}: Stack-switching implementation in Wasmtime has a bug which prevents Kotlin Coroutines from running properly. (TODO: reference https://github.com/bytecodealliance/wasmtime/issues/12941)
 \end{itemize}
 
+One more VM that could technically be tested is Wizard (TODO: ref). It has support for Stack-switching, but like
+Reference Interpreter, it is not a production VM, so the benchmark results would be of limited interest.
